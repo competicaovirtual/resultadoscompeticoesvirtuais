@@ -6,6 +6,8 @@
     <title>Competições Virtuais Brasileiras</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Biblioteca SheetJS para leitura de arquivos Excel (XLS/XLSX) e CSV -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -100,10 +102,10 @@
                         </div>
                     </div>
 
-                    <!-- Bloco da Logo Oficial -->
+                    <!-- Bloco da Logo Oficial atualizado para .png -->
                     <div class="md:col-span-5 flex justify-center">
                         <div class="relative w-full max-w-xs h-72 rounded-2xl bg-sport-card/80 backdrop-blur-md border border-sport-border flex flex-col items-center justify-center p-6 shadow-2xl overflow-hidden group">
-                            <img src="jacajebsciclismo.jpg" alt="Logo Oficial" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.style.display='none'; document.getElementById('logo-off-fallback').style.display='flex';">
+                            <img src="jacajebsciclismo.png" alt="Logo Oficial" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.style.display='none'; document.getElementById('logo-off-fallback').style.display='flex';">
                             
                             <div id="logo-off-fallback" style="display:none;" class="flex-col items-center justify-center text-center space-y-3">
                                 <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-sport-gold to-amber-600 flex items-center justify-center shadow-lg text-slate-950 text-3xl font-black">
@@ -228,7 +230,22 @@
                     </div>
                 </div>
 
-                <!-- Formulário de Lançamento Manual de Tempos -->
+                <!-- NOVA OPÇÃO: Upload de Arquivo Excel (XLS/XLSX) ou CSV -->
+                <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-4">
+                    <h4 class="text-xl font-black text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-file-excel text-sport-green"></i>
+                        <span>Upload de Informações (Excel / CSV)</span>
+                    </h4>
+                    <p class="text-xs text-slate-400">O arquivo deve possuir cabeçalhos (títulos das células) correspondentes, como: Atleta (ou Nome), Subcategoria, Bateria e Tempo.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+                        <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-sport-blue file:text-white hover:file:bg-blue-600 cursor-pointer">
+                        <button onclick="processExcelUpload()" class="w-full sm:w-auto px-8 py-3 bg-sport-green hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
+                            Processar e Importar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Formulário de Lançamento Manual de Tempos (CPF Removido, Subcategoria Manual) -->
                 <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-6">
                     <h4 class="text-xl font-black text-white flex items-center space-x-2">
                         <i class="fa-solid fa-stopwatch text-sport-cyan"></i>
@@ -236,25 +253,14 @@
                     </h4>
 
                     <form id="time-entry-form" onsubmit="submitTimeRecord(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">CPF (Chave Única)</label>
-                            <input type="text" id="admin-cpf" required placeholder="000.000.000-00" oninput="formatCPFInput(this)" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sport-cyan">
-                            <span class="text-xs text-slate-500 mt-1 block">Preenche automaticamente caso o CPF já exista.</span>
-                        </div>
-
-                        <div>
+                        <div class="md:col-span-2">
                             <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Nome Completo</label>
                             <input type="text" id="admin-atleta" required placeholder="NOME DO PARTICIPANTE" oninput="this.value = this.value.toUpperCase()" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Subcategoria / Perfil</label>
-                            <select id="admin-subcategoria" required class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sport-cyan">
-                                <option value="Atleta">Atleta</option>
-                                <option value="Arbitragem">Arbitragem</option>
-                                <option value="Comitê Organizador">Comitê Organizador</option>
-                                <option value="Público Geral">Público Geral</option>
-                            </select>
+                            <input type="text" id="admin-subcategoria" required placeholder="DIGITE A SUBCATEGORIA" oninput="this.value = this.value.toUpperCase()" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
                         </div>
 
                         <div>
@@ -286,9 +292,8 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-sport-border/50 border-b border-sport-border text-xs font-bold text-slate-400 uppercase tracking-wider">
-                                    <th class="py-3 px-4">CPF</th>
                                     <th class="py-3 px-4">Atleta</th>
-                                    <th class="py-3 px-4">Perfil</th>
+                                    <th class="py-3 px-4">Subcategoria</th>
                                     <th class="py-3 px-4">Bateria</th>
                                     <th class="py-3 px-4">Tempo</th>
                                     <th class="py-3 px-4 text-right">Ação</th>
@@ -332,10 +337,7 @@
 
         let records = [];
         
-        // Modalidade Ativa do Evento (Salva em localStorage)
         let activeModality = localStorage.getItem('app_active_modality') || 'Remo (500m)';
-
-        // Sistema de Baterias Dinâmicas (Salvo em localStorage)
         let batteries = JSON.parse(localStorage.getItem('app_batteries')) || ['Bateria 1', 'Bateria 2', 'Bateria 3'];
 
         let isAdminLoggedIn = false;
@@ -349,7 +351,6 @@
         }
 
         function updateUIState() {
-            // Atualiza textos da modalidade ativa
             document.getElementById('hero-active-mod').innerText = activeModality;
             document.getElementById('ranking-active-mod-label').innerText = activeModality;
             if (document.getElementById('admin-active-mod-input')) {
@@ -397,7 +398,6 @@
             showModal('Sucesso', 'Modalidade ativa atualizada com sucesso!', 'success');
         }
 
-        // Gestão de Baterias Dinâmicas
         function addBattery() {
             const input = document.getElementById('new-battery-input');
             const batName = input.value.trim();
@@ -424,7 +424,6 @@
         }
 
         function renderBatteriesSelects() {
-            // Filtro do Ranking
             const filterSelect = document.getElementById('filter-bateria');
             if (filterSelect) {
                 const currentVal = filterSelect.value;
@@ -437,7 +436,6 @@
                 }
             }
 
-            // Select do Formulário Admin
             const adminSelect = document.getElementById('admin-bateria');
             if (adminSelect) {
                 const currentVal = adminSelect.value;
@@ -477,23 +475,6 @@
             }
         }
 
-        function formatCPFInput(input) {
-            let v = input.value.replace(/\D/g, '');
-            if (v.length > 11) v = v.slice(0, 11);
-            v = v.replace(/(\d{3})(\d)/, '$1.$2');
-            v = v.replace(/(\d{3})(\d)/, '$1.$2');
-            v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-            input.value = v;
-
-            if (v.length === 14) {
-                const existing = records.find(r => r.cpf === v);
-                if (existing) {
-                    document.getElementById('admin-atleta').value = existing.atleta;
-                    document.getElementById('admin-subcategoria').value = existing.subcategoria;
-                }
-            }
-        }
-
         function handleAdminLogin() {
             const pin = document.getElementById('admin-pin-input').value;
             const errorEl = document.getElementById('login-error');
@@ -515,26 +496,83 @@
             document.getElementById('admin-login-screen').classList.remove('hidden');
         }
 
+        // Função de upload e processamento de Excel (XLS/XLSX) ou CSV respeitando os títulos das células (cabeçalhos)
+        async function processExcelUpload() {
+            const fileInput = document.getElementById('excel-file-input');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showModal('Atenção', 'Selecione um arquivo Excel (.xlsx, .xls) ou CSV.', 'error');
+                return;
+            }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = async function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+                    if (jsonRows.length === 0) {
+                        showModal('Atenção', 'O arquivo enviado está vazio ou sem dados válidos.', 'error');
+                        return;
+                    }
+
+                    let countProcessed = 0;
+                    for (let row of jsonRows) {
+                        const keys = Object.keys(row);
+                        // Mapeia inteligentemente pelos títulos das colunas/células do arquivo
+                        let atletaKey = keys.find(k => /atleta|nome|participante/i.test(k)) || keys[0];
+                        let subcatKey = keys.find(k => /subcategoria|perfil|categoria/i.test(k)) || keys[1];
+                        let bateriaKey = keys.find(k => /bateria/i.test(k)) || keys[2];
+                        let tempoKey = keys.find(k => /tempo|resultado/i.test(k)) || keys[3];
+
+                        const atleta = String(row[atletaKey] || '').trim().toUpperCase();
+                        const subcategoria = String(row[subcatKey] || 'ATLETA').trim().toUpperCase();
+                        const bateria = String(row[bateriaKey] || batteries[0]).trim();
+                        const tempo = String(row[tempoKey] || '00:00:00').trim();
+
+                        if (atleta && tempo) {
+                            const modalidade = activeModality;
+                            const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
+
+                            if (existingRecord) {
+                                await _supabase.from('records')
+                                    .update({ tempo: tempo, bateria: bateria, subcategoria: subcategoria })
+                                    .eq('id', existingRecord.id);
+                            } else {
+                                await _supabase.from('records')
+                                    .insert([{ atleta, subcategoria, modalidade, bateria, tempo }]);
+                            }
+                            countProcessed++;
+                        }
+                    }
+
+                    fileInput.value = '';
+                    await fetchRecords();
+                    showModal('Sucesso', `${countProcessed} registros importados com sucesso!`, 'success');
+                } catch (err) {
+                    console.error(err);
+                    showModal('Erro', 'Não foi possível processar o arquivo. Verifique o formato.', 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
         async function submitTimeRecord(e) {
             e.preventDefault();
-            const cpf = document.getElementById('admin-cpf').value;
             const atleta = document.getElementById('admin-atleta').value.toUpperCase();
-            const subcategoria = document.getElementById('admin-subcategoria').value;
+            const subcategoria = document.getElementById('admin-subcategoria').value.toUpperCase();
             const bateria = document.getElementById('admin-bateria').value;
             const modalidade = activeModality;
             const tempo = document.getElementById('admin-tempo').value;
 
-            if (cpf.length !== 14) {
-                showModal('Atenção', 'Digite um CPF válido completo.', 'error');
-                return;
-            }
-
-            // Regra: Se o participante já possui registro nesta modalidade, atualiza o tempo (sobrepõe)
-            const existingRecord = records.find(r => r.cpf === cpf && r.modalidade === modalidade);
+            const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
 
             if (existingRecord) {
                 const { error } = await _supabase.from('records')
-                    .update({ tempo: tempo, bateria: bateria, atleta: atleta, subcategoria: subcategoria })
+                    .update({ tempo: tempo, bateria: bateria, subcategoria: subcategoria })
                     .eq('id', existingRecord.id);
 
                 if (!error) {
@@ -546,7 +584,7 @@
                 }
             } else {
                 const { error } = await _supabase.from('records')
-                    .insert([{ cpf, atleta, subcategoria, modalidade, bateria, tempo }]);
+                    .insert([{ atleta, subcategoria, modalidade, bateria, tempo }]);
                 
                 if (!error) {
                     document.getElementById('time-entry-form').reset();
@@ -573,15 +611,13 @@
             const activeRecords = records.filter(r => r.modalidade === activeModality);
 
             if (activeRecords.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-500">Nenhum registro para esta modalidade.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-500">Nenhum registro para esta modalidade.</td></tr>`;
                 return;
             }
 
             activeRecords.forEach(r => {
-                const hiddenCpf = r.cpf ? r.cpf.substring(0, 3) + '.***.***-' + r.cpf.substring(12, 14) : '---';
                 tbody.innerHTML += `
                     <tr class="hover:bg-sport-border/30 transition-colors">
-                        <td class="py-3 px-4 text-slate-400 font-mono text-xs">${hiddenCpf}</td>
                         <td class="py-3 px-4 font-bold text-white">${r.atleta}</td>
                         <td class="py-3 px-4 text-slate-300">${r.subcategoria}</td>
                         <td class="py-3 px-4 text-slate-300">${r.bateria}</td>
@@ -599,15 +635,12 @@
             const tbody = document.getElementById('leaderboard-tbody');
             if (!tbody) return;
 
-            // Filtra pela modalidade ativa atual
             let filtered = records.filter(r => r.modalidade === activeModality);
 
-            // Se não for geral, filtra também pela bateria
             if (bateriaFilter !== 'Geral') {
                 filtered = filtered.filter(r => r.bateria === bateriaFilter);
             }
 
-            // Ordena do menor tempo para o maior
             filtered.sort((a, b) => a.tempo.localeCompare(b.tempo));
 
             tbody.innerHTML = '';
@@ -616,7 +649,6 @@
                 return;
             }
 
-            // Descobre o tempo do líder (1º colocado) para calcular a diferença
             const leaderTimeSec = timeToSeconds(filtered[0].tempo);
 
             filtered.forEach((r, index) => {
@@ -647,7 +679,6 @@
             });
         }
 
-        // Funções auxiliares de conversão de tempo para cálculo de diferença
         function timeToSeconds(timeStr) {
             const parts = timeStr.split(':').map(Number);
             if (parts.length === 3) {
@@ -686,7 +717,6 @@
             document.getElementById('custom-modal').classList.add('hidden');
         }
 
-        // Inicialização e Sincronização em Tempo Real
         document.addEventListener('DOMContentLoaded', async () => {
             updateUIState();
             await fetchRecords();
