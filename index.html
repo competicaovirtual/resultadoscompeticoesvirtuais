@@ -128,10 +128,9 @@
                     <p class="text-sm text-slate-400">Modalidade Ativa: <span id="ranking-active-mod-label" class="text-sport-cyan font-bold">---</span></p>
                 </div>
                 
-                <!-- Filtros (Incluindo Geral MAS e Geral FEM) -->
+                <!-- Filtros (Apenas Geral MAS, Geral FEM e Baterias específicas) -->
                 <div class="flex flex-wrap gap-3">
                     <select id="filter-bateria" onchange="renderLeaderboard()" class="bg-sport-dark border border-sport-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-sport-cyan">
-                        <option value="Geral">Ranking Geral (Todas as Baterias)</option>
                         <option value="Geral_MAS">Ranking Geral - Masculino (MAS)</option>
                         <option value="Geral_FEM">Ranking Geral - Feminino (FEM)</option>
                     </select>
@@ -430,7 +429,6 @@
             if (filterSelect) {
                 const currentVal = filterSelect.value;
                 filterSelect.innerHTML = `
-                    <option value="Geral">Ranking Geral (Todas as Baterias)</option>
                     <option value="Geral_MAS">Ranking Geral - Masculino (MAS)</option>
                     <option value="Geral_FEM">Ranking Geral - Feminino (FEM)</option>
                 `;
@@ -646,7 +644,7 @@
                 filtered = filtered.filter(r => /mas|masculino/i.test(r.bateria) || /mas|masculino/i.test(r.subcategoria));
             } else if (bateriaFilter === 'Geral_FEM') {
                 filtered = filtered.filter(r => /fem|feminino/i.test(r.bateria) || /fem|feminino/i.test(r.subcategoria));
-            } else if (bateriaFilter !== 'Geral') {
+            } else {
                 filtered = filtered.filter(r => r.bateria === bateriaFilter);
             }
 
