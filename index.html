@@ -102,7 +102,7 @@
                         </div>
                     </div>
 
-                    <!-- Bloco da Logo Oficial atualizado para .png -->
+                    <!-- Bloco da Logo Oficial -->
                     <div class="md:col-span-5 flex justify-center">
                         <div class="relative w-full max-w-xs h-72 rounded-2xl bg-sport-card/80 backdrop-blur-md border border-sport-border flex flex-col items-center justify-center p-6 shadow-2xl overflow-hidden group">
                             <img src="jacajebsciclismo.png" alt="Logo Oficial" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.style.display='none'; document.getElementById('logo-off-fallback').style.display='flex';">
@@ -128,10 +128,12 @@
                     <p class="text-sm text-slate-400">Modalidade Ativa: <span id="ranking-active-mod-label" class="text-sport-cyan font-bold">---</span></p>
                 </div>
                 
-                <!-- Filtros -->
+                <!-- Filtros (Incluindo Geral MAS e Geral FEM) -->
                 <div class="flex flex-wrap gap-3">
                     <select id="filter-bateria" onchange="renderLeaderboard()" class="bg-sport-dark border border-sport-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-sport-cyan">
                         <option value="Geral">Ranking Geral (Todas as Baterias)</option>
+                        <option value="Geral_MAS">Ranking Geral - Masculino (MAS)</option>
+                        <option value="Geral_FEM">Ranking Geral - Feminino (FEM)</option>
                     </select>
                 </div>
             </div>
@@ -217,10 +219,10 @@
                 <div class="bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl space-y-4">
                     <h4 class="text-lg font-bold text-white flex items-center space-x-2">
                         <i class="fa-solid fa-layer-group text-sport-green"></i>
-                        <span>Gerenciamento de Baterias</span>
+                        <span>Gerenciamento de Baterias (Ex: Bateria 1 MAS, Bateria 1 FEM)</span>
                     </h4>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <input type="text" id="new-battery-input" placeholder="Nome da Bateria (Ex: Bateria Final, Bateria 4)" class="flex-grow bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sport-green">
+                        <input type="text" id="new-battery-input" placeholder="Nome da Bateria (Ex: Bateria 1 MAS, Bateria 1 FEM)" class="flex-grow bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sport-green">
                         <button onclick="addBattery()" class="px-6 py-3 bg-sport-green hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md">
                             Adicionar Bateria
                         </button>
@@ -230,13 +232,13 @@
                     </div>
                 </div>
 
-                <!-- NOVA OPÇÃO: Upload de Arquivo Excel (XLS/XLSX) ou CSV -->
+                <!-- Upload de Arquivo Excel (XLS/XLSX) ou CSV -->
                 <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-4">
                     <h4 class="text-xl font-black text-white flex items-center space-x-2">
                         <i class="fa-solid fa-file-excel text-sport-green"></i>
                         <span>Upload de Informações (Excel / CSV)</span>
                     </h4>
-                    <p class="text-xs text-slate-400">O arquivo deve possuir cabeçalhos (títulos das células) correspondentes, como: Atleta (ou Nome), Subcategoria, Bateria e Tempo.</p>
+                    <p class="text-xs text-slate-400">O arquivo deve possuir cabeçalhos correspondentes, como: Atleta (ou Nome), Subcategoria, Bateria (ex: Bateria MAS / Bateria FEM) e Tempo.</p>
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
                         <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-sport-blue file:text-white hover:file:bg-blue-600 cursor-pointer">
                         <button onclick="processExcelUpload()" class="w-full sm:w-auto px-8 py-3 bg-sport-green hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
@@ -245,7 +247,7 @@
                     </div>
                 </div>
 
-                <!-- Formulário de Lançamento Manual de Tempos (CPF Removido, Subcategoria Manual) -->
+                <!-- Formulário de Lançamento Manual de Tempos -->
                 <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-6">
                     <h4 class="text-xl font-black text-white flex items-center space-x-2">
                         <i class="fa-solid fa-stopwatch text-sport-cyan"></i>
@@ -338,7 +340,7 @@
         let records = [];
         
         let activeModality = localStorage.getItem('app_active_modality') || 'Remo (500m)';
-        let batteries = JSON.parse(localStorage.getItem('app_batteries')) || ['Bateria 1', 'Bateria 2', 'Bateria 3'];
+        let batteries = JSON.parse(localStorage.getItem('app_batteries')) || ['Bateria 1 MAS', 'Bateria 1 FEM', 'Bateria 2 MAS', 'Bateria 2 FEM'];
 
         let isAdminLoggedIn = false;
 
@@ -427,7 +429,11 @@
             const filterSelect = document.getElementById('filter-bateria');
             if (filterSelect) {
                 const currentVal = filterSelect.value;
-                filterSelect.innerHTML = `<option value="Geral">Ranking Geral (Todas as Baterias)</option>`;
+                filterSelect.innerHTML = `
+                    <option value="Geral">Ranking Geral (Todas as Baterias)</option>
+                    <option value="Geral_MAS">Ranking Geral - Masculino (MAS)</option>
+                    <option value="Geral_FEM">Ranking Geral - Feminino (FEM)</option>
+                `;
                 batteries.forEach(b => {
                     filterSelect.innerHTML += `<option value="${b}">${b}</option>`;
                 });
@@ -496,7 +502,6 @@
             document.getElementById('admin-login-screen').classList.remove('hidden');
         }
 
-        // Função de upload e processamento de Excel (XLS/XLSX) ou CSV respeitando os títulos das células (cabeçalhos)
         async function processExcelUpload() {
             const fileInput = document.getElementById('excel-file-input');
             if (!fileInput.files || fileInput.files.length === 0) {
@@ -522,7 +527,6 @@
                     let countProcessed = 0;
                     for (let row of jsonRows) {
                         const keys = Object.keys(row);
-                        // Mapeia inteligentemente pelos títulos das colunas/células do arquivo
                         let atletaKey = keys.find(k => /atleta|nome|participante/i.test(k)) || keys[0];
                         let subcatKey = keys.find(k => /subcategoria|perfil|categoria/i.test(k)) || keys[1];
                         let bateriaKey = keys.find(k => /bateria/i.test(k)) || keys[2];
@@ -637,7 +641,12 @@
 
             let filtered = records.filter(r => r.modalidade === activeModality);
 
-            if (bateriaFilter !== 'Geral') {
+            // Filtragem separada para Geral MAS, Geral FEM ou Bateria específica
+            if (bateriaFilter === 'Geral_MAS') {
+                filtered = filtered.filter(r => /mas|masculino/i.test(r.bateria) || /mas|masculino/i.test(r.subcategoria));
+            } else if (bateriaFilter === 'Geral_FEM') {
+                filtered = filtered.filter(r => /fem|feminino/i.test(r.bateria) || /fem|feminino/i.test(r.subcategoria));
+            } else if (bateriaFilter !== 'Geral') {
                 filtered = filtered.filter(r => r.bateria === bateriaFilter);
             }
 
@@ -645,7 +654,7 @@
 
             tbody.innerHTML = '';
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-500">Nenhum resultado registrado para esta modalidade.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-500">Nenhum resultado registrado para esta seleção.</td></tr>`;
                 return;
             }
 
