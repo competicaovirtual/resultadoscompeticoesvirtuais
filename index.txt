@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados Oficiais | Jogos da Juventude 2026</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cob: {
+                            dark: '#002B49',
+                            DEFAULT: '#004A80',
+                            blue: '#0066CC',
+                            cyan: '#0099FF',
+                            green: '#00A859',
+                            gold: '#FFB81C',
+                            surface: '#FFFFFF',
+                            light: '#F4F7FB'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-cob-light text-slate-800 min-h-screen flex flex-col font-sans selection:bg-cob-cyan selection:text-white">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center h-full py-2 space-x-3">
+                <img src="logojj.png" alt="Logo Jogos da Juventude" class="h-16 w-auto object-contain" onerror="this.onerror=null; this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+                <div id="logo-fallback" style="display:none;" class="h-14 w-14 rounded-xl bg-gradient-to-tr from-cob-blue to-cob-cyan items-center justify-center text-white font-black text-xl shadow-sm">JJ</div>
+            </div>
+            
+            <nav class="hidden md:flex items-center space-x-2">
+                <button onclick="switchTab('home')" id="nav-home" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-cob-dark text-white shadow-md">
+                    <i class="fa-solid fa-house mr-2"></i>Início
+                </button>
+                <button onclick="switchTab('rankings')" id="nav-rankings" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-cob-dark hover:bg-slate-100">
+                    <i class="fa-solid fa-trophy mr-2"></i>RANKING
+                </button>
+                <button onclick="switchTab('admin')" id="nav-admin" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-cob-dark hover:bg-slate-100">
+                    <i class="fa-solid fa-shield-halved mr-2"></i>Painel Técnico (Admin)
+                </button>
+            </nav>
+
+            <div class="md:hidden flex items-center">
+                <button onclick="toggleMobileMenu()" class="text-slate-700 hover:text-black p-2">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Menu Mobile -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-4 space-y-2 shadow-lg">
+            <button onclick="switchTab('home'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold bg-cob-dark text-white">Início</button>
+            <button onclick="switchTab('rankings'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">RANKING</button>
+            <button onclick="switchTab('admin'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">Painel Técnico (Admin)</button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- TAB: INÍCIO -->
+        <section id="tab-home" class="space-y-8 animate-fadeIn">
+            <div class="relative bg-gradient-to-br from-cob-dark via-[#00385e] to-cob-blue rounded-3xl border border-slate-200 p-8 md:p-12 overflow-hidden shadow-xl text-white">
+                <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-cob-cyan/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute top-0 left-1/4 w-72 h-72 bg-cob-green/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
+                    <div class="md:col-span-7 space-y-6">
+                        <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-cyan-200 text-xs font-bold tracking-wider uppercase">
+                            <span class="w-2 h-2 rounded-full bg-cob-gold animate-pulse"></span>
+                            <span id="badge-modalidade-atual">Modalidade Ativa: Carregando...</span>
+                        </div>
+                        <h2 class="text-4xl sm:text-5xl font-black tracking-tight leading-tight">
+                            SISTEMA DE RESULTADOS <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-emerald-300 to-amber-300">EM TEMPO REAL</span>
+                        </h2>
+                        <p class="text-slate-200 text-sm md:text-base leading-relaxed">
+                            Acompanhe os rankings atualizados bateria após bateria, segmentados por naipe e categoria oficial.
+                        </p>
+                        <div class="flex flex-wrap gap-4 pt-2">
+                            <button onclick="switchTab('rankings')" class="px-6 py-3.5 bg-white text-cob-dark hover:bg-slate-100 font-bold rounded-xl shadow-lg transition-all flex items-center space-x-2">
+                                <i class="fa-solid fa-trophy text-cob-blue"></i>
+                                <span>Ver Rankings Oficiais</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Bloco da Mascote -->
+                    <div class="md:col-span-5 flex justify-center">
+                        <div class="relative w-full max-w-xs h-72 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex flex-col items-center justify-center p-6 shadow-2xl overflow-hidden group">
+                            <img src="mascote.png" alt="Mascote Oficial" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)] group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.style.display='none'; document.getElementById('mascote-fallback').style.display='flex';">
+                            
+                            <div id="mascote-fallback" style="display:none;" class="flex-col items-center justify-center text-center space-y-3">
+                                <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-cob-gold to-amber-500 flex items-center justify-center shadow-lg text-slate-950 text-3xl font-black">
+                                    <i class="fa-solid fa-medal"></i>
+                                </div>
+                                <span class="text-sm font-bold text-white tracking-wide">Mascote Oficial 2026</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: RANKING -->
+        <section id="tab-rankings" class="space-y-6 hidden animate-fadeIn">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-md">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900">Ranking Oficial</h2>
+                    <p class="text-sm text-slate-500">Apuração em tempo real com diferença de tempo para o líder.</p>
+                </div>
+                
+                <!-- Filtros Avançados -->
+                <div class="flex flex-wrap gap-3">
+                    <select id="filter-naipe" onchange="renderLeaderboard()" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-cob-blue">
+                        <option value="Todos">Todos os Naipes</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Feminino">Feminino</option>
+                    </select>
+
+                    <select id="filter-categoria" onchange="renderLeaderboard()" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-cob-blue">
+                        <option value="Todas">Todas as Categorias</option>
+                    </select>
+
+                    <select id="filter-bateria" onchange="renderLeaderboard()" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-cob-blue">
+                        <option value="Geral">Todas as Baterias (Geral)</option>
+                        <option value="Bateria 1">Bateria 1</option>
+                        <option value="Bateria 2">Bateria 2</option>
+                        <option value="Bateria 3">Bateria 3</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tabela de Classificação -->
+            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                                <th class="py-4 px-6 text-center w-16">Pos</th>
+                                <th class="py-4 px-6">Nome Completo (CAIXA ALTA)</th>
+                                <th class="py-4 px-6">Naipe</th>
+                                <th class="py-4 px-6">Categoria</th>
+                                <th class="py-4 px-6">Bateria</th>
+                                <th class="py-4 px-6 text-right">Tempo Oficial</th>
+                                <th class="py-4 px-6 text-right">Diferença p/ Campeão</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-tbody" class="divide-y divide-slate-100 text-sm">
+                            <!-- Preenchido via Supabase -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: PAINEL TÉCNICO (ADMIN) -->
+        <section id="tab-admin" class="space-y-6 hidden animate-fadeIn">
+            <!-- Tela de Login PIN -->
+            <div id="admin-login-screen" class="max-w-md mx-auto bg-white border border-slate-200 p-8 rounded-3xl shadow-xl space-y-6">
+                <div class="text-center space-y-2">
+                    <div class="w-16 h-16 bg-blue-50 text-cob-blue rounded-2xl mx-auto flex items-center justify-center text-2xl border border-blue-100">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-900">Acesso Restrito</h3>
+                    <p class="text-sm text-slate-500">Insira a senha técnica para gerenciar os resultados.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Senha do Painel</label>
+                        <input type="password" id="admin-pin-input" placeholder="Digite a senha" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-cob-blue">
+                    </div>
+                    <button onclick="handleAdminLogin()" class="w-full py-3 bg-cob-dark hover:bg-cob-blue text-white font-bold rounded-xl shadow-md transition-all">
+                        Entrar no Painel
+                    </button>
+                    <p id="login-error" class="text-red-600 text-xs text-center hidden">Senha incorreta. Tente novamente.</p>
+                </div>
+            </div>
+
+            <!-- Conteúdo do Painel Admin (Após Login) -->
+            <div id="admin-panel-content" class="space-y-8 hidden">
+                <div class="flex items-center justify-between bg-white border border-slate-200 p-6 rounded-2xl shadow-md">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-cob-green flex items-center justify-center border border-emerald-100">
+                            <i class="fa-solid fa-user-gear"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900">Painel da Equipe Técnica</h3>
+                            <p class="text-xs text-slate-500">Gerenciamento de modalidade, upload Excel e inserção manual.</p>
+                        </div>
+                    </div>
+                    <button onclick="handleAdminLogout()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-all border border-slate-200">
+                        <i class="fa-solid fa-right-from-bracket mr-2"></i>Sair
+                    </button>
+                </div>
+
+                <!-- Configuração da Modalidade Única Ativa -->
+                <div class="bg-white border border-slate-200 p-6 rounded-3xl shadow-md space-y-4">
+                    <h4 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-sliders text-cob-blue"></i>
+                        <span>Configurar Modalidade Ativa do Evento</span>
+                    </h4>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <input type="text" id="config-modalidade-input" placeholder="Ex: REMO INDOOR 500M" class="flex-grow bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 uppercase font-bold focus:outline-none focus:border-cob-blue">
+                        <button onclick="updateActiveModalidade()" class="px-6 py-3 bg-cob-dark hover:bg-cob-blue text-white font-bold rounded-xl shadow-md transition-all">
+                            Atualizar Modalidade
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upload Automático via Excel -->
+                <div class="bg-white border border-slate-200 p-6 rounded-3xl shadow-md space-y-4">
+                    <h4 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-file-excel text-emerald-600"></i>
+                        <span>Upload Automático de Resultados (Excel / CSV)</span>
+                    </h4>
+                    <p class="text-xs text-slate-500">O arquivo deve conter as colunas: <strong>nome, naipe, categoria, bateria, tempo</strong>.</p>
+                    <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" onchange="handleExcelUpload(event)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                </div>
+
+                <!-- Formulário de Lançamento Manual de Tempos -->
+                <div class="bg-white border border-slate-200 p-8 rounded-3xl shadow-md space-y-6">
+                    <h4 class="text-xl font-black text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-stopwatch text-cob-blue"></i>
+                        <span>Inserção Manual de Resultado</span>
+                    </h4>
+
+                    <form id="time-entry-form" onsubmit="submitTimeRecord(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Nome Completo (Somente CAIXA ALTA)</label>
+                            <input type="text" id="admin-atleta" required placeholder="NOME DO ATLETA" oninput="this.value = this.value.toUpperCase()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 uppercase focus:outline-none focus:border-cob-blue">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Naipe</label>
+                            <select id="admin-naipe" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-cob-blue">
+                                <option value="Masculino">Masculino</option>
+                                <option value="Feminino">Feminino</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Categoria / Subdivisão</label>
+                            <input type="text" id="admin-categoria" required placeholder="Ex: SUB-18 / GERAL" oninput="this.value = this.value.toUpperCase()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 uppercase focus:outline-none focus:border-cob-blue">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Bateria</label>
+                            <select id="admin-bateria" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-cob-blue">
+                                <option value="Bateria 1">Bateria 1</option>
+                                <option value="Bateria 2">Bateria 2</option>
+                                <option value="Bateria 3">Bateria 3</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Tempo (HH:MM:SS)</label>
+                            <input type="text" id="admin-tempo" required placeholder="00:00:00" maxlength="8" oninput="formatTimeInput(this)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 font-mono text-lg focus:outline-none focus:border-cob-blue">
+                        </div>
+
+                        <div class="md:col-span-2 flex justify-end">
+                            <button type="submit" class="px-8 py-3.5 bg-cob-dark hover:bg-cob-blue text-white font-bold rounded-xl shadow-md transition-all flex items-center space-x-2">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                                <span>Salvar Resultado Oficial</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Lista de Registros Cadastrados -->
+                <div class="bg-white border border-slate-200 p-8 rounded-3xl shadow-md space-y-6">
+                    <h4 class="text-xl font-black text-slate-900">Registros Atuais na Modalidade</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                                    <th class="py-3 px-4">Atleta</th>
+                                    <th class="py-3 px-4">Naipe</th>
+                                    <th class="py-3 px-4">Categoria</th>
+                                    <th class="py-3 px-4">Bateria</th>
+                                    <th class="py-3 px-4">Tempo</th>
+                                    <th class="py-3 px-4 text-right">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-records-tbody" class="divide-y divide-slate-100 text-sm">
+                                <!-- Preenchido via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-8 mt-16 text-slate-600">
+        <div class="max-w-7xl mx-auto px-4 text-center text-sm space-y-2">
+            <p>Sistema de Resultados em Tempo Real | Cloudflare & Supabase</p>
+        </div>
+    </footer>
+
+    <!-- Modal Customizado -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 max-w-sm w-full p-6 rounded-3xl shadow-2xl text-center space-y-4">
+            <div id="modal-icon" class="w-14 h-14 rounded-full bg-emerald-50 text-cob-green flex items-center justify-center mx-auto text-2xl border border-emerald-100">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h4 id="modal-title" class="text-lg font-bold text-slate-900">Sucesso</h4>
+            <p id="modal-message" class="text-sm text-slate-600">Mensagem aqui</p>
+            <button onclick="closeModal()" class="w-full py-2.5 bg-cob-dark hover:bg-cob-blue text-white font-bold rounded-xl text-sm transition-all">Entendido</button>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        const SUPABASE_URL = 'https://vmdvunvvphkglnoeknjj.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_WB_Reg-TuFE8KD8QvwBHiw_1EOotbdq';
+        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let records = [];
+        let currentModalidade = localStorage.getItem('jj2026_modalidade_ativa') || 'REMO INDOOR (500M)';
+        let isAdminLoggedIn = false;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('badge-modalidade-atual').innerText = `Modalidade Ativa: ${currentModalidade}`;
+            document.getElementById('config-modalidade-input').value = currentModalidade;
+            await fetchRecords();
+
+            _supabase
+                .channel('public:records')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'records' }, payload => {
+                    fetchRecords();
+                })
+                .subscribe();
+        });
+
+        async function fetchRecords() {
+            const { data, error } = await _supabase.from('records').select('*');
+            if (!error && data) {
+                records = data;
+                updateCategoriaDropdowns();
+                renderAdminRecords();
+                renderLeaderboard();
+            }
+        }
+
+        function switchTab(tabId) {
+            ['home', 'rankings', 'admin'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${t}`);
+                if (navBtn) {
+                    navBtn.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-cob-dark hover:bg-slate-100";
+                }
+            });
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-cob-dark text-white shadow-md";
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (tabId === 'rankings') renderLeaderboard();
+            if (tabId === 'admin' && isAdminLoggedIn) renderAdminRecords();
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        function formatTimeInput(input) {
+            let v = input.value.replace(/\D/g, '');
+            if (v.length > 6) v = v.slice(0, 6);
+            if (v.length >= 5) {
+                input.value = v.slice(0,2) + ':' + v.slice(2,4) + ':' + v.slice(4,6);
+            } else if (v.length >= 3) {
+                input.value = v.slice(0,2) + ':' + v.slice(2,4);
+            } else {
+                input.value = v;
+            }
+        }
+
+        function handleAdminLogin() {
+            const pin = document.getElementById('admin-pin-input').value;
+            const errorEl = document.getElementById('login-error');
+            if (pin === 'JJ2026FOZ') {
+                isAdminLoggedIn = true;
+                errorEl.classList.add('hidden');
+                document.getElementById('admin-login-screen').classList.add('hidden');
+                document.getElementById('admin-panel-content').classList.remove('hidden');
+                renderAdminRecords();
+            } else {
+                errorEl.classList.remove('hidden');
+            }
+        }
+
+        function handleAdminLogout() {
+            isAdminLoggedIn = false;
+            document.getElementById('admin-pin-input').value = '';
+            document.getElementById('admin-panel-content').classList.add('hidden');
+            document.getElementById('admin-login-screen').classList.remove('hidden');
+        }
+
+        function updateActiveModalidade() {
+            const novaMod = document.getElementById('config-modalidade-input').value.trim().toUpperCase();
+            if (!novaMod) return;
+            currentModalidade = novaMod;
+            localStorage.setItem('jj2026_modalidade_ativa', currentModalidade);
+            document.getElementById('badge-modalidade-atual').innerText = `Modalidade Ativa: ${currentModalidade}`;
+            showModal('Sucesso', 'Modalidade ativa atualizada com sucesso!', 'success');
+            renderLeaderboard();
+        }
+
+        async function submitTimeRecord(e) {
+            e.preventDefault();
+            const atleta = document.getElementById('admin-atleta').value.toUpperCase();
+            const naipe = document.getElementById('admin-naipe').value;
+            const categoria = document.getElementById('admin-categoria').value.toUpperCase();
+            const bateria = document.getElementById('admin-bateria').value;
+            const tempo = document.getElementById('admin-tempo').value;
+            const modalidade = currentModalidade;
+
+            const existing = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
+
+            if (existing) {
+                const { error } = await _supabase.from('records')
+                    .update({ tempo, bateria, naipe, categoria })
+                    .eq('id', existing.id);
+                if (!error) {
+                    document.getElementById('time-entry-form').reset();
+                    await fetchRecords();
+                    showModal('Sucesso', 'Tempo do atleta atualizado com sucesso nesta modalidade!', 'success');
+                } else {
+                    showModal('Erro', 'Não foi possível atualizar.', 'error');
+                }
+            } else {
+                const { error } = await _supabase.from('records')
+                    .insert([{ atleta, naipe, categoria, modalidade, bateria, tempo }]);
+                if (!error) {
+                    document.getElementById('time-entry-form').reset();
+                    await fetchRecords();
+                    showModal('Sucesso', 'Resultado cadastrado com sucesso!', 'success');
+                } else {
+                    showModal('Erro', 'Não foi possível salvar no banco.', 'error');
+                }
+            }
+        }
+
+        async function deleteRecord(id) {
+            const { error } = await _supabase.from('records').delete().eq('id', id);
+            if (!error) await fetchRecords();
+        }
+
+        // Upload Excel / CSV
+        function handleExcelUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                const json = XLSX.utils.sheet_to_json(sheet);
+                
+                let count = 0;
+                for (let row of json) {
+                    const atleta = String(row.Atleta || row.nome || row.NOME || '').trim().toUpperCase();
+                    const naipe = String(row.Naipe || row.naipe || 'Masculino').trim();
+                    const categoria = String(row.Categoria || row.categoria || 'GERAL').trim().toUpperCase();
+                    const bateria = String(row.Bateria || row.bateria || 'Bateria 1').trim();
+                    const tempo = String(row.Tempo || row.tempo || '00:00:00').trim();
+                    const modalidade = currentModalidade;
+
+                    if (atleta && tempo) {
+                        const existing = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
+                        if (existing) {
+                            await _supabase.from('records').update({ naipe, categoria, bateria, tempo }).eq('id', existing.id);
+                        } else {
+                            await _supabase.from('records').insert([{ atleta, naipe, categoria, modalidade, bateria, tempo }]);
+                        }
+                        count++;
+                    }
+                }
+                await fetchRecords();
+                showModal('Sucesso', `${count} registros importados via Excel com sucesso!`, 'success');
+                e.target.value = '';
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function updateCategoriaDropdowns() {
+            const catSelect = document.getElementById('filter-categoria');
+            const currentVal = catSelect.value;
+            const categorias = [...new Set(records.filter(r => r.modalidade === currentModalidade).map(r => r.categoria))];
+            
+            catSelect.innerHTML = '<option value="Todas">Todas as Categorias</option>';
+            categorias.forEach(c => {
+                if (c) {
+                    catSelect.innerHTML += `<option value="${c}">${c}</option>`;
+                }
+            });
+            if (categorias.includes(currentVal)) catSelect.value = currentVal;
+        }
+
+        function timeToSeconds(timeStr) {
+            if (!timeStr) return 0;
+            const parts = timeStr.split(':').map(Number);
+            if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+            if (parts.length === 2) return parts[0] * 60 + parts[1];
+            return Number(timeStr) || 0;
+        }
+
+        function secondsToTime(totalSeconds) {
+            if (isNaN(totalSeconds) || totalSeconds < 0) return "00:00:00";
+            const hrs = Math.floor(totalSeconds / 3600);
+            const mins = Math.floor((totalSeconds % 3600) / 60);
+            const secs = totalSeconds % 60;
+            return [hrs, mins, secs].map(v => String(v).padStart(2, '0')).join(':');
+        }
+
+        function renderAdminRecords() {
+            const tbody = document.getElementById('admin-records-tbody');
+            tbody.innerHTML = '';
+            const filtered = records.filter(r => r.modalidade === currentModalidade);
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-400">Nenhum registro para esta modalidade.</td></tr>`;
+                return;
+            }
+            filtered.forEach(r => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-3 px-4 font-bold text-slate-900">${r.atleta}</td>
+                        <td class="py-3 px-4 text-slate-600">${r.naipe || 'Masculino'}</td>
+                        <td class="py-3 px-4 text-slate-600">${r.categoria}</td>
+                        <td class="py-3 px-4 text-slate-600">${r.bateria}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-emerald-600">${r.tempo}</td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="deleteRecord('${r.id}')" class="text-red-500 hover:text-red-700 p-2"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderLeaderboard() {
+            const naipeFilter = document.getElementById('filter-naipe').value;
+            const categoriaFilter = document.getElementById('filter-categoria').value;
+            const bateriaFilter = document.getElementById('filter-bateria').value;
+            const tbody = document.getElementById('leaderboard-tbody');
+
+            let filtered = records.filter(r => r.modalidade === currentModalidade);
+
+            if (naipeFilter !== 'Todos') {
+                filtered = filtered.filter(r => (r.naipe || 'Masculino') === naipeFilter);
+            }
+            if (categoriaFilter !== 'Todas') {
+                filtered = filtered.filter(r => r.categoria === categoriaFilter);
+            }
+            if (bateriaFilter !== 'Geral') {
+                filtered = filtered.filter(r => r.bateria === bateriaFilter);
+            }
+
+            // Ordenação do menor tempo para o maior
+            filtered.sort((a, b) => timeToSeconds(a.tempo) - timeToSeconds(b.tempo));
+
+            tbody.innerHTML = '';
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Nenhum resultado registrado para os filtros selecionados.</td></tr>`;
+                return;
+            }
+
+            const championSeconds = timeToSeconds(filtered[0].tempo);
+
+            filtered.forEach((r, index) => {
+                let badgeClass = "text-slate-500 font-bold";
+                if (index === 0) badgeClass = "text-amber-700 font-black bg-amber-100 px-3 py-1 rounded-full border border-amber-200";
+                if (index === 1) badgeClass = "text-slate-700 font-black bg-slate-200 px-3 py-1 rounded-full border border-slate-300";
+                if (index === 2) badgeClass = "text-amber-800 font-black bg-amber-50 px-3 py-1 rounded-full border border-amber-200";
+
+                let diffText = "-";
+                if (index > 0) {
+                    const diffSecs = timeToSeconds(r.tempo) - championSeconds;
+                    diffText = `+${secondsToTime(diffSecs)}`;
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-4 px-6 text-center font-black ${badgeClass}">#${index + 1}</td>
+                        <td class="py-4 px-6 font-bold text-slate-900">${r.atleta}</td>
+                        <td class="py-4 px-6 text-slate-600">${r.naipe || 'Masculino'}</td>
+                        <td class="py-4 px-6 text-slate-600">${r.categoria}</td>
+                        <td class="py-4 px-6 text-slate-500">${r.bateria}</td>
+                        <td class="py-4 px-6 text-right font-mono font-black text-emerald-600 text-base">${r.tempo}</td>
+                        <td class="py-4 px-6 text-right font-mono text-slate-500 font-bold">${diffText}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function showModal(title, message, type = 'success') {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            const icon = document.getElementById('modal-icon');
+            if (type === 'success') {
+                icon.className = "w-14 h-14 rounded-full bg-emerald-50 text-cob-green flex items-center justify-center mx-auto text-2xl border border-emerald-100";
+                icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+            } else {
+                icon.className = "w-14 h-14 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto text-2xl border border-red-100";
+                icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            }
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
