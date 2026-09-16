@@ -303,9 +303,9 @@
     <!-- JavaScript Application Logic -->
     <script>
         // =========================================================================
-        // ATENÇÃO: TROQUE ESTA PRIMEIRA LINHA PELA URL DO SEU NOVO PROJETO
+        // PASSO FINAL: TROQUE O TEXTO DA URL ABAIXO PELO LINK DO PROJETO RESULTADOS
         // =========================================================================
-        const SUPABASE_URL = 'COLE_AQUI_A_URL_DO_PROJETO_RESULTADOS';
+        const SUPABASE_URL = 'https://COLE-AQUI-A-URL-DO-PROJETO.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_0SG41jvxnZnaw0lP1ODmjA_Ig75sACZ';
         // =========================================================================
 
@@ -370,10 +370,17 @@
         }
 
         async function fetchRecords() {
-            const { data, error } = await _supabase.from('records').select('*');
-            if (!error && data) {
-                records = data;
-                updateUIState();
+            // Prevenção de erro caso a URL não tenha sido colocada
+            if (SUPABASE_URL.includes('COLE-AQUI')) return;
+            
+            try {
+                const { data, error } = await _supabase.from('records').select('*');
+                if (!error && data) {
+                    records = data;
+                    updateUIState();
+                }
+            } catch (err) {
+                console.error("Erro ao buscar dados", err);
             }
         }
 
@@ -484,6 +491,12 @@
         function handleAdminLogin() {
             const pin = document.getElementById('admin-pin-input').value;
             const errorEl = document.getElementById('login-error');
+
+            if (SUPABASE_URL.includes('COLE-AQUI')) {
+                showModal('Ação Necessária', 'Você precisa ir no código e alterar a linha 368 com a URL real do projeto Resultados do Supabase!', 'error');
+                return;
+            }
+
             if (pin === 'Virtu@lBr09') {
                 isAdminLoggedIn = true;
                 errorEl.classList.add('hidden');
@@ -503,6 +516,11 @@
         }
 
         async function processExcelUpload() {
+            if (SUPABASE_URL.includes('COLE-AQUI')) {
+                showModal('Erro', 'Conexão com o banco falhou. Configure a URL.', 'error');
+                return;
+            }
+
             const fileInput = document.getElementById('excel-file-input');
             if (!fileInput.files || fileInput.files.length === 0) {
                 showModal('Atenção', 'Selecione um arquivo Excel (.xlsx, .xls) ou CSV.', 'error');
@@ -611,7 +629,6 @@
                 return;
             }
 
-            // Mostra TUDO o que está no banco para você debugar facilmente
             records.forEach(r => {
                 const isCurrent = r.modalidade === activeModality;
                 tbody.innerHTML += `
@@ -728,12 +745,14 @@
             updateUIState();
             await fetchRecords();
 
-            _supabase
-                .channel('public:records')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'records' }, payload => {
-                    fetchRecords();
-                })
-                .subscribe();
+            if (!SUPABASE_URL.includes('COLE-AQUI')) {
+                _supabase
+                    .channel('public:records')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'records' }, payload => {
+                        fetchRecords();
+                    })
+                    .subscribe();
+            }
         });
     </script>
 </body>
