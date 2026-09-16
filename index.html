@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Competições Virtuais Brasileiras</title>
+    <title>Competições Virtuais Brasileiras - RESULTADOS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Biblioteca SheetJS para leitura de arquivos Excel (XLS/XLSX) e CSV -->
@@ -302,8 +302,13 @@
 
     <!-- JavaScript Application Logic -->
     <script>
-        const SUPABASE_URL = 'https://vmdvunvvphkglnoeknjj.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_WB_Reg-TuFE8KD8QvwBHiw_1EOotbdq';
+        // =========================================================================
+        // ATENÇÃO: TROQUE ESTA PRIMEIRA LINHA PELA URL DO SEU NOVO PROJETO
+        // =========================================================================
+        const SUPABASE_URL = 'COLE_AQUI_A_URL_DO_PROJETO_RESULTADOS';
+        const SUPABASE_ANON_KEY = 'sb_publishable_0SG41jvxnZnaw0lP1ODmjA_Ig75sACZ';
+        // =========================================================================
+
         const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let records = [];
