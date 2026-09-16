@@ -210,7 +210,7 @@
                         <span>Configurar Modalidade Ativa do Evento</span>
                     </h4>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <input type="text" id="admin-active-mod-input" placeholder="Ex: Remo (500m) / Ciclismo (300m)" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
+                        <input type="text" id="admin-active-mod-input" placeholder="Ex: CICLISMO VIRTUAL JEBS 2026" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
                         <button onclick="saveActiveModality()" class="px-6 py-3 bg-sport-blue hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-md">
                             Atualizar Modalidade
                         </button>
@@ -221,7 +221,7 @@
                 <div class="bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl space-y-4">
                     <h4 class="text-lg font-bold text-white flex items-center space-x-2">
                         <i class="fa-solid fa-layer-group text-sport-green"></i>
-                        <span>Gerenciamento de Baterias (Ex: Bateria 1 MAS, Bateria 1 FEM)</span>
+                        <span>Gerenciamento de Baterias</span>
                     </h4>
                     <div class="flex flex-col sm:flex-row gap-4">
                         <input type="text" id="new-battery-input" placeholder="NOME DA BATERIA (EX: BATERIA 1 MAS, BATERIA 1 FEM)" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-green">
@@ -249,77 +249,22 @@
                     </div>
                 </div>
 
-                <!-- Formulário de Lançamento Manual de Tempos -->
-                <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-6">
-                    <h4 class="text-xl font-black text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-stopwatch text-sport-cyan"></i>
-                        <span>Inserção Manual de Resultado</span>
-                    </h4>
-
-                    <form id="time-entry-form" onsubmit="submitTimeRecord(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Atleta</label>
-                            <input type="text" id="admin-atleta" required placeholder="NOME DO ATLETA" oninput="this.value = this.value.toUpperCase()" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
-                        </div>
-
-                        <!-- CAMPO NAIPE -->
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Naipe</label>
-                            <select id="admin-naipe" required class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sport-cyan">
-                                <option value="MAS">Masculino (MAS)</option>
-                                <option value="FEM">Feminino (FEM)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Categoria</label>
-                            <input type="text" id="admin-categoria" required placeholder="DIGITE A CATEGORIA" oninput="this.value = this.value.toUpperCase()" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Estado</label>
-                            <input type="text" id="admin-estado" required placeholder="SIGLA OU NOME DO ESTADO (EX: SP)" oninput="this.value = this.value.toUpperCase()" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Equipe / Clube / Escola</label>
-                            <input type="text" id="admin-equipe" required placeholder="DIGITE A EQUIPE, CLUBE OU ESCOLA" oninput="this.value = this.value.toUpperCase()" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Bateria</label>
-                            <select id="admin-bateria" required class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sport-cyan">
-                                <!-- Preenchido dinamicamente -->
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Tempo Oficial (HH:MM:SS)</label>
-                            <input type="text" id="admin-tempo" required placeholder="00:00:00" maxlength="8" oninput="formatTimeInput(this)" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white font-mono text-lg focus:outline-none focus:border-sport-cyan">
-                            <span class="text-xs text-slate-500 mt-1 block">Formato padrão: Horas:Minutos:Segundos (Ex: 00:01:45)</span>
-                        </div>
-
-                        <div class="md:col-span-2 flex justify-end mt-2">
-                            <button type="submit" class="px-8 py-3.5 bg-gradient-to-r from-sport-green to-emerald-500 hover:opacity-95 text-slate-950 font-black rounded-xl shadow-lg transition-all flex items-center space-x-2">
-                                <i class="fa-solid fa-floppy-disk"></i>
-                                <span>Salvar Resultado Oficial</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
                 <!-- Lista de Registros Cadastrados -->
                 <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-6">
-                    <h4 class="text-xl font-black text-white">Registros Atuais na Modalidade Ativa</h4>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <h4 class="text-xl font-black text-white">Registros Armazenados no Banco de Dados</h4>
+                        <button onclick="fixModalitiesToActive()" class="px-4 py-2 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold hover:bg-amber-500/30 transition-all">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Migrar todos para a modalidade atual
+                        </button>
+                    </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-sport-border/50 border-b border-sport-border text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                    <th class="py-3 px-4">Modalidade no Banco</th>
                                     <th class="py-3 px-4">Atleta</th>
                                     <th class="py-3 px-4">Naipe</th>
                                     <th class="py-3 px-4">Categoria</th>
-                                    <th class="py-3 px-4">Estado</th>
-                                    <th class="py-3 px-4">Equipe / Clube / Escola</th>
                                     <th class="py-3 px-4">Bateria</th>
                                     <th class="py-3 px-4">Tempo</th>
                                     <th class="py-3 px-4 text-right">Ação</th>
@@ -363,12 +308,11 @@
 
         let records = [];
         
-        let activeModality = localStorage.getItem('app_active_modality') || 'Remo (500m)';
+        let activeModality = localStorage.getItem('app_active_modality') || 'CICLISMO VIRTUAL JEBS 2026';
         let batteries = JSON.parse(localStorage.getItem('app_batteries')) || ['BATERIA 1 MAS', 'BATERIA 1 FEM', 'BATERIA 2 MAS', 'BATERIA 2 FEM'];
 
         let isAdminLoggedIn = false;
 
-        // Dicionários para conversão e exibição das bandeiras dos estados
         const stateFlags = {
             'AC': 'https://upload.wikimedia.org/wikipedia/commons/4/4c/Bandeira_do_Acre.svg',
             'AL': 'https://upload.wikimedia.org/wikipedia/commons/8/88/Bandeira_de_Alagoas.svg',
@@ -392,7 +336,7 @@
             'RN': 'https://upload.wikimedia.org/wikipedia/commons/3/30/Bandeira_do_Rio_Grande_do_Norte.svg',
             'RS': 'https://upload.wikimedia.org/wikipedia/commons/6/63/Bandeira_do_Rio_Grande_do_Sul.svg',
             'RO': 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Bandeira_de_Rond%C3%B4nia.svg',
-            'RR': 'https://upload.wikimedia.org/wikipedia/commons/9/98/Bandeira_de_Roraima.svg',
+            'RR': 'https://upload.wikimedia.org/wikipedia/commons/9/98/Bandeira_do_Roraima.svg',
             'SC': 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Bandeira_de_Santa_Catarina.svg',
             'SP': 'https://upload.wikimedia.org/wikipedia/commons/2/2b/Bandeira_do_estado_de_S%C3%A3o_Paulo.svg',
             'SE': 'https://upload.wikimedia.org/wikipedia/commons/b/be/Bandeira_de_Sergipe.svg',
@@ -413,7 +357,6 @@
             if (!val) return '-';
             const cleanVal = val.trim().toUpperCase();
             let sigla = stateNames[cleanVal] || (stateFlags[cleanVal] ? cleanVal : null);
-            
             if (sigla) {
                 const flagUrl = stateFlags[sigla];
                 return `<div class="flex items-center space-x-2"><img src="${flagUrl}" alt="${sigla}" class="w-6 h-4 object-cover rounded-sm border border-slate-600 shadow-sm"> <span>| ${sigla}</span></div>`;
@@ -517,18 +460,6 @@
                     filterSelect.value = currentVal;
                 }
             }
-
-            const adminSelect = document.getElementById('admin-bateria');
-            if (adminSelect) {
-                const currentVal = adminSelect.value;
-                adminSelect.innerHTML = '';
-                batteries.forEach(b => {
-                    adminSelect.innerHTML += `<option value="${b}">${b}</option>`;
-                });
-                if (adminSelect.querySelector(`option[value="${currentVal}"]`)) {
-                    adminSelect.value = currentVal;
-                }
-            }
         }
 
         function renderAdminBatteriesList() {
@@ -543,18 +474,6 @@
                     </div>
                 `;
             });
-        }
-
-        function formatTimeInput(input) {
-            let v = input.value.replace(/\D/g, '');
-            if (v.length > 6) v = v.slice(0, 6);
-            if (v.length >= 5) {
-                input.value = v.slice(0,2) + ':' + v.slice(2,4) + ':' + v.slice(4,6);
-            } else if (v.length >= 3) {
-                input.value = v.slice(0,2) + ':' + v.slice(2,4);
-            } else {
-                input.value = v;
-            }
         }
 
         function handleAdminLogin() {
@@ -620,7 +539,6 @@
                         const bateria = bateriaKey ? String(row[bateriaKey] || batteries[0]).trim().toUpperCase() : batteries[0];
                         const tempo = tempoKey ? String(row[tempoKey] || '00:00:00').trim() : '00:00:00';
 
-                        // Dedução automática de naipe se estiver vazio
                         if (!naipe) {
                             if (/fem|feminino/i.test(bateria) || /fem|feminino/i.test(categoria)) {
                                 naipe = 'FEM';
@@ -630,9 +548,9 @@
                         }
 
                         if (atleta && tempo) {
-                            // FORÇA A MODALIDADE ATIVA ATUAL DO PAINEL
                             const modalidade = activeModality; 
                             
+                            // Verifica se já existe pelo nome e modalidade
                             const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
 
                             if (existingRecord) {
@@ -658,43 +576,17 @@
             reader.readAsArrayBuffer(file);
         }
 
-        async function submitTimeRecord(e) {
-            e.preventDefault();
-            const atleta = document.getElementById('admin-atleta').value.toUpperCase();
-            const naipe = document.getElementById('admin-naipe').value;
-            const categoria = document.getElementById('admin-categoria').value.toUpperCase();
-            const estado = document.getElementById('admin-estado').value.toUpperCase();
-            const equipe = document.getElementById('admin-equipe').value.toUpperCase();
-            const bateria = document.getElementById('admin-bateria').value; 
-            const modalidade = activeModality;
-            const tempo = document.getElementById('admin-tempo').value;
-
-            const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
-
-            if (existingRecord) {
-                const { error } = await _supabase.from('records')
-                    .update({ tempo: tempo, bateria: bateria, categoria: categoria, naipe: naipe, estado: estado, equipe: equipe })
-                    .eq('id', existingRecord.id);
-
-                if (!error) {
-                    document.getElementById('time-entry-form').reset();
-                    await fetchRecords();
-                    showModal('Sucesso', 'O tempo deste participante foi atualizado nesta modalidade!', 'success');
-                } else {
-                    showModal('Erro', 'Não foi possível atualizar o registro no banco.', 'error');
-                }
-            } else {
-                const { error } = await _supabase.from('records')
-                    .insert([{ atleta, naipe, categoria, estado, equipe, modalidade, bateria, tempo }]);
-                
-                if (!error) {
-                    document.getElementById('time-entry-form').reset();
-                    await fetchRecords();
-                    showModal('Sucesso', 'Tempo oficial cadastrado com sucesso!', 'success');
-                } else {
-                    showModal('Erro', 'Não foi possível salvar o registro no banco de dados.', 'error');
-                }
+        async function fixModalitiesToActive() {
+            if (records.length === 0) {
+                showModal('Atenção', 'Não há registros no banco para migrar.', 'error');
+                return;
             }
+            // Atualiza todos os registros salvos no banco para usarem exatamente a modalidade ativa atual
+            for (let r of records) {
+                await _supabase.from('records').update({ modalidade: activeModality }).eq('id', r.id);
+            }
+            await fetchRecords();
+            showModal('Sucesso', 'Todos os registros foram migrados para a modalidade ativa atual!', 'success');
         }
 
         async function deleteRecord(id) {
@@ -709,21 +601,20 @@
             if (!tbody) return;
             tbody.innerHTML = '';
 
-            const activeRecords = records.filter(r => r.modalidade === activeModality);
-
-            if (activeRecords.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-500">Nenhum registro para esta modalidade.</td></tr>`;
+            if (records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-500">Nenhum registro encontrado no banco de dados.</td></tr>`;
                 return;
             }
 
-            activeRecords.forEach(r => {
+            // Mostra TUDO o que está no banco para você debugar facilmente
+            records.forEach(r => {
+                const isCurrent = r.modalidade === activeModality;
                 tbody.innerHTML += `
-                    <tr class="hover:bg-sport-border/30 transition-colors">
+                    <tr class="hover:bg-sport-border/30 transition-colors ${isCurrent ? '' : 'opacity-50'}">
+                        <td class="py-3 px-4 font-semibold text-xs text-sport-cyan">${r.modalidade || '-'}</td>
                         <td class="py-3 px-4 font-bold text-white">${r.atleta || '-'}</td>
                         <td class="py-3 px-4 text-slate-300">${r.naipe || '-'}</td>
                         <td class="py-3 px-4 text-slate-300">${r.categoria || '-'}</td>
-                        <td class="py-3 px-4 text-slate-300">${r.estado || '-'}</td>
-                        <td class="py-3 px-4 text-slate-300">${r.equipe || '-'}</td>
                         <td class="py-3 px-4 text-slate-300">${r.bateria || '-'}</td>
                         <td class="py-3 px-4 font-mono font-bold text-sport-green">${r.tempo || '-'}</td>
                         <td class="py-3 px-4 text-right">
