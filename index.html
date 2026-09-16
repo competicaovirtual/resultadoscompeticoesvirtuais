@@ -620,7 +620,7 @@
                         const bateria = bateriaKey ? String(row[bateriaKey] || batteries[0]).trim().toUpperCase() : batteries[0];
                         const tempo = tempoKey ? String(row[tempoKey] || '00:00:00').trim() : '00:00:00';
 
-                        // Se a coluna naipe veio em branco na planilha, preenche automaticamente deduzindo pela bateria ou categoria
+                        // Dedução automática de naipe se estiver vazio
                         if (!naipe) {
                             if (/fem|feminino/i.test(bateria) || /fem|feminino/i.test(categoria)) {
                                 naipe = 'FEM';
@@ -630,7 +630,9 @@
                         }
 
                         if (atleta && tempo) {
-                            const modalidade = activeModality;
+                            // FORÇA A MODALIDADE ATIVA ATUAL DO PAINEL
+                            const modalidade = activeModality; 
+                            
                             const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
 
                             if (existingRecord) {
@@ -647,7 +649,7 @@
 
                     fileInput.value = '';
                     await fetchRecords();
-                    showModal('Sucesso', `${countProcessed} registros importados com sucesso!`, 'success');
+                    showModal('Sucesso', `${countProcessed} registros importados para a modalidade "${activeModality}"!`, 'success');
                 } catch (err) {
                     console.error(err);
                     showModal('Erro', 'Não foi possível processar o arquivo. Verifique o formato.', 'error');
