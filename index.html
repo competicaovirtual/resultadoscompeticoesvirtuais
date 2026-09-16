@@ -234,6 +234,54 @@
                     </div>
                 </div>
 
+                <!-- NOVO: Inserção Manual de Resultado -->
+                <div class="bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl space-y-4">
+                    <h4 class="text-lg font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-keyboard text-sport-blue"></i>
+                        <span>Inserção Manual de Resultado</span>
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Atleta</label>
+                            <input type="text" id="manual-atleta" placeholder="Nome do Atleta" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Naipe</label>
+                            <select id="manual-naipe" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                                <option value="MAS">Masculino (MAS)</option>
+                                <option value="FEM">Feminino (FEM)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Categoria</label>
+                            <input type="text" id="manual-categoria" placeholder="Ex: SUB-30" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Estado (Sigla)</label>
+                            <input type="text" id="manual-estado" placeholder="Ex: SP, RJ, MG" maxlength="2" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Equipe/Clube/Escola</label>
+                            <input type="text" id="manual-equipe" placeholder="Nome da Equipe" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Bateria</label>
+                            <select id="manual-bateria" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                                <!-- Preenchido dinamicamente via JS -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Tempo Oficial</label>
+                            <input type="text" id="manual-tempo" placeholder="00:00:00" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sport-blue">
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="addManualRecord()" class="w-full py-2.5 bg-sport-blue hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-md">
+                                Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Upload de Arquivo Excel (XLS/XLSX) ou CSV -->
                 <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-4">
                     <h4 class="text-xl font-black text-white flex items-center space-x-2">
@@ -303,7 +351,7 @@
     <!-- JavaScript Application Logic -->
     <script>
         // =========================================================================
-        // URL E API KEY ATUALIZADAS (USANDO APENAS O DOMÍNIO BASE DO SUPABASE)
+        // URL E API KEY DO SUPABASE
         // =========================================================================
         const SUPABASE_URL = 'https://otecuxljcahtfivmthsb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_0SG41jvxnZnaw0lP1ODmjA_Ig75sACZ';
@@ -370,9 +418,7 @@
         }
 
         async function fetchRecords() {
-            // Prevenção de erro caso a URL não tenha sido colocada
             if (SUPABASE_URL.includes('COLE-AQUI')) return;
-            
             try {
                 const { data, error } = await _supabase.from('records').select('*');
                 if (!error && data) {
@@ -393,6 +439,7 @@
 
             renderBatteriesSelects();
             renderAdminBatteriesList();
+            renderManualBateriaSelect();
             renderAdminRecords();
             renderLeaderboard();
         }
@@ -488,12 +535,21 @@
             });
         }
 
+        function renderManualBateriaSelect() {
+            const select = document.getElementById('manual-bateria');
+            if (!select) return;
+            select.innerHTML = '';
+            batteries.forEach(b => {
+                select.innerHTML += `<option value="${b}">${b}</option>`;
+            });
+        }
+
         function handleAdminLogin() {
             const pin = document.getElementById('admin-pin-input').value;
             const errorEl = document.getElementById('login-error');
 
             if (SUPABASE_URL.includes('COLE-AQUI')) {
-                showModal('Ação Necessária', 'Você precisa ir no código e alterar a linha com a URL real do projeto Resultados do Supabase!', 'error');
+                showModal('Ação Necessária', 'Você precisa ir no código e configurar a URL do projeto Resultados do Supabase!', 'error');
                 return;
             }
 
@@ -513,6 +569,54 @@
             document.getElementById('admin-pin-input').value = '';
             document.getElementById('admin-panel-content').classList.add('hidden');
             document.getElementById('admin-login-screen').classList.remove('hidden');
+        }
+
+        // FUNÇÃO DE INSERÇÃO MANUAL
+        async function addManualRecord() {
+            if (SUPABASE_URL.includes('COLE-AQUI')) {
+                showModal('Erro', 'Conexão com o banco falhou. Configure a URL.', 'error');
+                return;
+            }
+
+            const atleta = document.getElementById('manual-atleta').value.trim().toUpperCase();
+            const naipe = document.getElementById('manual-naipe').value;
+            const categoria = document.getElementById('manual-categoria').value.trim().toUpperCase();
+            const estado = document.getElementById('manual-estado').value.trim().toUpperCase();
+            const equipe = document.getElementById('manual-equipe').value.trim().toUpperCase();
+            const bateria = document.getElementById('manual-bateria').value;
+            const tempo = document.getElementById('manual-tempo').value.trim();
+
+            if (!atleta || !tempo) {
+                showModal('Atenção', 'O nome do atleta e o tempo oficial são obrigatórios.', 'error');
+                return;
+            }
+
+            const modalidade = activeModality; 
+            const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
+
+            try {
+                if (existingRecord) {
+                    await _supabase.from('records')
+                        .update({ tempo: tempo, bateria: bateria, categoria: categoria, naipe: naipe, estado: estado, equipe: equipe })
+                        .eq('id', existingRecord.id);
+                } else {
+                    await _supabase.from('records')
+                        .insert([{ atleta, naipe, categoria, estado, equipe, modalidade, bateria, tempo }]);
+                }
+
+                // Limpar campos
+                document.getElementById('manual-atleta').value = '';
+                document.getElementById('manual-categoria').value = '';
+                document.getElementById('manual-estado').value = '';
+                document.getElementById('manual-equipe').value = '';
+                document.getElementById('manual-tempo').value = '';
+
+                await fetchRecords();
+                showModal('Sucesso', 'Registro inserido/atualizado manualmente com sucesso!', 'success');
+            } catch (err) {
+                console.error(err);
+                showModal('Erro', 'Não foi possível salvar o registro.', 'error');
+            }
         }
 
         async function processExcelUpload() {
@@ -573,7 +677,6 @@
                         if (atleta && tempo) {
                             const modalidade = activeModality; 
                             
-                            // Verifica se já existe pelo nome e modalidade
                             const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
 
                             if (existingRecord) {
@@ -604,7 +707,6 @@
                 showModal('Atenção', 'Não há registros no banco para migrar.', 'error');
                 return;
             }
-            // Atualiza todos os registros salvos no banco para usarem exatamente a modalidade ativa atual
             for (let r of records) {
                 await _supabase.from('records').update({ modalidade: activeModality }).eq('id', r.id);
             }
