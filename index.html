@@ -3,23 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Desafio Virtual | Jogos da Juventude 2026</title>
+    <title>Competições Virtuais Brasileiras</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Biblioteca SheetJS para leitura de arquivos Excel (XLS/XLSX) e CSV -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        cob: {
-                            dark: '#002B49',
-                            DEFAULT: '#004A80',
-                            blue: '#0066CC',
-                            cyan: '#0099FF',
-                            green: '#00A859',
-                            gold: '#FFB81C',
-                            surface: '#FFFFFF',
-                            light: '#F4F7FB'
+                        sport: {
+                            dark: '#090D16',
+                            card: '#131C2E',
+                            border: '#1E293B',
+                            cyan: '#00F2FE',
+                            blue: '#0072FF',
+                            green: '#00FF87',
+                            gold: '#FFD700',
+                            light: '#F8FAFC'
                         }
                     }
                 }
@@ -28,42 +30,45 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-cob-light text-slate-800 min-h-screen flex flex-col font-sans selection:bg-cob-cyan selection:text-white">
+<body class="bg-sport-dark text-slate-100 min-h-screen flex flex-col font-sans selection:bg-sport-cyan selection:text-slate-900">
 
     <!-- Header / Navbar -->
-    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <header class="bg-sport-card/95 backdrop-blur-md border-b border-sport-border sticky top-0 z-50 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            
-            <!-- Logo Ampliada sem texto -->
-            <div class="flex items-center h-full py-2">
-                <img src="logojj.png" alt="Logo Jogos da Juventude" class="h-16 w-auto object-contain" onerror="this.onerror=null; this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
-                <div id="logo-fallback" style="display:none;" class="h-14 w-14 rounded-xl bg-gradient-to-tr from-cob-blue to-cob-cyan items-center justify-center text-white font-black text-xl shadow-sm">JJ</div>
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center h-full py-1">
+                    <img src="logocvb.png" alt="Logo Competições Virtuais Brasileiras" class="h-12 w-auto object-contain" onerror="this.onerror=null; this.style.display='none';">
+                </div>
+                <div>
+                    <span class="text-xs font-bold tracking-widest text-sport-cyan uppercase">Plataforma Oficial</span>
+                    <h1 class="text-lg font-black tracking-tight text-white">Competições Virtuais Brasileiras</h1>
+                </div>
             </div>
             
             <nav class="hidden md:flex items-center space-x-2">
-                <button onclick="switchTab('home')" id="nav-home" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-cob-dark text-white shadow-md">
+                <button onclick="switchTab('home')" id="nav-home" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-sport-blue text-white shadow-md">
                     <i class="fa-solid fa-house mr-2"></i>Início
                 </button>
-                <button onclick="switchTab('rankings')" id="nav-rankings" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-cob-dark hover:bg-slate-100">
+                <button onclick="switchTab('rankings')" id="nav-rankings" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:text-white hover:bg-slate-800">
                     <i class="fa-solid fa-trophy mr-2"></i>RANKING
                 </button>
-                <button onclick="switchTab('admin')" id="nav-admin" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-cob-dark hover:bg-slate-100">
+                <button onclick="switchTab('admin')" id="nav-admin" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:text-white hover:bg-slate-800">
                     <i class="fa-solid fa-shield-halved mr-2"></i>Painel Técnico (Admin)
                 </button>
             </nav>
 
             <div class="md:hidden flex items-center">
-                <button onclick="toggleMobileMenu()" class="text-slate-700 hover:text-black p-2">
+                <button onclick="toggleMobileMenu()" class="text-slate-300 hover:text-white p-2">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
             </div>
         </div>
 
         <!-- Menu Mobile -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-4 space-y-2 shadow-lg">
-            <button onclick="switchTab('home'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold bg-cob-dark text-white">Início</button>
-            <button onclick="switchTab('rankings'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">RANKING</button>
-            <button onclick="switchTab('admin'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">Painel Técnico (Admin)</button>
+        <div id="mobile-menu" class="hidden md:hidden bg-sport-card border-b border-sport-border px-4 pt-2 pb-4 space-y-2 shadow-xl">
+            <button onclick="switchTab('home'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold bg-sport-blue text-white">Início</button>
+            <button onclick="switchTab('rankings'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:bg-slate-800">RANKING</button>
+            <button onclick="switchTab('admin'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:bg-slate-800">Painel Técnico (Admin)</button>
         </div>
     </header>
 
@@ -73,86 +78,43 @@
         <!-- TAB: INÍCIO -->
         <section id="tab-home" class="space-y-8 animate-fadeIn">
             <!-- Hero Banner -->
-            <div class="relative bg-gradient-to-br from-cob-dark via-[#00385e] to-cob-blue rounded-3xl border border-slate-200 p-8 md:p-12 overflow-hidden shadow-xl text-white">
-                <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-cob-cyan/10 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="absolute top-0 left-1/4 w-72 h-72 bg-cob-green/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="relative bg-gradient-to-br from-sport-card via-[#0F172A] to-[#1E293B] rounded-3xl border border-sport-border p-8 md:p-12 overflow-hidden shadow-2xl text-white">
+                <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-sport-cyan/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute top-0 left-1/4 w-72 h-72 bg-sport-green/10 rounded-full blur-3xl pointer-events-none"></div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
                     <div class="md:col-span-7 space-y-6">
+                        <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-sport-green/20 border border-sport-green/40 text-emerald-300 text-xs font-bold tracking-wider uppercase">
+                            <span class="w-2 h-2 rounded-full bg-sport-green animate-pulse"></span>
+                            <span>Modalidade Ativa: <strong id="hero-active-mod" class="text-white ml-1">Carregando...</strong></span>
+                        </div>
                         <h2 class="text-4xl sm:text-5xl font-black tracking-tight leading-tight">
-                            DESAFIO VIRTUAL <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-emerald-300 to-amber-300">JOGOS DA JUVENTUDE 2026</span>
+                            SISTEMA DE RESULTADOS <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-sport-cyan via-sport-green to-sport-gold">EM TEMPO REAL</span>
                         </h2>
+                        <p class="text-slate-300 text-base max-w-xl">
+                            Acompanhe os rankings atualizados bateria após bateria com apuração oficial em tempo real.
+                        </p>
                         <div class="flex flex-wrap gap-4 pt-2">
-                            <button onclick="switchTab('rankings')" class="px-6 py-3.5 bg-white text-cob-dark hover:bg-slate-100 font-bold rounded-xl shadow-lg transition-all flex items-center space-x-2">
-                                <i class="fa-solid fa-trophy text-cob-blue"></i>
-                                <span>Ver Rankings Oficiais</span>
+                            <button onclick="switchTab('rankings')" class="px-6 py-3.5 bg-gradient-to-r from-sport-blue to-sport-cyan text-slate-950 font-black rounded-xl shadow-lg hover:opacity-95 transition-all flex items-center space-x-2">
+                                <i class="fa-solid fa-trophy"></i>
+                                <span>Ver Ranking da Modalidade</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Bloco da Mascote -->
+                    <!-- Bloco da Logo Oficial -->
                     <div class="md:col-span-5 flex justify-center">
-                        <div class="relative w-full max-w-xs h-72 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex flex-col items-center justify-center p-6 shadow-2xl overflow-hidden group">
-                            <img src="mascote.png" alt="Mascote Jogos da Juventude 2026" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)] group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.style.display='none'; document.getElementById('mascote-fallback').style.display='flex';">
+                        <div class="relative w-full max-w-xs h-72 rounded-2xl bg-sport-card/80 backdrop-blur-md border border-sport-border flex flex-col items-center justify-center p-6 shadow-2xl overflow-hidden group">
+                            <img src="jacajebsciclismo.png" alt="Logo Oficial" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.style.display='none'; document.getElementById('logo-off-fallback').style.display='flex';">
                             
-                            <div id="mascote-fallback" style="display:none;" class="flex-col items-center justify-center text-center space-y-3">
-                                <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-cob-gold to-amber-500 flex items-center justify-center shadow-lg text-slate-950 text-3xl font-black">
-                                    <i class="fa-solid fa-medal"></i>
+                            <div id="logo-off-fallback" style="display:none;" class="flex-col items-center justify-center text-center space-y-3">
+                                <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-sport-gold to-amber-600 flex items-center justify-center shadow-lg text-slate-950 text-3xl font-black">
+                                    <i class="fa-solid fa-award"></i>
                                 </div>
-                                <span class="text-sm font-bold text-white tracking-wide">Mascote Oficial 2026</span>
-                                <span class="text-xs text-slate-200">Jogos da Juventude Foz</span>
+                                <span class="text-sm font-bold text-white tracking-wide">LOGO OFICIAL</span>
+                                <span class="text-xs text-slate-400">Competições Virtuais</span>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Cards de Modalidades (Clique direto para o ranking) -->
-            <div class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Remo -->
-                    <div onclick="goToRankingModalidade('Remo')" class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-md hover:border-cob-cyan hover:shadow-xl hover:scale-[1.02] cursor-pointer transition-all group">
-                        <div class="w-12 h-12 rounded-xl bg-blue-50 text-cob-blue flex items-center justify-center overflow-hidden border border-blue-100 group-hover:scale-110 transition-transform">
-                            <img src="removirtual.png" alt="Remo Virtual" class="w-full h-full object-contain p-1" onerror="this.onerror=null; this.style.display='none'; document.getElementById('remo-fallback').style.display='flex';">
-                            <div id="remo-fallback" style="display:none;" class="w-full h-full items-center justify-center text-cob-blue"><i class="fa-solid fa-water"></i></div>
-                        </div>
-                        <h4 class="text-xl font-bold text-slate-900 flex items-center justify-between">
-                            <span>Remo (500m)</span>
-                            <i class="fa-solid fa-arrow-right text-xs text-cob-blue group-hover:translate-x-1 transition-transform"></i>
-                        </h4>
-                        <p class="text-slate-600 text-sm leading-relaxed">
-                            Prova de <strong class="text-slate-900">500m</strong> no aplicativo <strong class="text-cob-blue">EXR</strong> utilizando o remoergômetro <strong class="text-cob-green">Mormaii</strong>.
-                        </p>
-                    </div>
-
-                    <!-- Ciclismo -->
-                    <div onclick="goToRankingModalidade('Ciclismo')" class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-md hover:border-cob-cyan hover:shadow-xl hover:scale-[1.02] cursor-pointer transition-all group">
-                        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-cob-green flex items-center justify-center overflow-hidden border border-emerald-100 group-hover:scale-110 transition-transform">
-                            <img src="ciclismovirtual.png" alt="Ciclismo Virtual" class="w-full h-full object-contain p-1" onerror="this.onerror=null; this.style.display='none'; document.getElementById('ciclismo-fallback').style.display='flex';">
-                            <div id="ciclismo-fallback" style="display:none;" class="w-full h-full items-center justify-center text-cob-green"><i class="fa-solid fa-bicycle"></i></div>
-                        </div>
-                        <h4 class="text-xl font-bold text-slate-900 flex items-center justify-between">
-                            <span>Ciclismo (Sprint 300m)</span>
-                            <i class="fa-solid fa-arrow-right text-xs text-cob-blue group-hover:translate-x-1 transition-transform"></i>
-                        </h4>
-                        <p class="text-slate-600 text-sm leading-relaxed">
-                            Sprint de <strong class="text-slate-900">300m</strong> no percurso dos Jogos Olímpicos Rio 2016 através do aplicativo <strong class="text-cob-blue">Rouvy</strong> e utilizando a smart bike <strong class="text-cob-green">Zwift Ride</strong>.
-                        </p>
-                    </div>
-
-                    <!-- Corrida -->
-                    <div onclick="goToRankingModalidade('Corrida')" class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-md hover:border-cob-cyan hover:shadow-xl hover:scale-[1.02] cursor-pointer transition-all group">
-                        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center overflow-hidden border border-amber-100 group-hover:scale-110 transition-transform">
-                            <img src="corridavirtual.png" alt="Corrida Virtual" class="w-full h-full object-contain p-1" onerror="this.onerror=null; this.style.display='none'; document.getElementById('corrida-fallback').style.display='flex';">
-                            <div id="corrida-fallback" style="display:none;" class="w-full h-full items-center justify-center text-amber-600"><i class="fa-solid fa-person-running"></i></div>
-                        </div>
-                        <h4 class="text-xl font-bold text-slate-900 flex items-center justify-between">
-                            <span>Corrida (500m)</span>
-                            <i class="fa-solid fa-arrow-right text-xs text-cob-blue group-hover:translate-x-1 transition-transform"></i>
-                        </h4>
-                        <p class="text-slate-600 text-sm leading-relaxed">
-                            Prova de <strong class="text-slate-900">500m</strong> através do aplicativo <strong class="text-cob-blue">Zwift</strong> em pista de atletismo virtual utilizando a esteira curva da <strong class="text-cob-green">Mormaii</strong>.
-                        </p>
                     </div>
                 </div>
             </div>
@@ -160,44 +122,39 @@
 
         <!-- TAB: RANKING -->
         <section id="tab-rankings" class="space-y-6 hidden animate-fadeIn">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-md">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl">
                 <div>
-                    <h2 class="text-2xl font-black text-slate-900">Ranking Oficial</h2>
-                    <p class="text-sm text-slate-500">Consulte os tempos homologados pela equipe técnica local.</p>
+                    <h2 class="text-2xl font-black text-white">Ranking Oficial</h2>
+                    <p class="text-sm text-slate-400">Modalidade Ativa: <span id="ranking-active-mod-label" class="text-sport-cyan font-bold">---</span></p>
                 </div>
                 
                 <!-- Filtros -->
                 <div class="flex flex-wrap gap-3">
-                    <select id="filter-bloco" onchange="renderLeaderboard()" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-cob-blue">
-                        <option value="Geral">Ranking Geral (Todos os Blocos)</option>
-                        <option value="Bloco 1">Bloco 1</option>
-                        <option value="Bloco 2">Bloco 2</option>
-                        <option value="Bloco 3">Bloco 3</option>
-                    </select>
-
-                    <select id="filter-modalidade" onchange="renderLeaderboard()" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-cob-blue">
-                        <option value="Remo">Remo (500m)</option>
-                        <option value="Ciclismo">Ciclismo (Sprint 300m)</option>
-                        <option value="Corrida">Corrida (500m)</option>
+                    <select id="filter-bateria" onchange="renderLeaderboard()" class="bg-sport-dark border border-sport-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-sport-cyan">
+                        <option value="Geral_MAS">Ranking Geral - Masculino (MAS)</option>
+                        <option value="Geral_FEM">Ranking Geral - Feminino (FEM)</option>
                     </select>
                 </div>
             </div>
 
             <!-- Tabela de Classificação -->
-            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xl">
+            <div class="bg-sport-card border border-sport-border rounded-2xl overflow-hidden shadow-2xl">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-100 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                            <tr class="bg-sport-border/50 border-b border-sport-border text-xs font-bold text-slate-400 uppercase tracking-wider">
                                 <th class="py-4 px-6 text-center w-16">Pos</th>
-                                <th class="py-4 px-6">Nome Completo</th>
+                                <th class="py-4 px-6">Atleta</th>
                                 <th class="py-4 px-6">Naipe</th>
-                                <th class="py-4 px-6">Perfil</th>
-                                <th class="py-4 px-6">Bloco</th>
+                                <th class="py-4 px-6">Categoria</th>
+                                <th class="py-4 px-6">Estado</th>
+                                <th class="py-4 px-6">Equipe / Clube / Escola</th>
+                                <th class="py-4 px-6">Bateria</th>
                                 <th class="py-4 px-6 text-right">Tempo Oficial</th>
+                                <th class="py-4 px-6 text-right">Dif. p/ Líder</th>
                             </tr>
                         </thead>
-                        <tbody id="leaderboard-tbody" class="divide-y divide-slate-100 text-sm">
+                        <tbody id="leaderboard-tbody" class="divide-y divide-sport-border text-sm text-slate-200">
                             <!-- Preenchido via Supabase -->
                         </tbody>
                     </table>
@@ -208,168 +165,167 @@
         <!-- TAB: PAINEL TÉCNICO (ADMIN) -->
         <section id="tab-admin" class="space-y-6 hidden animate-fadeIn">
             <!-- Tela de Login PIN -->
-            <div id="admin-login-screen" class="max-w-md mx-auto bg-white border border-slate-200 p-8 rounded-3xl shadow-xl space-y-6">
+            <div id="admin-login-screen" class="max-w-md mx-auto bg-sport-card border border-sport-border p-8 rounded-3xl shadow-2xl space-y-6">
                 <div class="text-center space-y-2">
-                    <div class="w-16 h-16 bg-blue-50 text-cob-blue rounded-2xl mx-auto flex items-center justify-center text-2xl border border-blue-100">
+                    <div class="w-16 h-16 bg-sport-blue/20 text-sport-cyan rounded-2xl mx-auto flex items-center justify-center text-2xl border border-sport-blue/30">
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
-                    <h3 class="text-2xl font-black text-slate-900">Acesso Restrito</h3>
-                    <p class="text-sm text-slate-500">Insira a senha técnica para gerenciar os registros e blocos.</p>
+                    <h3 class="text-2xl font-black text-white">Acesso Restrito</h3>
+                    <p class="text-sm text-slate-400">Insira a senha técnica para gerenciar a modalidade e os resultados.</p>
                 </div>
 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Senha do Painel</label>
-                        <input type="password" id="admin-pin-input" placeholder="Digite a senha" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-cob-blue">
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Senha do Painel</label>
+                        <input type="password" id="admin-pin-input" placeholder="Digite a senha" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-sport-cyan">
                     </div>
-                    <button onclick="handleAdminLogin()" class="w-full py-3 bg-cob-dark hover:bg-cob-blue text-white font-bold rounded-xl shadow-md transition-all">
+                    <button onclick="handleAdminLogin()" class="w-full py-3 bg-gradient-to-r from-sport-blue to-sport-cyan hover:opacity-95 text-slate-950 font-black rounded-xl shadow-lg transition-all">
                         Entrar no Painel
                     </button>
-                    <p id="login-error" class="text-red-600 text-xs text-center hidden">Senha incorreta. Tente novamente.</p>
+                    <p id="login-error" class="text-red-400 text-xs text-center hidden">Senha incorreta. Tente novamente.</p>
                 </div>
             </div>
 
             <!-- Conteúdo do Painel Admin (Após Login) -->
             <div id="admin-panel-content" class="space-y-8 hidden">
-                <div class="flex items-center justify-between bg-white border border-slate-200 p-6 rounded-2xl shadow-md">
+                <div class="flex items-center justify-between bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-cob-green flex items-center justify-center border border-emerald-100">
+                        <div class="w-10 h-10 rounded-xl bg-sport-green/20 text-sport-green flex items-center justify-center border border-sport-green/30">
                             <i class="fa-solid fa-user-gear"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-slate-900">Painel da Equipe Técnica</h3>
-                            <p class="text-xs text-slate-500">Gerenciamento de tempos e status dos blocos de prova.</p>
+                            <h3 class="text-lg font-bold text-white">Painel da Equipe Técnica</h3>
+                            <p class="text-xs text-slate-400">Gerenciamento de modalidade ativa, baterias e tempos.</p>
                         </div>
                     </div>
-                    <button onclick="handleAdminLogout()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-all border border-slate-200">
+                    <button onclick="handleAdminLogout()" class="px-4 py-2 bg-sport-dark hover:bg-slate-800 text-slate-300 rounded-xl text-sm font-semibold transition-all border border-sport-border">
                         <i class="fa-solid fa-right-from-bracket mr-2"></i>Sair
                     </button>
                 </div>
 
-                <!-- Grid de Controle de Blocos -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Bloco 1 -->
-                    <div class="bg-white border border-slate-200 p-6 rounded-2xl space-y-4 shadow-md">
-                        <div class="flex items-center justify-between">
-                            <h4 class="font-bold text-slate-900 text-lg">Bloco 1</h4>
-                            <span id="status-badge-Bloco 1" class="px-3 py-1 rounded-full text-xs font-bold">Ativo</span>
-                        </div>
-                        <button onclick="toggleBlocoStatus('Bloco 1')" id="btn-toggle-Bloco 1" class="w-full py-2.5 rounded-xl text-sm font-bold transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
-                            Encerrar Bloco
+                <!-- Configurar Modalidade Ativa do Evento -->
+                <div class="bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl space-y-4">
+                    <h4 class="text-lg font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-sliders text-sport-cyan"></i>
+                        <span>Configurar Modalidade Ativa do Evento</span>
+                    </h4>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <input type="text" id="admin-active-mod-input" placeholder="Ex: Remo (500m) / Ciclismo (300m)" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
+                        <button onclick="saveActiveModality()" class="px-6 py-3 bg-sport-blue hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-md">
+                            Atualizar Modalidade
                         </button>
                     </div>
-                    <!-- Bloco 2 -->
-                    <div class="bg-white border border-slate-200 p-6 rounded-2xl space-y-4 shadow-md">
-                        <div class="flex items-center justify-between">
-                            <h4 class="font-bold text-slate-900 text-lg">Bloco 2</h4>
-                            <span id="status-badge-Bloco 2" class="px-3 py-1 rounded-full text-xs font-bold">Ativo</span>
-                        </div>
-                        <button onclick="toggleBlocoStatus('Bloco 2')" id="btn-toggle-Bloco 2" class="w-full py-2.5 rounded-xl text-sm font-bold transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
-                            Encerrar Bloco
+                </div>
+
+                <!-- Sistema de Inserção e Gestão de Baterias -->
+                <div class="bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl space-y-4">
+                    <h4 class="text-lg font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-layer-group text-sport-green"></i>
+                        <span>Gerenciamento de Baterias (Ex: Bateria 1 MAS, Bateria 1 FEM)</span>
+                    </h4>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <input type="text" id="new-battery-input" placeholder="NOME DA BATERIA (EX: BATERIA 1 MAS, BATERIA 1 FEM)" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-green">
+                        <button onclick="addBattery()" class="px-6 py-3 bg-sport-green hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md">
+                            Adicionar Bateria
                         </button>
                     </div>
-                    <!-- Bloco 3 -->
-                    <div class="bg-white border border-slate-200 p-6 rounded-2xl space-y-4 shadow-md">
-                        <div class="flex items-center justify-between">
-                            <h4 class="font-bold text-slate-900 text-lg">Bloco 3</h4>
-                            <span id="status-badge-Bloco 3" class="px-3 py-1 rounded-full text-xs font-bold">Ativo</span>
-                        </div>
-                        <button onclick="toggleBlocoStatus('Bloco 3')" id="btn-toggle-Bloco 3" class="w-full py-2.5 rounded-xl text-sm font-bold transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
-                            Encerrar Bloco
+                    <div id="batteries-list-container" class="flex flex-wrap gap-2 pt-2">
+                        <!-- Lista de baterias dinâmicas -->
+                    </div>
+                </div>
+
+                <!-- Upload de Arquivo Excel (XLS/XLSX) ou CSV -->
+                <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-4">
+                    <h4 class="text-xl font-black text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-file-excel text-sport-green"></i>
+                        <span>Upload de Informações (Excel / CSV)</span>
+                    </h4>
+                    <p class="text-xs text-slate-400">O arquivo deve possuir cabeçalhos correspondentes: <strong>ATLETA</strong>, <strong>NAIPE</strong>, <strong>CATEGORIA</strong>, <strong>ESTADO</strong>, <strong>EQUIPE</strong>, <strong>BATERIA</strong> e <strong>TEMPO</strong>.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+                        <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-sport-blue file:text-white hover:file:bg-blue-600 cursor-pointer">
+                        <button onclick="processExcelUpload()" class="w-full sm:w-auto px-8 py-3 bg-sport-green hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
+                            Processar e Importar
                         </button>
                     </div>
                 </div>
 
                 <!-- Formulário de Lançamento Manual de Tempos -->
-                <div class="bg-white border border-slate-200 p-8 rounded-3xl shadow-md space-y-6">
-                    <h4 class="text-xl font-black text-slate-900 flex items-center space-x-2">
-                        <i class="fa-solid fa-stopwatch text-cob-blue"></i>
-                        <span>Registrar Tempo Oficial de Atleta</span>
+                <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-6">
+                    <h4 class="text-xl font-black text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-stopwatch text-sport-cyan"></i>
+                        <span>Inserção Manual de Resultado</span>
                     </h4>
 
                     <form id="time-entry-form" onsubmit="submitTimeRecord(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-600 mb-2">CPF</label>
-                            <input type="text" id="admin-cpf" required placeholder="000.000.000-00" oninput="formatCPFInput(this)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-cob-blue">
-                            <span class="text-xs text-slate-500 mt-1 block">Busca ou cadastra o atleta automaticamente.</span>
-                        </div>
-
-                        <!-- Atualizado: Campo Nome Completo com caixa alta automática -->
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Nome Completo</label>
-                            <input type="text" id="admin-atleta" required placeholder="NOME DO PARTICIPANTE" oninput="this.value = this.value.toUpperCase()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 uppercase focus:outline-none focus:border-cob-blue">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Atleta</label>
+                            <input type="text" id="admin-atleta" required placeholder="NOME DO ATLETA" oninput="this.value = this.value.toUpperCase()" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
                         </div>
 
                         <!-- NOVO CAMPO: NAIPE -->
                         <div>
-                            <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Naipe</label>
-                            <select id="admin-naipe" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-cob-blue">
+                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Naipe</label>
+                            <select id="admin-naipe" required class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sport-cyan">
                                 <option value="MAS">Masculino (MAS)</option>
                                 <option value="FEM">Feminino (FEM)</option>
                             </select>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Subcategoria / Perfil</label>
-                            <select id="admin-subcategoria" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-cob-blue">
-                                <option value="Atleta">Atleta</option>
-                                <option value="Arbitragem">Arbitragem</option>
-                                <option value="Comitê Organizador">Comitê Organizador</option>
-                                <option value="Público Geral">Público Geral</option>
+                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Categoria</label>
+                            <input type="text" id="admin-categoria" required placeholder="DIGITE A CATEGORIA" oninput="this.value = this.value.toUpperCase()" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Estado</label>
+                            <input type="text" id="admin-estado" required placeholder="SIGLA OU NOME DO ESTADO (EX: SP)" oninput="this.value = this.value.toUpperCase()" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Equipe / Clube / Escola</label>
+                            <input type="text" id="admin-equipe" required placeholder="DIGITE A EQUIPE, CLUBE OU ESCOLA" oninput="this.value = this.value.toUpperCase()" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Bateria</label>
+                            <select id="admin-bateria" required class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sport-cyan">
+                                <!-- Preenchido dinamicamente -->
                             </select>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Modalidade</label>
-                            <select id="admin-modalidade" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-cob-blue">
-                                <option value="Remo">Remo (500m)</option>
-                                <option value="Ciclismo">Ciclismo (Sprint 300m)</option>
-                                <option value="Corrida">Corrida (500m)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Bloco</label>
-                            <select id="admin-bloco" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-cob-blue">
-                                <option value="Bloco 1">Bloco 1</option>
-                                <option value="Bloco 2">Bloco 2</option>
-                                <option value="Bloco 3">Bloco 3</option>
-                            </select>
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Tempo Oficial (HH:MM:SS)</label>
-                            <input type="text" id="admin-tempo" required placeholder="00:00:00" maxlength="8" oninput="formatTimeInput(this)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 font-mono text-lg focus:outline-none focus:border-cob-blue">
+                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Tempo Oficial (HH:MM:SS)</label>
+                            <input type="text" id="admin-tempo" required placeholder="00:00:00" maxlength="8" oninput="formatTimeInput(this)" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white font-mono text-lg focus:outline-none focus:border-sport-cyan">
                             <span class="text-xs text-slate-500 mt-1 block">Formato padrão: Horas:Minutos:Segundos (Ex: 00:01:45)</span>
                         </div>
 
-                        <div class="md:col-span-2 flex justify-end">
-                            <button type="submit" class="px-8 py-3.5 bg-cob-dark hover:bg-cob-blue text-white font-bold rounded-xl shadow-md transition-all flex items-center space-x-2">
+                        <div class="md:col-span-2 flex justify-end mt-2">
+                            <button type="submit" class="px-8 py-3.5 bg-gradient-to-r from-sport-green to-emerald-500 hover:opacity-95 text-slate-950 font-black rounded-xl shadow-lg transition-all flex items-center space-x-2">
                                 <i class="fa-solid fa-floppy-disk"></i>
-                                <span>Salvar Registro Oficial</span>
+                                <span>Salvar Resultado Oficial</span>
                             </button>
                         </div>
                     </form>
                 </div>
 
                 <!-- Lista de Registros Cadastrados -->
-                <div class="bg-white border border-slate-200 p-8 rounded-3xl shadow-md space-y-6">
-                    <h4 class="text-xl font-black text-slate-900">Registros Cadastrados no Sistema</h4>
+                <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-6">
+                    <h4 class="text-xl font-black text-white">Registros Atuais na Modalidade Ativa</h4>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-slate-100 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
-                                    <th class="py-3 px-4">CPF</th>
-                                    <th class="py-3 px-4">Nome Completo</th>
+                                <tr class="bg-sport-border/50 border-b border-sport-border text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                    <th class="py-3 px-4">Atleta</th>
                                     <th class="py-3 px-4">Naipe</th>
-                                    <th class="py-3 px-4">Perfil</th>
-                                    <th class="py-3 px-4">Bloco</th>
-                                    <th class="py-3 px-4">Modalidade</th>
+                                    <th class="py-3 px-4">Categoria</th>
+                                    <th class="py-3 px-4">Estado</th>
+                                    <th class="py-3 px-4">Equipe / Clube / Escola</th>
+                                    <th class="py-3 px-4">Bateria</th>
                                     <th class="py-3 px-4">Tempo</th>
                                     <th class="py-3 px-4 text-right">Ação</th>
                                 </tr>
                             </thead>
-                            <tbody id="admin-records-tbody" class="divide-y divide-slate-100 text-sm">
+                            <tbody id="admin-records-tbody" class="divide-y divide-sport-border text-sm text-slate-300">
                                 <!-- Preenchido via Supabase -->
                             </tbody>
                         </table>
@@ -381,47 +337,109 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-8 mt-16 text-slate-600">
-        <div class="max-w-7xl mx-auto px-4 text-center text-sm space-y-2">
-            <p>Desafio Virtual | Jogos da Juventude 2026.</p>
-            <p class="text-xs text-slate-400">Sistema oficial de cronometragem e apuração técnica.</p>
+    <footer class="bg-sport-card border-t border-sport-border py-6 mt-16 text-slate-400">
+        <div class="max-w-7xl mx-auto px-4 text-center text-sm space-y-1">
+            <p>Resultados Competições Virtuais | Sistema de Apuração em Tempo Real</p>
         </div>
     </footer>
 
     <!-- Modal Customizado -->
-    <div id="custom-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white border border-slate-200 max-w-sm w-full p-6 rounded-3xl shadow-2xl text-center space-y-4">
-            <div id="modal-icon" class="w-14 h-14 rounded-full bg-emerald-50 text-cob-green flex items-center justify-center mx-auto text-2xl border border-emerald-100">
+    <div id="custom-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-sport-card border border-sport-border max-w-sm w-full p-6 rounded-3xl shadow-2xl text-center space-y-4">
+            <div id="modal-icon" class="w-14 h-14 rounded-full bg-sport-green/20 text-sport-green flex items-center justify-center mx-auto text-2xl border border-sport-green/30">
                 <i class="fa-solid fa-check"></i>
             </div>
-            <h4 id="modal-title" class="text-lg font-bold text-slate-900">Sucesso</h4>
-            <p id="modal-message" class="text-sm text-slate-600">Mensagem aqui</p>
-            <button onclick="closeModal()" class="w-full py-2.5 bg-cob-dark hover:bg-cob-blue text-white font-bold rounded-xl text-sm transition-all">Entendido</button>
+            <h4 id="modal-title" class="text-lg font-bold text-white">Sucesso</h4>
+            <p id="modal-message" class="text-sm text-slate-300">Mensagem aqui</p>
+            <button onclick="closeModal()" class="w-full py-2.5 bg-sport-blue hover:bg-blue-600 text-white font-bold rounded-xl text-sm transition-all">Entendido</button>
         </div>
     </div>
 
-    <!-- JavaScript Application Logic com Supabase Realtime -->
+    <!-- JavaScript Application Logic -->
     <script>
         const SUPABASE_URL = 'https://vmdvunvvphkglnoeknjj.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_WB_Reg-TuFE8KD8QvwBHiw_1EOotbdq';
         const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let records = [];
-        let blocosStatus = JSON.parse(localStorage.getItem('jj2026_blocos')) || {
-            'Bloco 1': 'Ativo',
-            'Bloco 2': 'Ativo',
-            'Bloco 3': 'Ativo'
-        };
+        
+        let activeModality = localStorage.getItem('app_active_modality') || 'Remo (500m)';
+        let batteries = JSON.parse(localStorage.getItem('app_batteries')) || ['BATERIA 1 MAS', 'BATERIA 1 FEM', 'BATERIA 2 MAS', 'BATERIA 2 FEM'];
 
         let isAdminLoggedIn = false;
+
+        // Dicionários para conversão e exibição das bandeiras dos estados
+        const stateFlags = {
+            'AC': 'https://upload.wikimedia.org/wikipedia/commons/4/4c/Bandeira_do_Acre.svg',
+            'AL': 'https://upload.wikimedia.org/wikipedia/commons/8/88/Bandeira_de_Alagoas.svg',
+            'AP': 'https://upload.wikimedia.org/wikipedia/commons/0/0c/Bandeira_do_Amap%C3%A1.svg',
+            'AM': 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Bandeira_do_Amazonas.svg',
+            'BA': 'https://upload.wikimedia.org/wikipedia/commons/2/28/Bandeira_da_Bahia.svg',
+            'CE': 'https://upload.wikimedia.org/wikipedia/commons/2/2e/Bandeira_do_Cear%C3%A1.svg',
+            'DF': 'https://upload.wikimedia.org/wikipedia/commons/3/3c/Bandeira_do_Distrito_Federal_%28Brasil%29.svg',
+            'ES': 'https://upload.wikimedia.org/wikipedia/commons/4/43/Bandeira_do_Esp%C3%ADrito_Santo.svg',
+            'GO': 'https://upload.wikimedia.org/wikipedia/commons/b/be/Flag_of_Goi%C3%A1s.svg',
+            'MA': 'https://upload.wikimedia.org/wikipedia/commons/4/45/Bandeira_do_Maranh%C3%A3o.svg',
+            'MT': 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Bandeira_de_Mato_Grosso.svg',
+            'MS': 'https://upload.wikimedia.org/wikipedia/commons/6/64/Bandeira_de_Mato_Grosso_do_Sul.svg',
+            'MG': 'https://upload.wikimedia.org/wikipedia/commons/f/f4/Bandeira_de_Minas_Gerais.svg',
+            'PA': 'https://upload.wikimedia.org/wikipedia/commons/0/02/Bandeira_do_Par%C3%A1.svg',
+            'PB': 'https://upload.wikimedia.org/wikipedia/commons/b/bb/Bandeira_da_Para%C3%ADba.svg',
+            'PR': 'https://upload.wikimedia.org/wikipedia/commons/9/93/Bandeira_do_Paran%C3%A1.svg',
+            'PE': 'https://upload.wikimedia.org/wikipedia/commons/5/59/Bandeira_de_Pernambuco.svg',
+            'PI': 'https://upload.wikimedia.org/wikipedia/commons/3/33/Bandeira_do_Piau%C3%AD.svg',
+            'RJ': 'https://upload.wikimedia.org/wikipedia/commons/7/73/Bandeira_do_estado_do_Rio_de_Janeiro.svg',
+            'RN': 'https://upload.wikimedia.org/wikipedia/commons/3/30/Bandeira_do_Rio_Grande_do_Norte.svg',
+            'RS': 'https://upload.wikimedia.org/wikipedia/commons/6/63/Bandeira_do_Rio_Grande_do_Sul.svg',
+            'RO': 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Bandeira_de_Rond%C3%B4nia.svg',
+            'RR': 'https://upload.wikimedia.org/wikipedia/commons/9/98/Bandeira_de_Roraima.svg',
+            'SC': 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Bandeira_de_Santa_Catarina.svg',
+            'SP': 'https://upload.wikimedia.org/wikipedia/commons/2/2b/Bandeira_do_estado_de_S%C3%A3o_Paulo.svg',
+            'SE': 'https://upload.wikimedia.org/wikipedia/commons/b/be/Bandeira_de_Sergipe.svg',
+            'TO': 'https://upload.wikimedia.org/wikipedia/commons/f/ff/Bandeira_do_Tocantins.svg'
+        };
+
+        const stateNames = {
+            'ACRE': 'AC', 'ALAGOAS': 'AL', 'AMAPA': 'AP', 'AMAPÁ': 'AP', 'AMAZONAS': 'AM',
+            'BAHIA': 'BA', 'CEARA': 'CE', 'CEARÁ': 'CE', 'DISTRITO FEDERAL': 'DF', 'ESPIRITO SANTO': 'ES', 'ESPÍRITO SANTO': 'ES',
+            'GOIAS': 'GO', 'GOIÁS': 'GO', 'MARANHAO': 'MA', 'MARANHÃO': 'MA', 'MATO GROSSO': 'MT', 'MATO GROSSO DO SUL': 'MS',
+            'MINAS GERAIS': 'MG', 'PARA': 'PA', 'PARÁ': 'PA', 'PARAIBA': 'PB', 'PARAÍBA': 'PB', 'PARANA': 'PR', 'PARANÁ': 'PR',
+            'PERNAMBUCO': 'PE', 'PIAUI': 'PI', 'PIAUÍ': 'PI', 'RIO DE JANEIRO': 'RJ', 'RIO GRANDE DO NORTE': 'RN',
+            'RIO GRANDE DO SUL': 'RS', 'RONDONIA': 'RO', 'RONDÔNIA': 'RO', 'RORAIMA': 'RR', 'SANTA CATARINA': 'SC',
+            'SAO PAULO': 'SP', 'SÃO PAULO': 'SP', 'SERGIPE': 'SE', 'TOCANTINS': 'TO'
+        };
+
+        function getStateDisplay(val) {
+            if (!val) return '-';
+            const cleanVal = val.trim().toUpperCase();
+            let sigla = stateNames[cleanVal] || (stateFlags[cleanVal] ? cleanVal : null);
+            
+            if (sigla) {
+                const flagUrl = stateFlags[sigla];
+                return `<div class="flex items-center space-x-2"><img src="${flagUrl}" alt="${sigla}" class="w-6 h-4 object-cover rounded-sm border border-slate-600 shadow-sm"> <span>| ${sigla}</span></div>`;
+            }
+            return cleanVal; // Retorno de fallback caso digitem algo que não seja um estado brasileiro
+        }
 
         async function fetchRecords() {
             const { data, error } = await _supabase.from('records').select('*');
             if (!error && data) {
                 records = data;
-                renderAdminRecords();
-                renderLeaderboard();
+                updateUIState();
             }
+        }
+
+        function updateUIState() {
+            document.getElementById('hero-active-mod').innerText = activeModality;
+            document.getElementById('ranking-active-mod-label').innerText = activeModality;
+            if (document.getElementById('admin-active-mod-input')) {
+                document.getElementById('admin-active-mod-input').value = activeModality;
+            }
+
+            renderBatteriesSelects();
+            renderAdminBatteriesList();
+            renderAdminRecords();
+            renderLeaderboard();
         }
 
         function switchTab(tabId) {
@@ -429,13 +447,13 @@
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 const navBtn = document.getElementById(`nav-${t}`);
                 if (navBtn) {
-                    navBtn.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-cob-dark hover:bg-slate-100";
+                    navBtn.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:text-white hover:bg-slate-800";
                 }
             });
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             const activeNav = document.getElementById(`nav-${tabId}`);
             if (activeNav) {
-                activeNav.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-cob-dark text-white shadow-md";
+                activeNav.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-sport-blue text-white shadow-md";
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
             if (tabId === 'rankings') renderLeaderboard();
@@ -447,13 +465,84 @@
             menu.classList.toggle('hidden');
         }
 
-        function goToRankingModalidade(modalidadeNome) {
-            switchTab('rankings');
-            const selectMod = document.getElementById('filter-modalidade');
-            if (selectMod) {
-                selectMod.value = modalidadeNome;
-                renderLeaderboard();
+        function saveActiveModality() {
+            const val = document.getElementById('admin-active-mod-input').value.trim().toUpperCase();
+            if (!val) {
+                showModal('Atenção', 'Digite o nome da modalidade ativa.', 'error');
+                return;
             }
+            activeModality = val;
+            localStorage.setItem('app_active_modality', activeModality);
+            updateUIState();
+            showModal('Sucesso', 'Modalidade ativa atualizada com sucesso!', 'success');
+        }
+
+        function addBattery() {
+            const input = document.getElementById('new-battery-input');
+            const batName = input.value.trim().toUpperCase();
+            if (!batName) return;
+            if (batteries.includes(batName)) {
+                showModal('Atenção', 'Esta bateria já está cadastrada.', 'error');
+                return;
+            }
+            batteries.push(batName);
+            localStorage.setItem('app_batteries', JSON.stringify(batteries));
+            input.value = '';
+            updateUIState();
+            showModal('Sucesso', 'Bateria adicionada com sucesso!', 'success');
+        }
+
+        function removeBattery(batName) {
+            if (batteries.length <= 1) {
+                showModal('Atenção', 'O sistema precisa ter ao menos uma bateria.', 'error');
+                return;
+            }
+            batteries = batteries.filter(b => b !== batName);
+            localStorage.setItem('app_batteries', JSON.stringify(batteries));
+            updateUIState();
+        }
+
+        function renderBatteriesSelects() {
+            const filterSelect = document.getElementById('filter-bateria');
+            if (filterSelect) {
+                const currentVal = filterSelect.value;
+                filterSelect.innerHTML = `
+                    <option value="Geral_MAS">Ranking Geral - Masculino (MAS)</option>
+                    <option value="Geral_FEM">Ranking Geral - Feminino (FEM)</option>
+                `;
+                batteries.forEach(b => {
+                    filterSelect.innerHTML += `<option value="${b}">${b}</option>`;
+                });
+                if (filterSelect.querySelector(`option[value="${currentVal}"]`)) {
+                    filterSelect.value = currentVal;
+                }
+            }
+
+            const adminSelect = document.getElementById('admin-bateria');
+            if (adminSelect) {
+                const currentVal = adminSelect.value;
+                adminSelect.innerHTML = '';
+                batteries.forEach(b => {
+                    adminSelect.innerHTML += `<option value="${b}">${b}</option>`;
+                });
+                if (adminSelect.querySelector(`option[value="${currentVal}"]`)) {
+                    adminSelect.value = currentVal;
+                }
+            }
+        }
+
+        function renderAdminBatteriesList() {
+            const container = document.getElementById('batteries-list-container');
+            if (!container) return;
+            container.innerHTML = '';
+            batteries.forEach(b => {
+                container.innerHTML += `
+                    <div class="inline-flex items-center space-x-2 bg-sport-dark border border-sport-border px-3.5 py-2 rounded-xl text-sm">
+                        <span class="text-white font-semibold">${b}</span>
+                        <button onclick="removeBattery('${b}')" class="text-red-400 hover:text-red-300 ml-2"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                `;
+            });
         }
 
         function formatTimeInput(input) {
@@ -468,39 +557,15 @@
             }
         }
 
-        // MÁSCARA E AUTOPREENCHIMENTO DO CPF (AGORA COM NAIPE)
-        function formatCPFInput(input) {
-            let v = input.value.replace(/\D/g, ''); // Remove tudo o que não é dígito
-            if (v.length > 11) v = v.slice(0, 11);
-            
-            // Aplica a máscara
-            v = v.replace(/(\d{3})(\d)/, '$1.$2');
-            v = v.replace(/(\d{3})(\d)/, '$1.$2');
-            v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-            
-            input.value = v;
-
-            // Se o CPF estiver completo, busca se já existe e autopreenche
-            if (v.length === 14) {
-                const existingParticipant = records.find(r => r.cpf === v);
-                if (existingParticipant) {
-                    document.getElementById('admin-atleta').value = existingParticipant.atleta;
-                    if(existingParticipant.naipe) document.getElementById('admin-naipe').value = existingParticipant.naipe;
-                    document.getElementById('admin-subcategoria').value = existingParticipant.subcategoria;
-                }
-            }
-        }
-
         function handleAdminLogin() {
             const pin = document.getElementById('admin-pin-input').value;
             const errorEl = document.getElementById('login-error');
-            if (pin === 'JJ2026FOZ') {
+            if (pin === 'Virtu@lBr09') {
                 isAdminLoggedIn = true;
                 errorEl.classList.add('hidden');
                 document.getElementById('admin-login-screen').classList.add('hidden');
                 document.getElementById('admin-panel-content').classList.remove('hidden');
-                updateBlocosUI();
-                renderAdminRecords();
+                updateUIState();
             } else {
                 errorEl.classList.remove('hidden');
             }
@@ -513,61 +578,90 @@
             document.getElementById('admin-login-screen').classList.remove('hidden');
         }
 
-        function toggleBlocoStatus(blocoName) {
-            blocosStatus[blocoName] = blocosStatus[blocoName] === 'Ativo' ? 'Encerrado' : 'Ativo';
-            localStorage.setItem('jj2026_blocos', JSON.stringify(blocosStatus));
-            updateBlocosUI();
-        }
+        async function processExcelUpload() {
+            const fileInput = document.getElementById('excel-file-input');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showModal('Atenção', 'Selecione um arquivo Excel (.xlsx, .xls) ou CSV.', 'error');
+                return;
+            }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
 
-        function updateBlocosUI() {
-            ['Bloco 1', 'Bloco 2', 'Bloco 3'].forEach(b => {
-                const status = blocosStatus[b];
-                const badge = document.getElementById(`status-badge-${b}`);
-                const btn = document.getElementById(`btn-toggle-${b}`);
-                if (badge && btn) {
-                    if (status === 'Ativo') {
-                        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200';
-                        badge.innerText = 'Ativo';
-                        btn.className = 'w-full py-2.5 rounded-xl text-sm font-bold transition-all bg-red-600 hover:bg-red-700 text-white shadow-sm';
-                        btn.innerText = 'Encerrar Bloco';
-                    } else {
-                        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200';
-                        badge.innerText = 'Encerrado';
-                        btn.className = 'w-full py-2.5 rounded-xl text-sm font-bold transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm';
-                        btn.innerText = 'Abrir Bloco';
+            reader.onload = async function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+                    if (jsonRows.length === 0) {
+                        showModal('Atenção', 'O arquivo enviado está vazio ou sem dados válidos.', 'error');
+                        return;
                     }
+
+                    let countProcessed = 0;
+                    for (let row of jsonRows) {
+                        const keys = Object.keys(row);
+                        let atletaKey = keys.find(k => /atleta|nome/i.test(k)) || keys[0];
+                        let naipeKey = keys.find(k => /naipe|genero|sexo/i.test(k)); // Opcional, caso a planilha velha não tenha
+                        let categoriaKey = keys.find(k => /categoria|subcategoria/i.test(k)) || keys[1];
+                        let estadoKey = keys.find(k => /estado|uf/i.test(k)) || keys[2];
+                        let equipeKey = keys.find(k => /equipe|clube|escola/i.test(k)) || keys[3];
+                        let bateriaKey = keys.find(k => /bateria/i.test(k)) || keys[4];
+                        let tempoKey = keys.find(k => /tempo|resultado/i.test(k)) || keys[5];
+
+                        const atleta = String(row[atletaKey] || '').trim().toUpperCase();
+                        const naipe = naipeKey ? String(row[naipeKey] || '').trim().toUpperCase() : '';
+                        const categoria = String(row[categoriaKey] || '').trim().toUpperCase();
+                        const estado = String(row[estadoKey] || '').trim().toUpperCase();
+                        const equipe = String(row[equipeKey] || '').trim().toUpperCase();
+                        const bateria = String(row[bateriaKey] || batteries[0]).trim().toUpperCase();
+                        const tempo = String(row[tempoKey] || '00:00:00').trim();
+
+                        if (atleta && tempo) {
+                            const modalidade = activeModality;
+                            const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
+
+                            if (existingRecord) {
+                                await _supabase.from('records')
+                                    .update({ tempo: tempo, bateria: bateria, categoria: categoria, naipe: naipe, estado: estado, equipe: equipe })
+                                    .eq('id', existingRecord.id);
+                            } else {
+                                await _supabase.from('records')
+                                    .insert([{ atleta, naipe, categoria, estado, equipe, modalidade, bateria, tempo }]);
+                            }
+                            countProcessed++;
+                        }
+                    }
+
+                    fileInput.value = '';
+                    await fetchRecords();
+                    showModal('Sucesso', `${countProcessed} registros importados com sucesso!`, 'success');
+                } catch (err) {
+                    console.error(err);
+                    showModal('Erro', 'Não foi possível processar o arquivo. Verifique o formato.', 'error');
                 }
-            });
+            };
+            reader.readAsArrayBuffer(file);
         }
 
         async function submitTimeRecord(e) {
             e.preventDefault();
-            const cpf = document.getElementById('admin-cpf').value;
-            // Atualizado: Força `.toUpperCase()` no JavaScript para garantir segurança ao enviar para o DB
             const atleta = document.getElementById('admin-atleta').value.toUpperCase();
             const naipe = document.getElementById('admin-naipe').value;
-            const subcategoria = document.getElementById('admin-subcategoria').value;
-            const modalidade = document.getElementById('admin-modalidade').value;
-            const bloco = document.getElementById('admin-bloco').value;
+            const categoria = document.getElementById('admin-categoria').value.toUpperCase();
+            const estado = document.getElementById('admin-estado').value.toUpperCase();
+            const equipe = document.getElementById('admin-equipe').value.toUpperCase();
+            const bateria = document.getElementById('admin-bateria').value; 
+            const modalidade = activeModality;
             const tempo = document.getElementById('admin-tempo').value;
 
-            if (cpf.length !== 14) {
-                showModal('Atenção', 'Digite um CPF válido completo.', 'error');
-                return;
-            }
-
-            if (blocosStatus[bloco] === 'Encerrado') {
-                showModal('Atenção', `O ${bloco} está encerrado. Não é possível cadastrar novos tempos nele.`, 'error');
-                return;
-            }
-
-            // Regra: Caso participe de novo da mesma modalidade, atualiza o tempo e joga fora o velho.
-            const existingRecord = records.find(r => r.cpf === cpf && r.modalidade === modalidade);
+            const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
 
             if (existingRecord) {
-                // UPDATE
                 const { error } = await _supabase.from('records')
-                    .update({ tempo: tempo, bloco: bloco, atleta: atleta, naipe: naipe, subcategoria: subcategoria })
+                    .update({ tempo: tempo, bateria: bateria, categoria: categoria, naipe: naipe, estado: estado, equipe: equipe })
                     .eq('id', existingRecord.id);
 
                 if (!error) {
@@ -575,12 +669,11 @@
                     await fetchRecords();
                     showModal('Sucesso', 'O tempo deste participante foi atualizado nesta modalidade!', 'success');
                 } else {
-                    showModal('Erro', 'Não foi possível atualizar o registro.', 'error');
+                    showModal('Erro', 'Não foi possível atualizar o registro no banco.', 'error');
                 }
             } else {
-                // INSERT
                 const { error } = await _supabase.from('records')
-                    .insert([{ cpf, atleta, naipe, subcategoria, modalidade, bloco, tempo }]);
+                    .insert([{ atleta, naipe, categoria, estado, equipe, modalidade, bateria, tempo }]);
                 
                 if (!error) {
                     document.getElementById('time-entry-form').reset();
@@ -601,26 +694,28 @@
 
         function renderAdminRecords() {
             const tbody = document.getElementById('admin-records-tbody');
+            if (!tbody) return;
             tbody.innerHTML = '';
-            if (records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-400">Nenhum registro cadastrado.</td></tr>`;
+
+            const activeRecords = records.filter(r => r.modalidade === activeModality);
+
+            if (activeRecords.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-500">Nenhum registro para esta modalidade.</td></tr>`;
                 return;
             }
-            records.forEach(r => {
-                // Mascara parcialmente o CPF na tabela admin para segurança visual
-                const hiddenCpf = r.cpf ? r.cpf.substring(0, 3) + '.***.***-' + r.cpf.substring(12, 14) : '---';
-                
+
+            activeRecords.forEach(r => {
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="py-3 px-4 text-slate-500 font-mono text-xs">${hiddenCpf}</td>
-                        <td class="py-3 px-4 font-bold text-slate-900">${r.atleta}</td>
-                        <td class="py-3 px-4 text-slate-600">${r.naipe || '-'}</td>
-                        <td class="py-3 px-4 text-slate-600">${r.subcategoria}</td>
-                        <td class="py-3 px-4 text-slate-600">${r.bloco}</td>
-                        <td class="py-3 px-4 text-slate-600">${r.modalidade}</td>
-                        <td class="py-3 px-4 font-mono font-bold text-emerald-600">${r.tempo}</td>
+                    <tr class="hover:bg-sport-border/30 transition-colors">
+                        <td class="py-3 px-4 font-bold text-white">${r.atleta || '-'}</td>
+                        <td class="py-3 px-4 text-slate-300">${r.naipe || '-'}</td>
+                        <td class="py-3 px-4 text-slate-300">${r.categoria || '-'}</td>
+                        <td class="py-3 px-4 text-slate-300">${r.estado || '-'}</td>
+                        <td class="py-3 px-4 text-slate-300">${r.equipe || '-'}</td>
+                        <td class="py-3 px-4 text-slate-300">${r.bateria || '-'}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-sport-green">${r.tempo || '-'}</td>
                         <td class="py-3 px-4 text-right">
-                            <button onclick="deleteRecord('${r.id}')" class="text-red-500 hover:text-red-700 p-2"><i class="fa-solid fa-trash"></i></button>
+                            <button onclick="deleteRecord('${r.id}')" class="text-red-400 hover:text-red-300 p-2"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
@@ -628,44 +723,80 @@
         }
 
         function renderLeaderboard() {
-            const bloco = document.getElementById('filter-bloco').value;
-            const modalidade = document.getElementById('filter-modalidade').value;
+            const bateriaFilter = document.getElementById('filter-bateria').value;
             const tbody = document.getElementById('leaderboard-tbody');
+            if (!tbody) return;
 
-            // Filtra primeiro a modalidade
-            let filtered = records.filter(r => r.modalidade === modalidade);
-            
-            // Se NÃO for ranking geral, filtra também pelo bloco selecionado
-            if (bloco !== 'Geral') {
-                filtered = filtered.filter(r => r.bloco === bloco);
+            let filtered = records.filter(r => r.modalidade === activeModality);
+
+            // Filtragem separada para Geral MAS, Geral FEM ou Bateria específica
+            if (bateriaFilter === 'Geral_MAS') {
+                filtered = filtered.filter(r => /mas|masculino/i.test(r.bateria) || /mas|masculino/i.test(r.categoria) || r.naipe === 'MAS');
+            } else if (bateriaFilter === 'Geral_FEM') {
+                filtered = filtered.filter(r => /fem|feminino/i.test(r.bateria) || /fem|feminino/i.test(r.categoria) || r.naipe === 'FEM');
+            } else {
+                filtered = filtered.filter(r => r.bateria === bateriaFilter);
             }
 
-            // Ordena sempre do menor para o maior tempo
             filtered.sort((a, b) => a.tempo.localeCompare(b.tempo));
 
             tbody.innerHTML = '';
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-400">Nenhum resultado registrado para este filtro.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-500">Nenhum resultado registrado para esta seleção.</td></tr>`;
                 return;
             }
 
+            const leaderTimeSec = timeToSeconds(filtered[0].tempo);
+
             filtered.forEach((r, index) => {
-                let badgeClass = "text-slate-500 font-bold";
-                if (index === 0) badgeClass = "text-amber-700 font-black bg-amber-100 px-3 py-1 rounded-full border border-amber-200";
-                if (index === 1) badgeClass = "text-slate-700 font-black bg-slate-200 px-3 py-1 rounded-full border border-slate-300";
-                if (index === 2) badgeClass = "text-amber-800 font-black bg-amber-50 px-3 py-1 rounded-full border border-amber-200";
+                let badgeClass = "text-slate-400 font-bold";
+                if (index === 0) badgeClass = "text-amber-300 font-black bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/30";
+                if (index === 1) badgeClass = "text-slate-200 font-black bg-slate-400/20 px-3 py-1 rounded-full border border-slate-400/30";
+                if (index === 2) badgeClass = "text-amber-600 font-black bg-amber-700/20 px-3 py-1 rounded-full border border-amber-700/30";
+
+                let diffStr = "-";
+                if (index > 0) {
+                    const currentSec = timeToSeconds(r.tempo);
+                    const diffSec = currentSec - leaderTimeSec;
+                    diffStr = "+" + secondsToTime(diffSec);
+                } else {
+                    diffStr = "CAMPEÃO";
+                }
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
+                    <tr class="hover:bg-sport-border/30 transition-colors">
                         <td class="py-4 px-6 text-center font-black ${badgeClass}">#${index + 1}</td>
-                        <td class="py-4 px-6 font-bold text-slate-900">${r.atleta}</td>
-                        <td class="py-4 px-6 text-slate-600">${r.naipe || '-'}</td>
-                        <td class="py-4 px-6 text-slate-600">${r.subcategoria}</td>
-                        <td class="py-4 px-6 text-slate-500">${r.bloco}</td>
-                        <td class="py-4 px-6 text-right font-mono font-black text-emerald-600 text-base">${r.tempo}</td>
+                        <td class="py-4 px-6 font-bold text-white">${r.atleta || '-'}</td>
+                        <td class="py-4 px-6 text-slate-300">${r.naipe || '-'}</td>
+                        <td class="py-4 px-6 text-slate-300">${r.categoria || '-'}</td>
+                        <td class="py-4 px-6 text-slate-300">${getStateDisplay(r.estado)}</td>
+                        <td class="py-4 px-6 text-slate-300">${r.equipe || '-'}</td>
+                        <td class="py-4 px-6 text-slate-400">${r.bateria || '-'}</td>
+                        <td class="py-4 px-6 text-right font-mono font-black text-sport-green text-base">${r.tempo || '-'}</td>
+                        <td class="py-4 px-6 text-right font-mono text-xs text-slate-400">${diffStr}</td>
                     </tr>
                 `;
             });
+        }
+
+        function timeToSeconds(timeStr) {
+            const parts = timeStr.split(':').map(Number);
+            if (parts.length === 3) {
+                return parts[0] * 3600 + parts[1] * 60 + parts[2];
+            } else if (parts.length === 2) {
+                return parts[0] * 60 + parts[1];
+            }
+            return 0;
+        }
+
+        function secondsToTime(totalSec) {
+            const h = Math.floor(totalSec / 3600);
+            const m = Math.floor((totalSec % 3600) / 60);
+            const s = totalSec % 60;
+            if (h > 0) {
+                return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            }
+            return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
         }
 
         function showModal(title, message, type = 'success') {
@@ -673,10 +804,10 @@
             document.getElementById('modal-message').innerText = message;
             const icon = document.getElementById('modal-icon');
             if (type === 'success') {
-                icon.className = "w-14 h-14 rounded-full bg-emerald-50 text-cob-green flex items-center justify-center mx-auto text-2xl border border-emerald-100";
+                icon.className = "w-14 h-14 rounded-full bg-sport-green/20 text-sport-green flex items-center justify-center mx-auto text-2xl border border-sport-green/30";
                 icon.innerHTML = '<i class="fa-solid fa-check"></i>';
             } else {
-                icon.className = "w-14 h-14 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto text-2xl border border-red-100";
+                icon.className = "w-14 h-14 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center mx-auto text-2xl border border-red-500/30";
                 icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
             }
             document.getElementById('custom-modal').classList.remove('hidden');
@@ -686,9 +817,8 @@
             document.getElementById('custom-modal').classList.add('hidden');
         }
 
-        // Inicialização e Sincronização em Tempo Real via Supabase
         document.addEventListener('DOMContentLoaded', async () => {
-            updateBlocosUI();
+            updateUIState();
             await fetchRecords();
 
             _supabase
