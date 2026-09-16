@@ -77,6 +77,7 @@
 
         <!-- TAB: INÍCIO -->
         <section id="tab-home" class="space-y-8 animate-fadeIn">
+            <!-- Hero Banner -->
             <div class="relative bg-gradient-to-br from-sport-card via-[#0F172A] to-[#1E293B] rounded-3xl border border-sport-border p-8 md:p-12 overflow-hidden shadow-2xl text-white">
                 <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-sport-cyan/10 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="absolute top-0 left-1/4 w-72 h-72 bg-sport-green/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -127,6 +128,7 @@
                     <p class="text-sm text-slate-400">Modalidade Ativa: <span id="ranking-active-mod-label" class="text-sport-cyan font-bold">---</span></p>
                 </div>
                 
+                <!-- Filtros -->
                 <div class="flex flex-wrap gap-3">
                     <select id="filter-bateria" onchange="renderLeaderboard()" class="bg-sport-dark border border-sport-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-sport-cyan">
                         <option value="Geral_MAS">Ranking Geral - Masculino (MAS)</option>
@@ -142,8 +144,9 @@
                         <thead>
                             <tr class="bg-sport-border/50 border-b border-sport-border text-xs font-bold text-slate-400 uppercase tracking-wider">
                                 <th class="py-4 px-6 text-center w-16">Pos</th>
-                                <th class="py-4 px-6">Nome Completo</th>
-                                <th class="py-4 px-6">Atleta / Categoria</th>
+                                <th class="py-4 px-6">Atleta</th>
+                                <th class="py-4 px-6">Categoria</th>
+                                <th class="py-4 px-6">Equipe / Clube / Escola</th>
                                 <th class="py-4 px-6">Bateria</th>
                                 <th class="py-4 px-6 text-right">Tempo Oficial</th>
                                 <th class="py-4 px-6 text-right">Dif. p/ Líder</th>
@@ -205,7 +208,7 @@
                         <span>Configurar Modalidade Ativa do Evento</span>
                     </h4>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <input type="text" id="admin-active-mod-input" placeholder="Ex: Remo (500m) / Ciclismo (300m)" class="flex-grow bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sport-cyan">
+                        <input type="text" id="admin-active-mod-input" placeholder="Ex: Remo (500m) / Ciclismo (300m)" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
                         <button onclick="saveActiveModality()" class="px-6 py-3 bg-sport-blue hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-md">
                             Atualizar Modalidade
                         </button>
@@ -219,7 +222,7 @@
                         <span>Gerenciamento de Baterias (Ex: Bateria 1 MAS, Bateria 1 FEM)</span>
                     </h4>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <input type="text" id="new-battery-input" placeholder="Nome da Bateria (Ex: Bateria 1 MAS, Bateria 1 FEM)" class="flex-grow bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sport-green">
+                        <input type="text" id="new-battery-input" placeholder="NOME DA BATERIA (EX: BATERIA 1 MAS, BATERIA 1 FEM)" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-green">
                         <button onclick="addBattery()" class="px-6 py-3 bg-sport-green hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md">
                             Adicionar Bateria
                         </button>
@@ -235,7 +238,7 @@
                         <i class="fa-solid fa-file-excel text-sport-green"></i>
                         <span>Upload de Informações (Excel / CSV)</span>
                     </h4>
-                    <p class="text-xs text-slate-400">O arquivo deve possuir cabeçalhos correspondentes, como: <strong>Atleta</strong> (ou Nome), <strong>Categoria</strong> (ou Subcategoria/Perfil), <strong>Bateria</strong> e <strong>Tempo</strong>.</p>
+                    <p class="text-xs text-slate-400">O arquivo deve possuir cabeçalhos correspondentes: <strong>ATLETA</strong>, <strong>CATEGORIA</strong>, <strong>EQUIPE</strong>, <strong>BATERIA</strong> e <strong>TEMPO</strong>.</p>
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
                         <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-sport-blue file:text-white hover:file:bg-blue-600 cursor-pointer">
                         <button onclick="processExcelUpload()" class="w-full sm:w-auto px-8 py-3 bg-sport-green hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
@@ -253,14 +256,18 @@
 
                     <form id="time-entry-form" onsubmit="submitTimeRecord(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="md:col-span-2">
-                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Nome Completo</label>
-                            <input type="text" id="admin-atleta" required placeholder="NOME DO PARTICIPANTE" oninput="this.value = this.value.toUpperCase()" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
+                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Atleta</label>
+                            <input type="text" id="admin-atleta" required placeholder="NOME DO ATLETA" oninput="this.value = this.value.toUpperCase()" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
                         </div>
 
-                        <!-- Campo Atleta / Categoria atualizado -->
                         <div>
-                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Categoria / Atleta (Perfil)</label>
-                            <input type="text" id="admin-subcategoria" required placeholder="EX: ATLETA, SUB-18, MASTER" oninput="this.value = this.value.toUpperCase()" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
+                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Categoria</label>
+                            <input type="text" id="admin-categoria" required placeholder="DIGITE A CATEGORIA" oninput="this.value = this.value.toUpperCase()" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Equipe / Clube / Escola</label>
+                            <input type="text" id="admin-equipe" required placeholder="DIGITE A EQUIPE, CLUBE OU ESCOLA" oninput="this.value = this.value.toUpperCase()" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
                         </div>
 
                         <div>
@@ -270,13 +277,13 @@
                             </select>
                         </div>
 
-                        <div class="md:col-span-2">
+                        <div>
                             <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Tempo Oficial (HH:MM:SS)</label>
                             <input type="text" id="admin-tempo" required placeholder="00:00:00" maxlength="8" oninput="formatTimeInput(this)" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white font-mono text-lg focus:outline-none focus:border-sport-cyan">
                             <span class="text-xs text-slate-500 mt-1 block">Formato padrão: Horas:Minutos:Segundos (Ex: 00:01:45)</span>
                         </div>
 
-                        <div class="md:col-span-2 flex justify-end">
+                        <div class="md:col-span-2 flex justify-end mt-2">
                             <button type="submit" class="px-8 py-3.5 bg-gradient-to-r from-sport-green to-emerald-500 hover:opacity-95 text-slate-950 font-black rounded-xl shadow-lg transition-all flex items-center space-x-2">
                                 <i class="fa-solid fa-floppy-disk"></i>
                                 <span>Salvar Resultado Oficial</span>
@@ -292,8 +299,9 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-sport-border/50 border-b border-sport-border text-xs font-bold text-slate-400 uppercase tracking-wider">
-                                    <th class="py-3 px-4">Nome Completo</th>
-                                    <th class="py-3 px-4">Atleta / Categoria</th>
+                                    <th class="py-3 px-4">Atleta</th>
+                                    <th class="py-3 px-4">Categoria</th>
+                                    <th class="py-3 px-4">Equipe / Clube / Escola</th>
                                     <th class="py-3 px-4">Bateria</th>
                                     <th class="py-3 px-4">Tempo</th>
                                     <th class="py-3 px-4 text-right">Ação</th>
@@ -338,7 +346,7 @@
         let records = [];
         
         let activeModality = localStorage.getItem('app_active_modality') || 'Remo (500m)';
-        let batteries = JSON.parse(localStorage.getItem('app_batteries')) || ['Bateria 1 MAS', 'Bateria 1 FEM', 'Bateria 2 MAS', 'Bateria 2 FEM'];
+        let batteries = JSON.parse(localStorage.getItem('app_batteries')) || ['BATERIA 1 MAS', 'BATERIA 1 FEM', 'BATERIA 2 MAS', 'BATERIA 2 FEM'];
 
         let isAdminLoggedIn = false;
 
@@ -387,7 +395,7 @@
         }
 
         function saveActiveModality() {
-            const val = document.getElementById('admin-active-mod-input').value.trim();
+            const val = document.getElementById('admin-active-mod-input').value.trim().toUpperCase();
             if (!val) {
                 showModal('Atenção', 'Digite o nome da modalidade ativa.', 'error');
                 return;
@@ -400,7 +408,7 @@
 
         function addBattery() {
             const input = document.getElementById('new-battery-input');
-            const batName = input.value.trim();
+            const batName = input.value.trim().toUpperCase();
             if (!batName) return;
             if (batteries.includes(batName)) {
                 showModal('Atenção', 'Esta bateria já está cadastrada.', 'error');
@@ -499,7 +507,6 @@
             document.getElementById('admin-login-screen').classList.remove('hidden');
         }
 
-        // Processamento Excel/CSV atualizado para reconhecer colunas de Atleta/Categoria
         async function processExcelUpload() {
             const fileInput = document.getElementById('excel-file-input');
             if (!fileInput.files || fileInput.files.length === 0) {
@@ -525,27 +532,30 @@
                     let countProcessed = 0;
                     for (let row of jsonRows) {
                         const keys = Object.keys(row);
-                        let atletaKey = keys.find(k => /atleta|nome|participante/i.test(k)) || keys[0];
-                        let subcatKey = keys.find(k => /subcategoria|categoria|perfil/i.test(k)) || keys[1];
-                        let bateriaKey = keys.find(k => /bateria/i.test(k)) || keys[2];
-                        let tempoKey = keys.find(k => /tempo|resultado/i.test(k)) || keys[3];
+                        let atletaKey = keys.find(k => /atleta|nome/i.test(k)) || keys[0];
+                        let categoriaKey = keys.find(k => /categoria|subcategoria/i.test(k)) || keys[1];
+                        let equipeKey = keys.find(k => /equipe|clube|escola/i.test(k)) || keys[2];
+                        let bateriaKey = keys.find(k => /bateria/i.test(k)) || keys[3];
+                        let tempoKey = keys.find(k => /tempo|resultado/i.test(k)) || keys[4];
 
                         const atleta = String(row[atletaKey] || '').trim().toUpperCase();
-                        const subcategoria = String(row[subcatKey] || 'ATLETA').trim().toUpperCase();
-                        const bateria = String(row[bateriaKey] || batteries[0]).trim();
+                        const categoria = String(row[categoriaKey] || '').trim().toUpperCase();
+                        const equipe = String(row[equipeKey] || '').trim().toUpperCase();
+                        const bateria = String(row[bateriaKey] || batteries[0]).trim().toUpperCase();
                         const tempo = String(row[tempoKey] || '00:00:00').trim();
 
                         if (atleta && tempo) {
                             const modalidade = activeModality;
                             const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
 
+                            // Atualiza os dados ou insere (incluindo o novo campo equipe)
                             if (existingRecord) {
                                 await _supabase.from('records')
-                                    .update({ tempo: tempo, bateria: bateria, subcategoria: subcategoria })
+                                    .update({ tempo: tempo, bateria: bateria, categoria: categoria, equipe: equipe })
                                     .eq('id', existingRecord.id);
                             } else {
                                 await _supabase.from('records')
-                                    .insert([{ atleta, subcategoria, modalidade, bateria, tempo }]);
+                                    .insert([{ atleta, categoria, equipe, modalidade, bateria, tempo }]);
                             }
                             countProcessed++;
                         }
@@ -565,8 +575,9 @@
         async function submitTimeRecord(e) {
             e.preventDefault();
             const atleta = document.getElementById('admin-atleta').value.toUpperCase();
-            const subcategoria = document.getElementById('admin-subcategoria').value.toUpperCase();
-            const bateria = document.getElementById('admin-bateria').value;
+            const categoria = document.getElementById('admin-categoria').value.toUpperCase();
+            const equipe = document.getElementById('admin-equipe').value.toUpperCase();
+            const bateria = document.getElementById('admin-bateria').value; // Bateria já estará upper por conta da seleção
             const modalidade = activeModality;
             const tempo = document.getElementById('admin-tempo').value;
 
@@ -574,7 +585,7 @@
 
             if (existingRecord) {
                 const { error } = await _supabase.from('records')
-                    .update({ tempo: tempo, bateria: bateria, subcategoria: subcategoria })
+                    .update({ tempo: tempo, bateria: bateria, categoria: categoria, equipe: equipe })
                     .eq('id', existingRecord.id);
 
                 if (!error) {
@@ -586,7 +597,7 @@
                 }
             } else {
                 const { error } = await _supabase.from('records')
-                    .insert([{ atleta, subcategoria, modalidade, bateria, tempo }]);
+                    .insert([{ atleta, categoria, equipe, modalidade, bateria, tempo }]);
                 
                 if (!error) {
                     document.getElementById('time-entry-form').reset();
@@ -613,7 +624,7 @@
             const activeRecords = records.filter(r => r.modalidade === activeModality);
 
             if (activeRecords.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-500">Nenhum registro para esta modalidade.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="py-6 text-center text-slate-500">Nenhum registro para esta modalidade.</td></tr>`;
                 return;
             }
 
@@ -621,7 +632,8 @@
                 tbody.innerHTML += `
                     <tr class="hover:bg-sport-border/30 transition-colors">
                         <td class="py-3 px-4 font-bold text-white">${r.atleta}</td>
-                        <td class="py-3 px-4 text-slate-300">${r.subcategoria}</td>
+                        <td class="py-3 px-4 text-slate-300">${r.categoria || '-'}</td>
+                        <td class="py-3 px-4 text-slate-300">${r.equipe || '-'}</td>
                         <td class="py-3 px-4 text-slate-300">${r.bateria}</td>
                         <td class="py-3 px-4 font-mono font-bold text-sport-green">${r.tempo}</td>
                         <td class="py-3 px-4 text-right">
@@ -639,10 +651,11 @@
 
             let filtered = records.filter(r => r.modalidade === activeModality);
 
+            // Filtragem separada para Geral MAS, Geral FEM ou Bateria específica
             if (bateriaFilter === 'Geral_MAS') {
-                filtered = filtered.filter(r => /mas|masculino/i.test(r.bateria) || /mas|masculino/i.test(r.subcategoria) || /atleta/i.test(r.subcategoria));
+                filtered = filtered.filter(r => /mas|masculino/i.test(r.bateria) || /mas|masculino/i.test(r.categoria));
             } else if (bateriaFilter === 'Geral_FEM') {
-                filtered = filtered.filter(r => /fem|feminino/i.test(r.bateria) || /fem|feminino/i.test(r.subcategoria));
+                filtered = filtered.filter(r => /fem|feminino/i.test(r.bateria) || /fem|feminino/i.test(r.categoria));
             } else {
                 filtered = filtered.filter(r => r.bateria === bateriaFilter);
             }
@@ -651,7 +664,7 @@
 
             tbody.innerHTML = '';
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-500">Nenhum resultado registrado para esta seleção.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500">Nenhum resultado registrado para esta seleção.</td></tr>`;
                 return;
             }
 
@@ -676,7 +689,8 @@
                     <tr class="hover:bg-sport-border/30 transition-colors">
                         <td class="py-4 px-6 text-center font-black ${badgeClass}">#${index + 1}</td>
                         <td class="py-4 px-6 font-bold text-white">${r.atleta}</td>
-                        <td class="py-4 px-6 text-slate-300">${r.subcategoria}</td>
+                        <td class="py-4 px-6 text-slate-300">${r.categoria || '-'}</td>
+                        <td class="py-4 px-6 text-slate-300">${r.equipe || '-'}</td>
                         <td class="py-4 px-6 text-slate-400">${r.bateria}</td>
                         <td class="py-4 px-6 text-right font-mono font-black text-sport-green text-base">${r.tempo}</td>
                         <td class="py-4 px-6 text-right font-mono text-xs text-slate-400">${diffStr}</td>
