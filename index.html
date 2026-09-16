@@ -234,7 +234,7 @@
                     </div>
                 </div>
 
-                <!-- NOVO: Inserção Manual de Resultado -->
+                <!-- Inserção Manual de Resultado -->
                 <div class="bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl space-y-4">
                     <h4 class="text-lg font-bold text-white flex items-center space-x-2">
                         <i class="fa-solid fa-keyboard text-sport-blue"></i>
@@ -351,7 +351,7 @@
     <!-- JavaScript Application Logic -->
     <script>
         // =========================================================================
-        // URL E API KEY DO SUPABASE
+        // URL E API KEY DO SUPABASE (USANDO A TABELA "resultados")
         // =========================================================================
         const SUPABASE_URL = 'https://otecuxljcahtfivmthsb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_0SG41jvxnZnaw0lP1ODmjA_Ig75sACZ';
@@ -420,7 +420,7 @@
         async function fetchRecords() {
             if (SUPABASE_URL.includes('COLE-AQUI')) return;
             try {
-                const { data, error } = await _supabase.from('records').select('*');
+                const { data, error } = await _supabase.from('resultados').select('*');
                 if (!error && data) {
                     records = data;
                     updateUIState();
@@ -596,11 +596,11 @@
 
             try {
                 if (existingRecord) {
-                    await _supabase.from('records')
+                    await _supabase.from('resultados')
                         .update({ tempo: tempo, bateria: bateria, categoria: categoria, naipe: naipe, estado: estado, equipe: equipe })
                         .eq('id', existingRecord.id);
                 } else {
-                    await _supabase.from('records')
+                    await _supabase.from('resultados')
                         .insert([{ atleta, naipe, categoria, estado, equipe, modalidade, bateria, tempo }]);
                 }
 
@@ -680,11 +680,11 @@
                             const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
 
                             if (existingRecord) {
-                                await _supabase.from('records')
+                                await _supabase.from('resultados')
                                     .update({ tempo: tempo, bateria: bateria, categoria: categoria, naipe: naipe, estado: estado, equipe: equipe })
                                     .eq('id', existingRecord.id);
                             } else {
-                                await _supabase.from('records')
+                                await _supabase.from('resultados')
                                     .insert([{ atleta, naipe, categoria, estado, equipe, modalidade, bateria, tempo }]);
                             }
                             countProcessed++;
@@ -708,14 +708,14 @@
                 return;
             }
             for (let r of records) {
-                await _supabase.from('records').update({ modalidade: activeModality }).eq('id', r.id);
+                await _supabase.from('resultados').update({ modalidade: activeModality }).eq('id', r.id);
             }
             await fetchRecords();
             showModal('Sucesso', 'Todos os registros foram migrados para a modalidade ativa atual!', 'success');
         }
 
         async function deleteRecord(id) {
-            const { error } = await _supabase.from('records').delete().eq('id', id);
+            const { error } = await _supabase.from('resultados').delete().eq('id', id);
             if (!error) {
                 await fetchRecords();
             }
@@ -849,8 +849,8 @@
 
             if (!SUPABASE_URL.includes('COLE-AQUI')) {
                 _supabase
-                    .channel('public:records')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'records' }, payload => {
+                    .channel('public:resultados')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'resultados' }, payload => {
                         fetchRecords();
                     })
                     .subscribe();
