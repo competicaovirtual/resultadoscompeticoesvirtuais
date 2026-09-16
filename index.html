@@ -240,7 +240,7 @@
                         <i class="fa-solid fa-file-excel text-sport-green"></i>
                         <span>Upload de Informações (Excel / CSV)</span>
                     </h4>
-                    <p class="text-xs text-slate-400">O arquivo deve possuir cabeçalhos correspondentes: <strong>ATLETA</strong>, <strong>NAIPE</strong>, <strong>CATEGORIA</strong>, <strong>ESTADO</strong>, <strong>EQUIPE</strong>, <strong>BATERIA</strong> e <strong>TEMPO</strong>.</p>
+                    <p class="text-xs text-slate-400">O arquivo deve possuir cabeçalhos correspondentes: <strong>ATLETA</strong>, <strong>NAIPE</strong>, <strong>CATEGORIA</strong>, <strong>ESTADO</strong>, <strong>EQUIPE / CLUBE / ESCOLA</strong>, <strong>BATERIA</strong> e <strong>TEMPO</strong>.</p>
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
                         <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-sport-blue file:text-white hover:file:bg-blue-600 cursor-pointer">
                         <button onclick="processExcelUpload()" class="w-full sm:w-auto px-8 py-3 bg-sport-green hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
@@ -262,7 +262,7 @@
                             <input type="text" id="admin-atleta" required placeholder="NOME DO ATLETA" oninput="this.value = this.value.toUpperCase()" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
                         </div>
 
-                        <!-- NOVO CAMPO: NAIPE -->
+                        <!-- CAMPO NAIPE -->
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Naipe</label>
                             <select id="admin-naipe" required class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-sport-cyan">
@@ -418,7 +418,7 @@
                 const flagUrl = stateFlags[sigla];
                 return `<div class="flex items-center space-x-2"><img src="${flagUrl}" alt="${sigla}" class="w-6 h-4 object-cover rounded-sm border border-slate-600 shadow-sm"> <span>| ${sigla}</span></div>`;
             }
-            return cleanVal; // Retorno de fallback caso digitem algo que não seja um estado brasileiro
+            return cleanVal;
         }
 
         async function fetchRecords() {
@@ -603,21 +603,31 @@
                     let countProcessed = 0;
                     for (let row of jsonRows) {
                         const keys = Object.keys(row);
+                        
                         let atletaKey = keys.find(k => /atleta|nome/i.test(k)) || keys[0];
-                        let naipeKey = keys.find(k => /naipe|genero|sexo/i.test(k)); // Opcional, caso a planilha velha não tenha
-                        let categoriaKey = keys.find(k => /categoria|subcategoria/i.test(k)) || keys[1];
-                        let estadoKey = keys.find(k => /estado|uf/i.test(k)) || keys[2];
-                        let equipeKey = keys.find(k => /equipe|clube|escola/i.test(k)) || keys[3];
-                        let bateriaKey = keys.find(k => /bateria/i.test(k)) || keys[4];
-                        let tempoKey = keys.find(k => /tempo|resultado/i.test(k)) || keys[5];
+                        let naipeKey = keys.find(k => /naipe|genero|sexo/i.test(k));
+                        let categoriaKey = keys.find(k => /categoria|subcategoria/i.test(k));
+                        let estadoKey = keys.find(k => /estado|uf/i.test(k));
+                        let equipeKey = keys.find(k => /equipe|clube|escola/i.test(k));
+                        let bateriaKey = keys.find(k => /bateria/i.test(k));
+                        let tempoKey = keys.find(k => /tempo|resultado/i.test(k));
 
                         const atleta = String(row[atletaKey] || '').trim().toUpperCase();
-                        const naipe = naipeKey ? String(row[naipeKey] || '').trim().toUpperCase() : '';
-                        const categoria = String(row[categoriaKey] || '').trim().toUpperCase();
-                        const estado = String(row[estadoKey] || '').trim().toUpperCase();
-                        const equipe = String(row[equipeKey] || '').trim().toUpperCase();
-                        const bateria = String(row[bateriaKey] || batteries[0]).trim().toUpperCase();
-                        const tempo = String(row[tempoKey] || '00:00:00').trim();
+                        let naipe = naipeKey ? String(row[naipeKey] || '').trim().toUpperCase() : '';
+                        const categoria = categoriaKey ? String(row[categoriaKey] || '').trim().toUpperCase() : '';
+                        const estado = estadoKey ? String(row[estadoKey] || '').trim().toUpperCase() : '';
+                        const equipe = equipeKey ? String(row[equipeKey] || '').trim().toUpperCase() : '';
+                        const bateria = bateriaKey ? String(row[bateriaKey] || batteries[0]).trim().toUpperCase() : batteries[0];
+                        const tempo = tempoKey ? String(row[tempoKey] || '00:00:00').trim() : '00:00:00';
+
+                        // Se a coluna naipe veio em branco na planilha, preenche automaticamente deduzindo pela bateria ou categoria
+                        if (!naipe) {
+                            if (/fem|feminino/i.test(bateria) || /fem|feminino/i.test(categoria)) {
+                                naipe = 'FEM';
+                            } else {
+                                naipe = 'MAS';
+                            }
+                        }
 
                         if (atleta && tempo) {
                             const modalidade = activeModality;
@@ -729,7 +739,6 @@
 
             let filtered = records.filter(r => r.modalidade === activeModality);
 
-            // Filtragem separada para Geral MAS, Geral FEM ou Bateria específica
             if (bateriaFilter === 'Geral_MAS') {
                 filtered = filtered.filter(r => /mas|masculino/i.test(r.bateria) || /mas|masculino/i.test(r.categoria) || r.naipe === 'MAS');
             } else if (bateriaFilter === 'Geral_FEM') {
