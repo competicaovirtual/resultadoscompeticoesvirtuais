@@ -286,7 +286,7 @@
                 <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-4">
                     <h4 class="text-xl font-black text-white flex items-center space-x-2">
                         <i class="fa-solid fa-file-excel text-sport-green"></i>
-                        <span>Upload de Informações (Excel / CSV)</span>
+                        <span>Upload de Resultados (Excel / CSV)</span>
                     </h4>
                     <p class="text-xs text-slate-400">O arquivo deve possuir cabeçalhos correspondentes: <strong>ATLETA</strong>, <strong>NAIPE</strong>, <strong>CATEGORIA</strong>, <strong>ESTADO</strong>, <strong>EQUIPE / CLUBE / ESCOLA</strong>, <strong>BATERIA</strong> e <strong>TEMPO</strong>.</p>
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
@@ -296,6 +296,75 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- MÓDULO DE SORTEIO DE BATERIAS -->
+                <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-6">
+                    <div>
+                        <h4 class="text-xl font-black text-white flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-lg bg-sport-gold/20 text-sport-gold flex items-center justify-center border border-sport-gold/30">
+                                <i class="fa-solid fa-dice"></i>
+                            </div>
+                            <span>Sorteio e Montagem de Baterias</span>
+                        </h4>
+                        <p class="text-xs text-slate-400 mt-2">Faça o upload da planilha de <strong>inscritos</strong> para dividi-los automaticamente em baterias. A planilha deve conter as colunas: ATLETA, NAIPE, CATEGORIA, ESTADO.</p>
+                    </div>
+
+                    <!-- Critérios de Sorteio Manuais -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-sport-dark p-5 rounded-2xl border border-sport-border">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Qtd. de Atletas por Bateria</label>
+                            <input type="number" id="sorteio-qtd" value="8" min="1" class="w-full bg-sport-card border border-sport-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sport-gold transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Agrupar por Naipe?</label>
+                            <select id="sorteio-naipe" class="w-full bg-sport-card border border-sport-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sport-gold transition-colors">
+                                <option value="sim">Sim (Separar MAS/FEM)</option>
+                                <option value="nao">Não (Baterias Mistas)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Agrupar por Categoria?</label>
+                            <select id="sorteio-categoria" class="w-full bg-sport-card border border-sport-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sport-gold transition-colors">
+                                <option value="sim">Sim</option>
+                                <option value="nao">Não (Baterias Mistas)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Regra de Distribuição</label>
+                            <select id="sorteio-aleatorio" class="w-full bg-sport-card border border-sport-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sport-gold transition-colors">
+                                <option value="sim">Aleatória (Sorteio)</option>
+                                <option value="nao">Manter Ordem da Planilha</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Área de Upload e Ação -->
+                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+                        <input type="file" id="sorteio-file-input" accept=".xlsx, .xls, .csv" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-sport-gold file:text-slate-900 hover:file:bg-yellow-500 cursor-pointer transition-all">
+                        <button onclick="processarSorteio()" class="w-full sm:w-auto px-8 py-3 bg-sport-gold hover:bg-yellow-500 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
+                            Gerar Baterias
+                        </button>
+                    </div>
+
+                    <!-- Resultado do Sorteio (Aparece após o processamento) -->
+                    <div id="sorteio-resultado-container" class="hidden border-t border-sport-border pt-6 mt-6 space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <h5 class="text-lg font-bold text-white">Resultado do Sorteio</h5>
+                                <p id="sorteio-resumo-texto" class="text-xs text-sport-cyan font-semibold"></p>
+                            </div>
+                            <button onclick="exportarSorteioExcel()" class="px-5 py-2.5 bg-sport-green text-slate-950 font-bold rounded-xl text-sm hover:opacity-90 transition-all shadow-md flex items-center space-x-2">
+                                <i class="fa-solid fa-file-arrow-down"></i>
+                                <span>Exportar Planilha Gerada</span>
+                            </button>
+                        </div>
+                        <!-- Lista de Baterias -->
+                        <div id="sorteio-list" class="max-h-96 overflow-y-auto space-y-4 pr-2">
+                            <!-- Renderizado via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                <!-- FIM MÓDULO DE SORTEIO -->
 
                 <!-- Lista de Registros Cadastrados -->
                 <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-6">
@@ -841,6 +910,169 @@
 
         function closeModal() {
             document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        // =========================================================================
+        // SISTEMA DE SORTEIO DE BATERIAS
+        // =========================================================================
+
+        let atletasSorteados = []; // Memória temporária do sorteio atual
+
+        async function processarSorteio() {
+            const fileInput = document.getElementById('sorteio-file-input');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showModal('Atenção', 'Selecione a planilha de inscritos para realizar o sorteio.', 'error');
+                return;
+            }
+
+            // Coletando parâmetros manuais
+            const qtdPorBateria = parseInt(document.getElementById('sorteio-qtd').value) || 8;
+            const agruparNaipe = document.getElementById('sorteio-naipe').value === 'sim';
+            const agruparCategoria = document.getElementById('sorteio-categoria').value === 'sim';
+            const aleatorio = document.getElementById('sorteio-aleatorio').value === 'sim';
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+                    if (jsonRows.length === 0) {
+                        showModal('Atenção', 'A planilha está vazia.', 'error');
+                        return;
+                    }
+
+                    // Padronizar e extrair as colunas importantes
+                    let atletas = jsonRows.map(row => {
+                        const keys = Object.keys(row);
+                        const getVal = (regex) => {
+                            const key = keys.find(k => regex.test(k));
+                            return key ? String(row[key]).trim().toUpperCase() : '';
+                        };
+                        return {
+                            ATLETA: getVal(/atleta|nome/i),
+                            NAIPE: getVal(/naipe|genero|sexo/i),
+                            CATEGORIA: getVal(/categoria/i),
+                            ESTADO: getVal(/estado|uf/i),
+                            EQUIPE: getVal(/equipe|clube|escola/i)
+                        };
+                    }).filter(a => a.ATLETA); // Remove linhas vazias
+
+                    // 1. Fase de Agrupamento (Separa as "caixas" de sorteio)
+                    let grupos = {};
+                    atletas.forEach(a => {
+                        let chave = "GERAL";
+                        if (agruparNaipe && agruparCategoria) chave = `${a.NAIPE}_${a.CATEGORIA}`;
+                        else if (agruparNaipe) chave = a.NAIPE || 'MISTO';
+                        else if (agruparCategoria) chave = a.CATEGORIA || 'GERAL';
+
+                        if (!grupos[chave]) grupos[chave] = [];
+                        grupos[chave].push(a);
+                    });
+
+                    atletasSorteados = [];
+                    let contadorBaterias = 1;
+
+                    // 2. Fase de Sorteio e Distribuição
+                    for (let chaveGrupo in grupos) {
+                        let lista = grupos[chaveGrupo];
+                        
+                        // Algoritmo de Fisher-Yates para embaralhar o Array se for aleatório
+                        if (aleatorio) {
+                            for (let i = lista.length - 1; i > 0; i--) {
+                                const j = Math.floor(Math.random() * (i + 1));
+                                [lista[i], lista[j]] = [lista[j], lista[i]];
+                            }
+                        }
+
+                        // Chunking: Divide a lista em blocos de tamanho 'qtdPorBateria'
+                        for (let i = 0; i < lista.length; i += qtdPorBateria) {
+                            const chunk = lista.slice(i, i + qtdPorBateria);
+                            
+                            // Monta o nome da Bateria (ex: BATERIA 1 - MAS SUB-30)
+                            let nomeBateria = `BATERIA ${contadorBaterias}`;
+                            if (chaveGrupo !== "GERAL") {
+                                nomeBateria += ` (${chaveGrupo.replace('_', ' ')})`;
+                            }
+                            
+                            // Adiciona os atletas à bateria
+                            chunk.forEach(atl => {
+                                atletasSorteados.push({
+                                    "ATLETA": atl.ATLETA,
+                                    "NAIPE": atl.NAIPE,
+                                    "CATEGORIA": atl.CATEGORIA,
+                                    "ESTADO": atl.ESTADO,
+                                    "EQUIPE / CLUBE / ESCOLA": atl.EQUIPE,
+                                    "BATERIA": nomeBateria // Nova coluna inserida pelo sistema
+                                });
+                            });
+                            contadorBaterias++;
+                        }
+                    }
+
+                    // Exibir no front-end
+                    renderSorteioResult(contadorBaterias - 1);
+                    showModal('Sorteio Finalizado!', `Foram geradas ${contadorBaterias - 1} baterias com sucesso.`, 'success');
+
+                } catch (err) {
+                    console.error("Erro no sorteio:", err);
+                    showModal('Erro', 'Ocorreu um erro ao processar a planilha.', 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function renderSorteioResult(totalBaterias) {
+            document.getElementById('sorteio-resultado-container').classList.remove('hidden');
+            document.getElementById('sorteio-resumo-texto').innerText = `${atletasSorteados.length} atletas distribuídos em ${totalBaterias} baterias.`;
+            
+            const listDiv = document.getElementById('sorteio-list');
+            listDiv.innerHTML = '';
+
+            // Agrupar visualmente por bateria para criar os Cards na tela
+            const bateriasVisuais = {};
+            atletasSorteados.forEach(a => {
+                if (!bateriasVisuais[a.BATERIA]) bateriasVisuais[a.BATERIA] = [];
+                bateriasVisuais[a.BATERIA].push(a);
+            });
+
+            for (let batNome in bateriasVisuais) {
+                let cardHTML = `
+                    <div class="bg-sport-dark border border-sport-border rounded-xl overflow-hidden">
+                        <div class="bg-sport-border/60 px-4 py-2 flex justify-between items-center">
+                            <span class="text-sm font-black text-sport-gold">${batNome}</span>
+                            <span class="text-xs text-slate-400 font-bold bg-sport-card px-2 py-1 rounded-md border border-sport-border">${bateriasVisuais[batNome].length} Atletas</span>
+                        </div>
+                        <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
+                `;
+                bateriasVisuais[batNome].forEach((atl, index) => {
+                    cardHTML += `
+                        <div class="text-xs text-slate-300 flex items-center border-b border-sport-border/50 pb-1">
+                            <span class="font-bold text-white w-5">${index + 1}.</span> 
+                            <span class="truncate flex-grow">${atl.ATLETA}</span> 
+                            <span class="opacity-60 ml-2 font-mono">${atl.ESTADO || '-'}</span>
+                        </div>
+                    `;
+                });
+                cardHTML += `</div></div>`;
+                listDiv.innerHTML += cardHTML;
+            }
+        }
+
+        function exportarSorteioExcel() {
+            if (atletasSorteados.length === 0) return;
+            
+            // Usamos a própria biblioteca SheetJS que já está no seu código (XLSX)
+            const worksheet = XLSX.utils.json_to_sheet(atletasSorteados);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Baterias_Geradas");
+            
+            // Faz o download do arquivo
+            XLSX.writeFile(workbook, "Lista_Sorteio_Baterias.xlsx");
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
