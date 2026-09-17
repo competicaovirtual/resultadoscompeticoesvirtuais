@@ -1078,11 +1078,8 @@
             listDiv.innerHTML = '';
 
             // Agrupar visualmente por bateria para criar os Cards na tela
-            // Note que aqui no renderizador, precisamos pegar as chaves originais ou as maiúsculas
             const bateriasVisuais = {};
             
-            // Vamos iterar sobre as arrays dentro de gruposOriginais para renderizar a tela
-            // porque eles têm as variáveis "ATLETA" e "ESTADO" já limpas pelo Regex
             for (let chaveGrupo in gruposOriginais) {
                 gruposOriginais[chaveGrupo].forEach(a => {
                     if (!bateriasVisuais[a.BATERIA]) bateriasVisuais[a.BATERIA] = [];
@@ -1091,15 +1088,25 @@
             }
 
             for (let batNome in bateriasVisuais) {
+                const listaAtletas = bateriasVisuais[batNome];
+                const meio = Math.ceil(listaAtletas.length / 2);
+                
+                // Divide os atletas em duas colunas verticais
+                const colunaEsquerda = listaAtletas.slice(0, meio);
+                const colunaDireita = listaAtletas.slice(meio);
+
                 let cardHTML = `
                     <div class="bg-sport-dark border border-sport-border rounded-xl overflow-hidden">
                         <div class="bg-sport-border/60 px-4 py-2 flex justify-between items-center">
                             <span class="text-sm font-black text-sport-gold">${batNome}</span>
-                            <span class="text-xs text-slate-400 font-bold bg-sport-card px-2 py-1 rounded-md border border-sport-border">${bateriasVisuais[batNome].length} Atletas</span>
+                            <span class="text-xs text-slate-400 font-bold bg-sport-card px-2 py-1 rounded-md border border-sport-border">${listaAtletas.length} Atletas</span>
                         </div>
-                        <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
+                        <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-x-6">
+                            <!-- Coluna da Esquerda -->
+                            <div class="space-y-2">
                 `;
-                bateriasVisuais[batNome].forEach((atl, index) => {
+
+                colunaEsquerda.forEach((atl, index) => {
                     cardHTML += `
                         <div class="text-xs text-slate-300 flex items-center border-b border-sport-border/50 pb-1">
                             <span class="font-bold text-white w-5">${index + 1}.</span> 
@@ -1108,7 +1115,30 @@
                         </div>
                     `;
                 });
-                cardHTML += `</div></div>`;
+
+                cardHTML += `
+                            </div>
+                            <!-- Coluna da Direita -->
+                            <div class="space-y-2">
+                `;
+
+                colunaDireita.forEach((atl, index) => {
+                    const numeroAtleta = meio + index + 1;
+                    cardHTML += `
+                        <div class="text-xs text-slate-300 flex items-center border-b border-sport-border/50 pb-1">
+                            <span class="font-bold text-white w-5">${numeroAtleta}.</span> 
+                            <span class="truncate flex-grow">${atl.ATLETA}</span> 
+                            <span class="opacity-60 ml-2 font-mono">${atl.ESTADO || '-'}</span>
+                        </div>
+                    `;
+                });
+
+                cardHTML += `
+                            </div>
+                        </div>
+                    </div>
+                `;
+
                 listDiv.innerHTML += cardHTML;
             }
         }
@@ -1116,7 +1146,7 @@
         function exportarSorteioExcel() {
             if (atletasSorteados.length === 0) return;
             
-            // Usamos a biblioteca SheetJS para exportar o JSON (que agora contém as colunas 100% originais)
+            // Usamos a biblioteca SheetJS para exportar o JSON
             const worksheet = XLSX.utils.json_to_sheet(atletasSorteados);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Baterias_Geradas");
