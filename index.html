@@ -331,10 +331,17 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Regra de Distribuição</label>
-                            <select id="sorteio-aleatorio" class="w-full bg-sport-card border border-sport-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sport-gold transition-colors">
-                                <option value="sim">Aleatória (Sorteio)</option>
-                                <option value="nao">Manter Ordem da Planilha</option>
+                            <select id="sorteio-regra" onchange="toggleCriteriosPersonalizados()" class="w-full bg-sport-card border border-sport-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sport-gold transition-colors">
+                                <option value="aleatorio">Aleatória (Sorteio)</option>
+                                <option value="personalizado">Personalizado (Por Colunas)</option>
                             </select>
+                        </div>
+
+                        <!-- Caixas de critérios customizados (Escondido por padrão) -->
+                        <div id="box-criterios-personalizados" class="hidden col-span-1 md:col-span-2 lg:col-span-4 bg-sport-card border border-sport-gold/30 p-4 rounded-xl mt-2 space-y-2">
+                            <label class="block text-xs font-bold text-sport-gold">Critérios de Ordenação Personalizada</label>
+                            <p class="text-[11px] text-slate-400 leading-tight">Digite o nome exato das colunas da sua planilha na ordem de prioridade, separando por vírgula.<br>Exemplo: para manter atletas do mesmo estado e equipe juntos, digite: <strong class="text-white font-mono bg-sport-dark px-1.5 py-0.5 rounded border border-sport-border">ESTADO, EQUIPE</strong></p>
+                            <input type="text" id="sorteio-criterios" placeholder="Ex: ESTADO, EQUIPE, IDADE" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-gold transition-colors">
                         </div>
                     </div>
 
@@ -918,6 +925,16 @@
 
         let atletasSorteados = []; // Memória temporária do sorteio atual
 
+        function toggleCriteriosPersonalizados() {
+            const regra = document.getElementById('sorteio-regra').value;
+            const box = document.getElementById('box-criterios-personalizados');
+            if (regra === 'personalizado') {
+                box.classList.remove('hidden');
+            } else {
+                box.classList.add('hidden');
+            }
+        }
+
         async function processarSorteio() {
             const fileInput = document.getElementById('sorteio-file-input');
             if (!fileInput.files || fileInput.files.length === 0) {
@@ -929,7 +946,13 @@
             const qtdPorBateria = parseInt(document.getElementById('sorteio-qtd').value) || 8;
             const agruparNaipe = document.getElementById('sorteio-naipe').value === 'sim';
             const agruparCategoria = document.getElementById('sorteio-categoria').value === 'sim';
-            const aleatorio = document.getElementById('sorteio-aleatorio').value === 'sim';
+            const regra = document.getElementById('sorteio-regra').value;
+            const customCriteriaInput = document.getElementById('sorteio-criterios').value.trim();
+
+            if (regra === 'personalizado' && !customCriteriaInput) {
+                showModal('Atenção', 'Digite ao menos um critério personalizado para a ordenação.', 'error');
+                return;
+            }
 
             const file = fileInput.files[0];
             const reader = new FileReader();
@@ -946,14 +969,23 @@
                         return;
                     }
 
-                    // Padronizar e extrair as colunas importantes
+                    // Padronizar e extrair as colunas importantes, MANTENDO o registro original
                     let atletas = jsonRows.map(row => {
                         const keys = Object.keys(row);
                         const getVal = (regex) => {
                             const key = keys.find(k => regex.test(k));
                             return key ? String(row[key]).trim().toUpperCase() : '';
                         };
+                        
+                        // Cria um objeto com as chaves originais em MAIÚSCULO para facilitar a busca do critério personalizado
+                        let rawUpper = {};
+                        for(let k of keys) {
+                            rawUpper[k.trim().toUpperCase()] = String(row[k]).trim();
+                        }
+
                         return {
+                            rawOriginal: row, // Guarda a linha inteira original para a hora de exportar
+                            ...rawUpper, // Variáveis upper para o sort customizado funcionar
                             ATLETA: getVal(/atleta|nome/i),
                             NAIPE: getVal(/naipe|genero|sexo/i),
                             CATEGORIA: getVal(/categoria/i),
@@ -962,7 +994,7 @@
                         };
                     }).filter(a => a.ATLETA); // Remove linhas vazias
 
-                    // 1. Fase de Agrupamento (Separa as "caixas" de sorteio)
+                    // 1. Fase de Agrupamento (Separa as "caixas" de sorteio se Naipe/Categoria estiverem ativos)
                     let grupos = {};
                     atletas.forEach(a => {
                         let chave = "GERAL";
@@ -977,45 +1009,57 @@
                     atletasSorteados = [];
                     let contadorBaterias = 1;
 
-                    // 2. Fase de Sorteio e Distribuição
+                    // 2. Fase de Ordenação/Sorteio e Distribuição
                     for (let chaveGrupo in grupos) {
                         let lista = grupos[chaveGrupo];
                         
-                        // Algoritmo de Fisher-Yates para embaralhar o Array se for aleatório
-                        if (aleatorio) {
+                        if (regra === 'aleatorio') {
+                            // Algoritmo de Fisher-Yates para embaralhar o Array
                             for (let i = lista.length - 1; i > 0; i--) {
                                 const j = Math.floor(Math.random() * (i + 1));
                                 [lista[i], lista[j]] = [lista[j], lista[i]];
                             }
+                        } else if (regra === 'personalizado') {
+                            // Ordena baseada nas colunas escolhidas pelo usuário
+                            const criterios = customCriteriaInput.split(',').map(c => c.trim().toUpperCase()).filter(c => c);
+                            
+                            lista.sort((a, b) => {
+                                for (let crit of criterios) {
+                                    const valA = String(a[crit] || '').toUpperCase();
+                                    const valB = String(b[crit] || '').toUpperCase();
+                                    
+                                    if (valA < valB) return -1;
+                                    if (valA > valB) return 1;
+                                }
+                                return 0; // Se empatar em todos os critérios
+                            });
                         }
 
-                        // Chunking: Divide a lista em blocos de tamanho 'qtdPorBateria'
+                        // Chunking: Divide a lista final em blocos de tamanho 'qtdPorBateria'
                         for (let i = 0; i < lista.length; i += qtdPorBateria) {
                             const chunk = lista.slice(i, i + qtdPorBateria);
                             
-                            // Monta o nome da Bateria (ex: BATERIA 1 - MAS SUB-30)
+                            // Monta o nome da Bateria
                             let nomeBateria = `BATERIA ${contadorBaterias}`;
                             if (chaveGrupo !== "GERAL") {
                                 nomeBateria += ` (${chaveGrupo.replace('_', ' ')})`;
                             }
                             
-                            // Adiciona os atletas à bateria
+                            // Adiciona os atletas à bateria final usando o rawOriginal + a Bateria
                             chunk.forEach(atl => {
-                                atletasSorteados.push({
-                                    "ATLETA": atl.ATLETA,
-                                    "NAIPE": atl.NAIPE,
-                                    "CATEGORIA": atl.CATEGORIA,
-                                    "ESTADO": atl.ESTADO,
-                                    "EQUIPE / CLUBE / ESCOLA": atl.EQUIPE,
-                                    "BATERIA": nomeBateria // Nova coluna inserida pelo sistema
-                                });
+                                // Cria a nova linha da planilha contendo TODAS as colunas originais e adiciona a Bateria
+                                let finalRow = { ...atl.rawOriginal, "BATERIA": nomeBateria };
+                                atletasSorteados.push(finalRow);
+                                
+                                // Para uso interno de renderização visual no HTML:
+                                atl.BATERIA = nomeBateria; 
                             });
                             contadorBaterias++;
                         }
                     }
 
                     // Exibir no front-end
-                    renderSorteioResult(contadorBaterias - 1);
+                    renderSorteioResult(contadorBaterias - 1, grupos);
                     showModal('Sorteio Finalizado!', `Foram geradas ${contadorBaterias - 1} baterias com sucesso.`, 'success');
 
                 } catch (err) {
@@ -1026,7 +1070,7 @@
             reader.readAsArrayBuffer(file);
         }
 
-        function renderSorteioResult(totalBaterias) {
+        function renderSorteioResult(totalBaterias, gruposOriginais) {
             document.getElementById('sorteio-resultado-container').classList.remove('hidden');
             document.getElementById('sorteio-resumo-texto').innerText = `${atletasSorteados.length} atletas distribuídos em ${totalBaterias} baterias.`;
             
@@ -1034,11 +1078,17 @@
             listDiv.innerHTML = '';
 
             // Agrupar visualmente por bateria para criar os Cards na tela
+            // Note que aqui no renderizador, precisamos pegar as chaves originais ou as maiúsculas
             const bateriasVisuais = {};
-            atletasSorteados.forEach(a => {
-                if (!bateriasVisuais[a.BATERIA]) bateriasVisuais[a.BATERIA] = [];
-                bateriasVisuais[a.BATERIA].push(a);
-            });
+            
+            // Vamos iterar sobre as arrays dentro de gruposOriginais para renderizar a tela
+            // porque eles têm as variáveis "ATLETA" e "ESTADO" já limpas pelo Regex
+            for (let chaveGrupo in gruposOriginais) {
+                gruposOriginais[chaveGrupo].forEach(a => {
+                    if (!bateriasVisuais[a.BATERIA]) bateriasVisuais[a.BATERIA] = [];
+                    bateriasVisuais[a.BATERIA].push(a);
+                });
+            }
 
             for (let batNome in bateriasVisuais) {
                 let cardHTML = `
@@ -1066,12 +1116,11 @@
         function exportarSorteioExcel() {
             if (atletasSorteados.length === 0) return;
             
-            // Usamos a própria biblioteca SheetJS que já está no seu código (XLSX)
+            // Usamos a biblioteca SheetJS para exportar o JSON (que agora contém as colunas 100% originais)
             const worksheet = XLSX.utils.json_to_sheet(atletasSorteados);
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Baterias_Geradas");
             
-            // Faz o download do arquivo
             XLSX.writeFile(workbook, "Lista_Sorteio_Baterias.xlsx");
         }
 
