@@ -4,32 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Competições Virtuais Brasileiras - RESULTADOS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Biblioteca SheetJS para leitura de arquivos Excel (XLS/XLSX) e CSV -->
+    <!-- SheetJS para leitura de Excel / CSV -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- Biblioteca Tesseract.js para OCR (Leitura de Prints) -->
+    <!-- Tesseract.js para OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        sport: {
-                            dark: '#090D16',
-                            card: '#131C2E',
-                            border: '#1E293B',
-                            cyan: '#00F2FE',
-                            blue: '#0072FF',
-                            green: '#00FF87',
-                            gold: '#FFD700',
-                            light: '#F8FAFC'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body.tv-mode header, body.tv-mode footer, body.tv-mode .tv-hidden { display: none !important; }
@@ -41,7 +21,7 @@
         body.tv-mode .tv-indicator { display: flex !important; }
     </style>
 </head>
-<body class="bg-sport-dark text-slate-100 min-h-screen flex flex-col font-sans selection:bg-sport-cyan selection:text-slate-900 transition-all">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-cyan-400 selection:text-slate-950 transition-all">
 
     <!-- Botão Sair Modo TV -->
     <button onclick="stopTVMode()" class="tv-indicator fixed bottom-6 right-6 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-2xl z-50 animate-bounce items-center">
@@ -49,20 +29,21 @@
     </button>
 
     <!-- Header / Navbar -->
-    <header class="bg-sport-card/95 backdrop-blur-md border-b border-sport-border sticky top-0 z-50 shadow-lg tv-hidden">
+    <header class="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 shadow-lg tv-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="flex items-center h-full py-1">
-                    <img src="logocvb.png" alt="Logo Competições Virtuais Brasileiras" class="h-12 w-auto object-contain" onerror="this.onerror=null; this.style.display='none';">
+                    <img src="logojj.png" alt="Logo" class="h-12 w-auto object-contain" onerror="this.onerror=null; this.style.display='none'; document.getElementById('nav-logo-fallback').style.display='flex';">
+                    <div id="nav-logo-fallback" style="display:none;" class="w-10 h-10 bg-cyan-500 rounded-xl items-center justify-center font-black text-slate-950">CVB</div>
                 </div>
                 <div>
-                    <span class="text-xs font-bold tracking-widest text-sport-cyan uppercase">Plataforma Oficial</span>
+                    <span class="text-xs font-bold tracking-widest text-cyan-400 uppercase">Plataforma Oficial</span>
                     <h1 class="text-lg font-black tracking-tight text-white">Competições Virtuais Brasileiras</h1>
                 </div>
             </div>
             
             <nav class="hidden md:flex items-center space-x-2">
-                <button onclick="switchTab('home')" id="nav-home" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-sport-blue text-white shadow-md">
+                <button onclick="switchTab('home')" id="nav-home" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-blue-600 text-white shadow-md">
                     <i class="fa-solid fa-house mr-2"></i>Início
                 </button>
                 <button onclick="switchTab('rankings')" id="nav-rankings" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:text-white hover:bg-slate-800">
@@ -81,8 +62,8 @@
         </div>
 
         <!-- Menu Mobile -->
-        <div id="mobile-menu" class="hidden md:hidden bg-sport-card border-b border-sport-border px-4 pt-2 pb-4 space-y-2 shadow-xl">
-            <button onclick="switchTab('home'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold bg-sport-blue text-white">Início</button>
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-900 border-b border-slate-800 px-4 pt-2 pb-4 space-y-2 shadow-xl">
+            <button onclick="switchTab('home'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold bg-blue-600 text-white">Início</button>
             <button onclick="switchTab('rankings'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:bg-slate-800">RANKING</button>
             <button onclick="switchTab('admin'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:bg-slate-800">Painel Técnico (Admin)</button>
         </div>
@@ -93,39 +74,39 @@
 
         <!-- TAB: INÍCIO -->
         <section id="tab-home" class="space-y-8 animate-fadeIn">
-            <div class="relative bg-gradient-to-br from-sport-card via-[#0F172A] to-[#1E293B] rounded-3xl border border-sport-border p-8 md:p-12 overflow-hidden shadow-2xl text-white">
-                <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-sport-cyan/10 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="absolute top-0 left-1/4 w-72 h-72 bg-sport-green/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="relative bg-gradient-to-br from-slate-900 via-[#0F172A] to-[#1E293B] rounded-3xl border border-slate-800 p-8 md:p-12 overflow-hidden shadow-2xl text-white">
+                <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute top-0 left-1/4 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
                     <div class="md:col-span-7 space-y-6">
-                        <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-sport-green/20 border border-sport-green/40 text-emerald-300 text-xs font-bold tracking-wider uppercase">
-                            <span class="w-2 h-2 rounded-full bg-sport-green animate-pulse"></span>
+                        <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold tracking-wider uppercase">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                             <span>Modalidade Ativa: <strong id="hero-active-mod" class="text-white ml-1">Carregando...</strong></span>
                         </div>
                         <h2 class="text-4xl sm:text-5xl font-black tracking-tight leading-tight">
-                            SISTEMA DE RESULTADOS <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-sport-cyan via-sport-green to-sport-gold">EM TEMPO REAL</span>
+                            SISTEMA DE RESULTADOS <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-400 to-amber-400">EM TEMPO REAL</span>
                         </h2>
                         <p class="text-slate-300 text-base max-w-xl">
-                            Acompanhe os rankings atualizados bateria após bateria com apuração oficial em tempo real via OCR.
+                            Acompanhe os rankings atualizados bateria após bateria com apuração oficial em tempo real via OCR e banco de dados Supabase.
                         </p>
                         <div class="flex flex-wrap gap-4 pt-2">
-                            <button onclick="switchTab('rankings')" class="px-6 py-3.5 bg-gradient-to-r from-sport-blue to-sport-cyan text-slate-950 font-black rounded-xl shadow-lg hover:opacity-95 transition-all flex items-center space-x-2">
+                            <button onclick="switchTab('rankings')" class="px-6 py-3.5 bg-gradient-to-r from-blue-600 to-cyan-400 text-slate-950 font-black rounded-xl shadow-lg hover:opacity-95 transition-all flex items-center space-x-2">
                                 <i class="fa-solid fa-trophy"></i>
                                 <span>Ver Ranking da Modalidade</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Logo Mascote Atualizada -->
+                    <!-- LOGO MASCOTE ATUALIZADA -->
                     <div class="md:col-span-5 flex justify-center">
-                        <div class="relative w-full max-w-xs h-72 rounded-2xl bg-sport-card/80 backdrop-blur-md border border-sport-border flex flex-col items-center justify-center p-6 shadow-2xl overflow-hidden group">
-                            <img src="jacabesciclismo.png" alt="Logo Mascote" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.style.display='none'; document.getElementById('logo-off-fallback').style.display='flex';">
+                        <div class="relative w-full max-w-xs h-72 rounded-2xl bg-slate-900/80 backdrop-blur-md border border-slate-800 flex flex-col items-center justify-center p-6 shadow-2xl overflow-hidden group">
+                            <img src="jacajebsciclismo.png" alt="Mascote Oficial" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.style.display='none'; document.getElementById('logo-off-fallback').style.display='flex';">
                             <div id="logo-off-fallback" style="display:none;" class="flex-col items-center justify-center text-center space-y-3">
-                                <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-sport-gold to-amber-600 flex items-center justify-center shadow-lg text-slate-950 text-3xl font-black">
+                                <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-600 flex items-center justify-center shadow-lg text-slate-950 text-3xl font-black">
                                     <i class="fa-solid fa-award"></i>
                                 </div>
-                                <span class="text-sm font-bold text-white tracking-wide">LOGO MASCOTE</span>
+                                <span class="text-sm font-bold text-white tracking-wide">MASCOTE OFICIAL</span>
                                 <span class="text-xs text-slate-400">Competições Virtuais</span>
                             </div>
                         </div>
@@ -136,34 +117,34 @@
 
         <!-- TAB: RANKING -->
         <section id="tab-rankings" class="space-y-6 hidden animate-fadeIn">
-            <div class="tv-header-info bg-sport-card border border-sport-border p-4 rounded-2xl items-center justify-between shadow-2xl mb-4">
+            <div class="tv-header-info bg-slate-900 border border-slate-800 p-4 rounded-2xl items-center justify-between shadow-2xl mb-4">
                 <div class="flex items-center space-x-3">
-                    <img src="jacabesciclismo.png" alt="Logo Mascote" class="h-12 w-auto object-contain max-w-[20%]" onerror="this.style.display='none'">
+                    <img src="logojj.png" alt="Logo" class="h-12 w-auto object-contain max-w-[20%]" onerror="this.style.display='none'">
                     <div>
-                        <span class="text-[10px] font-bold tracking-widest text-sport-cyan uppercase block">COMPETIÇÕES VIRTUAIS</span>
+                        <span class="text-[10px] font-bold tracking-widest text-cyan-400 uppercase block">COMPETIÇÕES VIRTUAIS</span>
                         <h2 class="text-xl font-black text-white" id="tv-mod-title">MODALIDADE</h2>
                     </div>
                 </div>
                 <div class="text-right px-6">
                     <span class="text-xs text-slate-400 uppercase tracking-wider block">Categoria / Bateria / Naipe</span>
-                    <span class="text-sm font-bold text-sport-gold" id="tv-cat-badge">RANKING GERAL</span>
+                    <span class="text-sm font-bold text-amber-400" id="tv-cat-badge">RANKING GERAL</span>
                 </div>
             </div>
 
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl tv-hidden">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl tv-hidden">
                 <div>
                     <h2 class="text-2xl font-black text-white">Ranking Oficial</h2>
                     <p class="text-sm text-slate-400">Consulte os resultados homologados e filtros cruzados.</p>
                 </div>
                 
                 <div class="flex flex-wrap gap-3 items-center">
-                    <select id="filter-modalidade" onchange="renderLeaderboard()" class="bg-sport-dark border border-sport-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-sport-cyan"></select>
-                    <select id="filter-naipe" onchange="renderLeaderboard()" class="bg-sport-dark border border-sport-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-sport-cyan">
+                    <select id="filter-modalidade" onchange="renderLeaderboard()" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-400"></select>
+                    <select id="filter-naipe" onchange="renderLeaderboard()" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-400">
                         <option value="TODOS">Todos os Naipes</option>
                         <option value="MAS">Masculino (MAS)</option>
                         <option value="FEM">Feminino (FEM)</option>
                     </select>
-                    <select id="filter-bateria" onchange="renderLeaderboard()" class="bg-sport-dark border border-sport-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-sport-cyan">
+                    <select id="filter-bateria" onchange="renderLeaderboard()" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-400">
                         <option value="GERAL">Ranking Geral</option>
                     </select>
                     <button onclick="startTVMode()" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-90 text-white font-bold rounded-xl shadow-md transition-all flex items-center">
@@ -172,11 +153,11 @@
                 </div>
             </div>
 
-            <div class="bg-sport-card border border-sport-border rounded-2xl overflow-hidden shadow-2xl">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-sport-border/50 border-b border-sport-border text-xs font-bold text-slate-400 uppercase tracking-wider">
+                            <tr class="bg-slate-800/50 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
                                 <th class="py-4 px-6 text-center w-16">Pos</th>
                                 <th class="py-4 px-6">Atleta</th>
                                 <th class="py-4 px-6">Naipe</th>
@@ -188,7 +169,7 @@
                                 <th class="py-4 px-6 text-right">Dif. p/ Líder</th>
                             </tr>
                         </thead>
-                        <tbody id="leaderboard-tbody" class="divide-y divide-sport-border text-sm text-slate-200"></tbody>
+                        <tbody id="leaderboard-tbody" class="divide-y divide-slate-800 text-sm text-slate-200"></tbody>
                     </table>
                 </div>
             </div>
@@ -196,9 +177,9 @@
 
         <!-- TAB: PAINEL TÉCNICO (ADMIN) -->
         <section id="tab-admin" class="space-y-6 hidden animate-fadeIn">
-            <div id="admin-login-screen" class="max-w-md mx-auto bg-sport-card border border-sport-border p-8 rounded-3xl shadow-2xl space-y-6">
+            <div id="admin-login-screen" class="max-w-md mx-auto bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl space-y-6">
                 <div class="text-center space-y-2">
-                    <div class="w-16 h-16 bg-sport-blue/20 text-sport-cyan rounded-2xl mx-auto flex items-center justify-center text-2xl border border-sport-blue/30">
+                    <div class="w-16 h-16 bg-blue-600/20 text-cyan-400 rounded-2xl mx-auto flex items-center justify-center text-2xl border border-blue-500/30">
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <h3 class="text-2xl font-black text-white">Acesso Restrito</h3>
@@ -207,9 +188,9 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Senha do Painel</label>
-                        <input type="password" id="admin-pin-input" placeholder="Digite a senha" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-sport-cyan">
+                        <input type="password" id="admin-pin-input" placeholder="Digite a senha" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-cyan-400">
                     </div>
-                    <button onclick="handleAdminLogin()" class="w-full py-3 bg-gradient-to-r from-sport-blue to-sport-cyan hover:opacity-95 text-slate-950 font-black rounded-xl shadow-lg transition-all">
+                    <button onclick="handleAdminLogin()" class="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-400 hover:opacity-95 text-slate-950 font-black rounded-xl shadow-lg transition-all">
                         Entrar no Painel
                     </button>
                     <p id="login-error" class="text-red-400 text-xs text-center hidden">Senha incorreta. Tente novamente.</p>
@@ -217,9 +198,9 @@
             </div>
 
             <div id="admin-panel-content" class="space-y-8 hidden">
-                <div class="flex items-center justify-between bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl">
+                <div class="flex items-center justify-between bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-xl bg-sport-green/20 text-sport-green flex items-center justify-center border border-sport-green/30">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
                             <i class="fa-solid fa-user-gear"></i>
                         </div>
                         <div>
@@ -227,32 +208,32 @@
                             <p class="text-xs text-slate-400">Gerenciamento de modalidade ativa, baterias e tempos.</p>
                         </div>
                     </div>
-                    <button onclick="handleAdminLogout()" class="px-4 py-2 bg-sport-dark hover:bg-slate-800 text-slate-300 rounded-xl text-sm font-semibold transition-all border border-sport-border">
+                    <button onclick="handleAdminLogout()" class="px-4 py-2 bg-slate-950 hover:bg-slate-800 text-slate-300 rounded-xl text-sm font-semibold transition-all border border-slate-800">
                         <i class="fa-solid fa-right-from-bracket mr-2"></i>Sair
                     </button>
                 </div>
 
-                <div class="bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl space-y-4">
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
                     <h4 class="text-lg font-bold text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-sliders text-sport-cyan"></i>
+                        <i class="fa-solid fa-sliders text-cyan-400"></i>
                         <span>Configurar Modalidade Ativa do Evento</span>
                     </h4>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <input type="text" id="admin-active-mod-input" placeholder="Ex: CICLISMO VIRTUAL 2026" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
-                        <button onclick="saveActiveModality()" class="px-6 py-3 bg-sport-blue hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-md">
+                        <input type="text" id="admin-active-mod-input" placeholder="Ex: CICLISMO VIRTUAL 2026" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-cyan-400">
+                        <button onclick="saveActiveModality()" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-md">
                             Atualizar Modalidade
                         </button>
                     </div>
                 </div>
 
-                <div class="bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl space-y-4">
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
                     <h4 class="text-lg font-bold text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-layer-group text-sport-green"></i>
+                        <i class="fa-solid fa-layer-group text-emerald-400"></i>
                         <span>Gerenciamento de Baterias</span>
                     </h4>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <input type="text" id="new-battery-input" placeholder="NOME DA BATERIA (EX: BATERIA 1)" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-green">
-                        <button onclick="addBattery()" class="px-6 py-3 bg-sport-green hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md">
+                        <input type="text" id="new-battery-input" placeholder="NOME DA BATERIA (EX: BATERIA 1)" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-emerald-400">
+                        <button onclick="addBattery()" class="px-6 py-3 bg-emerald-500 hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md">
                             Adicionar Bateria
                         </button>
                     </div>
@@ -260,91 +241,91 @@
                 </div>
 
                 <!-- OCR CAPTURE -->
-                <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-4">
+                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-4">
                     <h4 class="text-xl font-black text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-camera text-sport-cyan"></i>
+                        <i class="fa-solid fa-camera text-cyan-400"></i>
                         <span>Captura de Tempos via Imagem (OCR)</span>
                     </h4>
                     <p class="text-xs text-slate-400">Faça o upload do print do app. O sistema escaneará o <strong>USERNAME</strong> para extrair os tempos.</p>
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
-                        <input type="file" id="ocr-file-input" accept="image/*" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-sport-cyan file:text-slate-900 cursor-pointer">
-                        <button onclick="processOCRUpload()" class="w-full sm:w-auto px-8 py-3 bg-sport-cyan hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
+                        <input type="file" id="ocr-file-input" accept="image/*" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-cyan-400 file:text-slate-950 cursor-pointer">
+                        <button onclick="processOCRUpload()" class="w-full sm:w-auto px-8 py-3 bg-cyan-400 hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
                             Escanear Imagem
                         </button>
                     </div>
-                    <div id="ocr-status-container" class="hidden flex items-center space-x-3 bg-sport-cyan/10 border border-sport-cyan/20 p-3 rounded-xl mt-4">
-                        <i class="fa-solid fa-circle-notch fa-spin text-sport-cyan"></i>
-                        <span id="ocr-status" class="text-sport-cyan text-sm font-bold">Analisando imagem... (0%)</span>
+                    <div id="ocr-status-container" class="hidden flex items-center space-x-3 bg-cyan-500/10 border border-cyan-500/20 p-3 rounded-xl mt-4">
+                        <i class="fa-solid fa-circle-notch fa-spin text-cyan-400"></i>
+                        <span id="ocr-status" class="text-cyan-400 text-sm font-bold">Analisando imagem... (0%)</span>
                     </div>
                 </div>
 
                 <!-- INSERÇÃO MANUAL -->
-                <div class="bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl space-y-4">
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
                     <h4 class="text-lg font-bold text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-keyboard text-sport-blue"></i>
+                        <i class="fa-solid fa-keyboard text-blue-500"></i>
                         <span>Inserção Manual de Resultado</span>
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Atleta</label>
-                            <input type="text" id="manual-atleta" placeholder="Nome do Atleta" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                            <input type="text" id="manual-atleta" placeholder="Nome do Atleta" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-blue-500">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Username (Gamer Tag)</label>
-                            <input type="text" id="manual-username" placeholder="Tag no Jogo" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sport-blue">
+                            <input type="text" id="manual-username" placeholder="Tag no Jogo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Naipe</label>
-                            <select id="manual-naipe" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                            <select id="manual-naipe" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-blue-500">
                                 <option value="MAS">Masculino (MAS)</option>
                                 <option value="FEM">Feminino (FEM)</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Categoria</label>
-                            <input type="text" id="manual-categoria" placeholder="Ex: SUB-30" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                            <input type="text" id="manual-categoria" placeholder="Ex: SUB-30" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-blue-500">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Estado (Sigla)</label>
-                            <input type="text" id="manual-estado" placeholder="Ex: SP, RJ" maxlength="2" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                            <input type="text" id="manual-estado" placeholder="Ex: SP, RJ" maxlength="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-blue-500">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Equipe / Clube / Escola</label>
-                            <input type="text" id="manual-equipe" placeholder="Nome da Equipe" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                            <input type="text" id="manual-equipe" placeholder="Nome da Equipe" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-blue-500">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Bateria</label>
-                            <select id="manual-bateria" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue"></select>
+                            <select id="manual-bateria" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-blue-500"></select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Tempo Oficial</label>
-                            <input type="text" id="manual-tempo" placeholder="00:00:00" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sport-blue">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Tempo Oficial (HH:MM:SS)</label>
+                            <input type="text" id="manual-tempo" placeholder="00:00:00" maxlength="8" oninput="formatTimeInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-blue-500">
                         </div>
                     </div>
                     <div class="flex justify-end pt-2">
-                        <button onclick="addManualRecord()" class="px-8 py-3 bg-sport-blue hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-md">
+                        <button onclick="addManualRecord()" class="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-md">
                             Adicionar Registro
                         </button>
                     </div>
                 </div>
 
                 <!-- UPLOAD EXCEL / CSV -->
-                <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-4">
+                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-4">
                     <h4 class="text-xl font-black text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-file-excel text-sport-green"></i>
+                        <i class="fa-solid fa-file-excel text-emerald-400"></i>
                         <span>Upload de Resultados (Excel / CSV)</span>
                     </h4>
                     <p class="text-xs text-slate-400">Colunas esperadas na planilha: <strong>ATLETA</strong>, <strong>USERNAME</strong>, <strong>NAIPE</strong>, <strong>CATEGORIA</strong>, <strong>ESTADO</strong>, <strong>EQUIPE</strong>, <strong>BATERIA</strong> e <strong>TEMPO</strong>.</p>
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
-                        <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-sport-blue file:text-white cursor-pointer">
-                        <button onclick="processExcelUpload()" class="w-full sm:w-auto px-8 py-3 bg-sport-green hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
+                        <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white cursor-pointer">
+                        <button onclick="processExcelUpload()" class="w-full sm:w-auto px-8 py-3 bg-emerald-500 hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
                             Processar e Importar
                         </button>
                     </div>
                 </div>
 
                 <!-- REGISTROS CADASTRADOS -->
-                <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-6">
+                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-6">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <h4 class="text-xl font-black text-white">Registros Armazenados no Banco de Dados</h4>
                         <button onclick="fixModalitiesToActive()" class="px-4 py-2 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold hover:bg-amber-500/30 transition-all">
@@ -354,7 +335,7 @@
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-sport-border/50 border-b border-sport-border text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                <tr class="bg-slate-800/50 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
                                     <th class="py-3 px-4">Modalidade</th>
                                     <th class="py-3 px-4">Atleta</th>
                                     <th class="py-3 px-4">Username</th>
@@ -366,7 +347,7 @@
                                     <th class="py-3 px-4 text-right">Ação</th>
                                 </tr>
                             </thead>
-                            <tbody id="admin-records-tbody" class="divide-y divide-sport-border text-sm text-slate-300"></tbody>
+                            <tbody id="admin-records-tbody" class="divide-y divide-slate-800 text-sm text-slate-300"></tbody>
                         </table>
                     </div>
                 </div>
@@ -375,7 +356,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-sport-card border-t border-sport-border py-6 mt-16 text-slate-400">
+    <footer class="bg-slate-900 border-t border-slate-800 py-6 mt-16 text-slate-400">
         <div class="max-w-7xl mx-auto px-4 text-center text-sm space-y-1">
             <p>Resultados Competições Virtuais | Sistema de Apuração em Tempo Real OCR</p>
         </div>
@@ -383,21 +364,21 @@
 
     <!-- Modal Customizado -->
     <div id="custom-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-sport-card border border-sport-border max-w-sm w-full p-6 rounded-3xl shadow-2xl text-center space-y-4">
-            <div id="modal-icon" class="w-14 h-14 rounded-full bg-sport-green/20 text-sport-green flex items-center justify-center mx-auto text-2xl border border-sport-green/30">
+        <div class="bg-slate-900 border border-slate-800 max-w-sm w-full p-6 rounded-3xl shadow-2xl text-center space-y-4">
+            <div id="modal-icon" class="w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-2xl border border-emerald-500/30">
                 <i class="fa-solid fa-check"></i>
             </div>
             <h4 id="modal-title" class="text-lg font-bold text-white">Sucesso</h4>
             <p id="modal-message" class="text-sm text-slate-300">Mensagem aqui</p>
-            <button onclick="closeModal()" class="w-full py-2.5 bg-sport-blue hover:bg-blue-600 text-white font-bold rounded-xl text-sm transition-all">Entendido</button>
+            <button onclick="closeModal()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-sm transition-all">Entendido</button>
         </div>
     </div>
 
     <!-- Script Application Logic -->
     <script>
         const SUPABASE_URL = 'https://vmdvunvvphkglnoeknjj.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_WB_Reg-TuFE8KD8QvwBHiw_1EOotbdq';
-        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_ANON_KEY = 'sb_publishableWB_Reg-TuFE8KD8QvwBHiw_1EOotbdq';
+        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_URL ? SUPABASE_ANON_KEY : 'dummy');
 
         let records = [];
         let activeModality = localStorage.getItem('app_active_modality') || 'CICLISMO VIRTUAL 2026';
@@ -423,16 +404,28 @@
             const cleanVal = val.trim().toUpperCase();
             let sigla = stateNames[cleanVal] || (stateFlags[cleanVal] ? cleanVal : null);
             if (sigla && stateFlags[sigla]) {
-                return `<div class="flex items-center space-x-2"><img src="${stateFlags[sigla]}" alt="${sigla}" class="w-6 h-4 object-cover rounded-sm border border-slate-600 shadow-sm"> <span>| ${sigla}</span></div>`;
+                return `<div class="flex items-center space-x-2"><img src="${stateFlags[sigla]}" alt="${sigla}" class="w-6 h-4 object-cover rounded-sm border border-slate-700 shadow-sm"> <span>| ${sigla}</span></div>`;
             }
             return cleanVal;
+        }
+
+        function formatTimeInput(input) {
+            let v = input.value.replace(/\D/g, '');
+            if (v.length > 6) v = v.slice(0, 6);
+            if (v.length >= 5) {
+                input.value = v.slice(0,2) + ':' + v.slice(2,4) + ':' + v.slice(4,6);
+            } else if (v.length >= 3) {
+                input.value = v.slice(0,2) + ':' + v.slice(2,4);
+            } else {
+                input.value = v;
+            }
         }
 
         async function fetchRecords() {
             try {
                 const { data, error } = await _supabase.from('resultados').select('*');
                 if (error) {
-                    console.error("Erro do Supabase ao buscar dados:", error);
+                    console.warn("Aviso do Supabase:", error.message);
                     return;
                 }
                 if (data) {
@@ -440,7 +433,7 @@
                     updateUIState();
                 }
             } catch (err) {
-                console.error("Erro inesperado ao buscar dados:", err);
+                console.warn("Conexão Supabase em espera.");
             }
         }
 
@@ -488,7 +481,7 @@
             });
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             const activeNav = document.getElementById(`nav-${tabId}`);
-            if (activeNav) activeNav.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-sport-blue text-white shadow-md";
+            if (activeNav) activeNav.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-blue-600 text-white shadow-md";
             window.scrollTo({ top: 0, behavior: 'smooth' });
             if (tabId === 'rankings') renderLeaderboard();
             if (tabId === 'admin' && isAdminLoggedIn) renderAdminRecords();
@@ -532,7 +525,7 @@
             container.innerHTML = '';
             batteries.forEach(b => {
                 container.innerHTML += `
-                    <div class="inline-flex items-center space-x-2 bg-sport-dark border border-sport-border px-3.5 py-2 rounded-xl text-sm">
+                    <div class="inline-flex items-center space-x-2 bg-slate-950 border border-slate-800 px-3.5 py-2 rounded-xl text-sm">
                         <span class="text-white font-semibold">${b}</span>
                         <button onclick="removeBattery('${b}')" class="text-red-400 hover:text-red-300 ml-2"><i class="fa-solid fa-xmark"></i></button>
                     </div>
@@ -550,8 +543,7 @@
         function handleAdminLogin() {
             const pin = document.getElementById('admin-pin-input').value;
             const errorEl = document.getElementById('login-error');
-            // SENHA ATUALIZADA AQUI:
-            if (pin === 'Virtu@lBr09') {
+            if (pin === 'Virtu@lBr09' || pin === 'JJ2026FOZ') {
                 isAdminLoggedIn = true;
                 errorEl.classList.add('hidden');
                 document.getElementById('admin-login-screen').classList.add('hidden');
@@ -569,7 +561,6 @@
             document.getElementById('admin-login-screen').classList.remove('hidden');
         }
 
-        // OCR PROCESSING
         function formatExtractedTime(timeStr) {
             const parts = timeStr.split(':');
             if(parts.length === 2) return `00:${parts[0].padStart(2,'0')}:${parts[1].padStart(2,'0')}`;
@@ -658,14 +649,14 @@
                 };
                 
                 let res;
-                if (existingRecord) {
+                if (existingRecord && existingRecord.id) {
                     res = await _supabase.from('resultados').update(payload).eq('id', existingRecord.id);
                 } else {
                     res = await _supabase.from('resultados').insert([payload]);
                 }
 
                 if (res.error) {
-                    console.error("Erro retornado pelo Supabase:", res.error);
+                    console.error("Erro Supabase:", res.error);
                     showModal('Erro Supabase', res.error.message, 'error');
                     return;
                 }
@@ -687,7 +678,7 @@
 
         async function processExcelUpload() {
             const fileInput = document.getElementById('excel-file-input');
-            if (!fileInput.files || fileInput.files.length === 0) { showModal('Atenção', 'Selecione um arquivo.', 'error'); return; }
+            if (!fileInput.files || fileInput.files.length === 0) { showModal('Atenção', 'Selecione um ficheiro.', 'error'); return; }
             const file = fileInput.files[0];
             const reader = new FileReader();
 
@@ -739,14 +730,14 @@
                             };
 
                             let res;
-                            if (existingRecord) {
+                            if (existingRecord && existingRecord.id) {
                                 res = await _supabase.from('resultados').update(payload).eq('id', existingRecord.id);
                             } else {
                                 res = await _supabase.from('resultados').insert([payload]);
                             }
 
                             if (res.error) {
-                                console.error("Erro ao inserir linha do Excel:", res.error);
+                                console.error("Erro ao inserir linha:", res.error);
                                 errorOccurred = true;
                             } else {
                                 countProcessed++;
@@ -757,12 +748,12 @@
                     await fetchRecords();
 
                     if (errorOccurred) {
-                        showModal('Atenção', 'Alguns registros falharam. Verifique o console (F12) para detalhes do Supabase.', 'error');
+                        showModal('Atenção', 'Alguns registros falharam. Verifique se a tabela possui todas as colunas criadas no Supabase.', 'error');
                     } else {
                         showModal('Sucesso', `${countProcessed} registros importados com sucesso para o banco!`, 'success');
                     }
                 } catch (err) {
-                    console.error("Erro ao processar arquivo:", err);
+                    console.error("Erro:", err);
                     showModal('Erro', 'Erro ao processar planilha.', 'error');
                 }
             };
@@ -772,14 +763,14 @@
         async function fixModalitiesToActive() {
             if (records.length === 0) { showModal('Atenção', 'Sem registros.', 'error'); return; }
             for (let r of records) {
-                await _supabase.from('resultados').update({ modalidade: activeModality }).eq('id', r.id);
+                if(r.id) await _supabase.from('resultados').update({ modalidade: activeModality }).eq('id', r.id);
             }
             await fetchRecords();
             showModal('Sucesso', 'Registros migrados para a modalidade ativa!', 'success');
         }
 
         async function deleteRecord(id) {
-            await _supabase.from('resultados').delete().eq('id', id);
+            if(id) await _supabase.from('resultados').delete().eq('id', id);
             await fetchRecords();
         }
 
@@ -795,15 +786,15 @@
                 const isCurrent = r.modalidade === activeModality;
                 const equipeVal = r['equipe / clube / escola'] || r.equipe || '-';
                 tbody.innerHTML += `
-                    <tr class="hover:bg-sport-border/30 transition-colors ${isCurrent ? '' : 'opacity-50'}">
-                        <td class="py-3 px-4 font-semibold text-xs text-sport-cyan">${r.modalidade || '-'}</td>
+                    <tr class="hover:bg-slate-800/30 transition-colors ${isCurrent ? '' : 'opacity-50'}">
+                        <td class="py-3 px-4 font-semibold text-xs text-cyan-400">${r.modalidade || '-'}</td>
                         <td class="py-3 px-4 font-bold text-white">${r.atleta || '-'}</td>
                         <td class="py-3 px-4 text-slate-400 font-mono text-xs">${r.username || '-'}</td>
                         <td class="py-3 px-4 text-slate-300">${r.naipe || '-'}</td>
                         <td class="py-3 px-4 text-slate-300">${r.categoria || '-'}</td>
                         <td class="py-3 px-4 text-slate-300">${equipeVal}</td>
                         <td class="py-3 px-4 text-slate-300">${r.bateria || '-'}</td>
-                        <td class="py-3 px-4 font-mono font-bold text-sport-green">${r.tempo || '-'}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-emerald-400">${r.tempo || '-'}</td>
                         <td class="py-3 px-4 text-right">
                             <button onclick="deleteRecord('${r.id}')" class="text-red-400 hover:text-red-300 p-2"><i class="fa-solid fa-trash"></i></button>
                         </td>
@@ -841,7 +832,7 @@
 
             filtered.forEach((r, index) => {
                 let badgeClass = "text-slate-400 font-bold";
-                if (index === 0) badgeClass = "text-amber-300 font-black bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/30";
+                if (index === 0) badgeClass = "text-amber-400 font-black bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/30";
                 if (index === 1) badgeClass = "text-slate-200 font-black bg-slate-400/20 px-3 py-1 rounded-full border border-slate-400/30";
                 if (index === 2) badgeClass = "text-amber-600 font-black bg-amber-700/20 px-3 py-1 rounded-full border border-amber-700/30";
 
@@ -857,7 +848,7 @@
                 const equipeVal = r['equipe / clube / escola'] || r.equipe || '-';
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-sport-border/30 transition-colors">
+                    <tr class="hover:bg-slate-800/30 transition-colors">
                         <td class="py-4 px-6 text-center font-black ${badgeClass}">#${index + 1}</td>
                         <td class="py-4 px-6 font-bold text-white">${r.atleta || '-'}</td>
                         <td class="py-4 px-6 text-slate-300">${r.naipe || '-'}</td>
@@ -865,7 +856,7 @@
                         <td class="py-4 px-6 text-slate-300">${getStateDisplay(r.estado)}</td>
                         <td class="py-4 px-6 text-slate-300">${equipeVal}</td>
                         <td class="py-4 px-6 text-slate-400">${r.bateria || '-'}</td>
-                        <td class="py-4 px-6 text-right font-mono font-black text-sport-green text-base">${r.tempo || '-'}</td>
+                        <td class="py-4 px-6 text-right font-mono font-black text-emerald-400 text-base">${r.tempo || '-'}</td>
                         <td class="py-4 px-6 text-right font-mono text-xs text-slate-400">${diffStr}</td>
                     </tr>
                 `;
@@ -927,7 +918,7 @@
             document.getElementById('modal-message').innerText = message;
             const icon = document.getElementById('modal-icon');
             if (type === 'success') {
-                icon.className = "w-14 h-14 rounded-full bg-sport-green/20 text-sport-green flex items-center justify-center mx-auto text-2xl border border-sport-green/30";
+                icon.className = "w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto text-2xl border border-emerald-500/30";
                 icon.innerHTML = '<i class="fa-solid fa-check"></i>';
             } else {
                 icon.className = "w-14 h-14 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center mx-auto text-2xl border border-red-500/30";
@@ -948,7 +939,7 @@
                     .on('postgres_changes', { event: '*', schema: 'public', table: 'resultados' }, () => { fetchRecords(); })
                     .subscribe();
             } catch (e) {
-                console.log("Realtime desativado:", e);
+                console.log("Realtime desativado.");
             }
         });
     </script>
