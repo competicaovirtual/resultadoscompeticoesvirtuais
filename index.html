@@ -431,7 +431,7 @@
             try {
                 const { data, error } = await _supabase.from('resultados').select('*');
                 if (error) {
-                    console.error("Erro do Supabase:", error);
+                    console.error("Erro do Supabase ao buscar dados:", error);
                     return;
                 }
                 if (data) {
@@ -439,7 +439,7 @@
                     updateUIState();
                 }
             } catch (err) {
-                console.error("Erro inesperado:", err);
+                console.error("Erro inesperado ao buscar dados:", err);
             }
         }
 
@@ -564,7 +564,7 @@
             isAdminLoggedIn = false;
             document.getElementById('admin-pin-input').value = '';
             document.getElementById('admin-panel-content').classList.add('hidden');
-            document.getElementById('admin-login-screen').classList.remove('hidden');
+            document.getElementById('admin-login-screen').classList.add('hidden');
         }
 
         // OCR PROCESSING
@@ -635,27 +635,38 @@
             const estado = document.getElementById('manual-estado').value.trim().toUpperCase();
             const equipe = document.getElementById('manual-equipe').value.trim().toUpperCase();
             const bateria = document.getElementById('manual-bateria').value;
-            const tempo = document.getElementById('manual-tempo').value.trim();
+            const tempo = document.getElementById('manual-tempo').value.trim() || '00:00:00';
 
-            if (!atleta || !tempo) { showModal('Atenção', 'Nome e tempo são obrigatórios.', 'error'); return; }
+            if (!atleta) { showModal('Atenção', 'O nome do atleta é obrigatório.', 'error'); return; }
 
             const modalidade = activeModality; 
             const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
 
             try {
-                let error;
-                // Mapeando para o nome correto da coluna no Supabase ('equipe / clube / escola' ou 'equipe' caso tenha renomeado)
-                const payload = { atleta, username, naipe, categoria, estado, 'equipe / clube / escola': equipe, modalidade, bateria, tempo };
+                const payload = { 
+                    atleta, 
+                    username, 
+                    naipe, 
+                    categoria, 
+                    estado, 
+                    'equipe / clube / escola': equipe, 
+                    modalidade, 
+                    bateria, 
+                    tempo 
+                };
                 
+                let res;
                 if (existingRecord) {
-                    const res = await _supabase.from('resultados').update(payload).eq('id', existingRecord.id);
-                    error = res.error;
+                    res = await _supabase.from('resultados').update(payload).eq('id', existingRecord.id);
                 } else {
-                    const res = await _supabase.from('resultados').insert([payload]);
-                    error = res.error;
+                    res = await _supabase.from('resultados').insert([payload]);
                 }
 
-                if (error) { showModal('Erro', 'Erro ao salvar no banco: ' + error.message, 'error'); return; }
+                if (res.error) {
+                    console.error("Erro retornado pelo Supabase:", res.error);
+                    showModal('Erro Supabase', res.error.message, 'error');
+                    return;
+                }
 
                 document.getElementById('manual-atleta').value = '';
                 document.getElementById('manual-username').value = '';
@@ -667,6 +678,7 @@
                 await fetchRecords();
                 showModal('Sucesso', 'Registro salvo com sucesso!', 'success');
             } catch (err) {
+                console.error("Erro inesperado:", err);
                 showModal('Erro', 'Erro inesperado ao salvar.', 'error');
             }
         }
@@ -687,6 +699,8 @@
                     if (jsonRows.length === 0) { showModal('Atenção', 'Planilha vazia.', 'error'); return; }
 
                     let countProcessed = 0;
+                    let errorOccurred = false;
+
                     for (let row of jsonRows) {
                         const keys = Object.keys(row);
                         let atletaKey = keys.find(k => /atleta|nome/i.test(k)) || keys[0];
@@ -707,23 +721,46 @@
                         const bateria = bateriaKey ? String(row[bateriaKey] || batteries[0]).trim().toUpperCase() : batteries[0];
                         const tempo = tempoKey ? String(row[tempoKey] || '00:00:00').trim() : '00:00:00';
 
-                        if (atleta && tempo) {
+                        if (atleta) {
                             const modalidade = activeModality;
                             const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
-                            const payload = { atleta, username, naipe, categoria, estado, 'equipe / clube / escola': equipe, modalidade, bateria, tempo };
+                            const payload = { 
+                                atleta, 
+                                username, 
+                                naipe, 
+                                categoria, 
+                                estado, 
+                                'equipe / clube / escola': equipe, 
+                                modalidade, 
+                                bateria, 
+                                tempo 
+                            };
 
+                            let res;
                             if (existingRecord) {
-                                await _supabase.from('resultados').update(payload).eq('id', existingRecord.id);
+                                res = await _supabase.from('resultados').update(payload).eq('id', existingRecord.id);
                             } else {
-                                await _supabase.from('resultados').insert([payload]);
+                                res = await _supabase.from('resultados').insert([payload]);
                             }
-                            countProcessed++;
+
+                            if (res.error) {
+                                console.error("Erro ao inserir linha do Excel:", res.error);
+                                errorOccurred = true;
+                            } else {
+                                countProcessed++;
+                            }
                         }
                     }
                     fileInput.value = '';
                     await fetchRecords();
-                    showModal('Sucesso', `${countProcessed} registros importados com sucesso!`, 'success');
+
+                    if (errorOccurred) {
+                        showModal('Atenção', 'Alguns registros falharam. Verifique o console (F12) para detalhes do Supabase.', 'error');
+                    } else {
+                        showModal('Sucesso', `${countProcessed} registros importados com sucesso para o banco!`, 'success');
+                    }
                 } catch (err) {
+                    console.error("Erro ao processar arquivo:", err);
                     showModal('Erro', 'Erro ao processar planilha.', 'error');
                 }
             };
@@ -790,7 +827,7 @@
             if (naipeFilter !== 'TODOS') filtered = filtered.filter(r => r.naipe === naipeFilter);
             if (batFilter !== 'GERAL') filtered = filtered.filter(r => r.bateria === batFilter);
 
-            filtered.sort((a, b) => a.tempo.localeCompare(b.tempo));
+            filtered.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
 
             tbody.innerHTML = '';
             if (filtered.length === 0) {
