@@ -8,6 +8,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- SheetJS para leitura e exportação de Excel / CSV -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- jsPDF e AutoTable para exportação em PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <!-- Tesseract.js para OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -134,7 +137,7 @@
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl tv-hidden">
                 <div>
                     <h2 class="text-2xl font-black text-white">Ranking Oficial</h2>
-                    <p class="text-sm text-slate-400">Consulte os resultados homologados separados por naipe e categoria.</p>
+                    <p class="text-sm text-slate-400">Consulte os resultados homologados separados por naipe e categoria[cite: 16].</p>
                 </div>
                 
                 <div class="flex flex-wrap gap-3 items-center">
@@ -208,12 +211,29 @@
                     </div>
                 </div>
 
-                <!-- GERENCIAMENTO DE BATERIAS E SORTEIO -->
+                <!-- ORDEM REQUISITADA DAS FUNCIONALIDADES DO PAINEL ADMIN -->
+
+                <!-- 1 - Upload de Inscritos / Resultados (Excel / CSV) -->
+                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-4">
+                    <h4 class="text-xl font-black text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-file-excel text-emerald-400"></i>
+                        <span>1. Upload de Inscritos / Resultados (Excel / CSV)</span>
+                    </h4>
+                    <p class="text-xs text-slate-400">Colunas esperadas na sua planilha: <strong>ATLETA</strong>, <strong>USERNAME</strong>, <strong>NAIPE</strong>, <strong>CATEGORIA</strong>, <strong>ESTADO</strong>, <strong>EQUIPE</strong>, <strong>BATERIA</strong> e <strong>TEMPO</strong>.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+                        <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white cursor-pointer">
+                        <button onclick="processExcelUpload()" class="w-full sm:w-auto px-8 py-3 bg-emerald-500 hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
+                            Processar e Importar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2 - Gerenciamento de Baterias e Sorteio -->
                 <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-6">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <h4 class="text-lg font-bold text-white flex items-center space-x-2">
                             <i class="fa-solid fa-layer-group text-emerald-400"></i>
-                            <span>Gerenciamento de Baterias e Sorteio</span>
+                            <span>2. Gerenciamento de Baterias e Sorteio</span>
                         </h4>
                     </div>
 
@@ -248,50 +268,11 @@
                     <div id="batteries-list-container" class="flex flex-wrap gap-2 pt-2"></div>
                 </div>
 
-                <!-- EXPORTAÇÃO DE RESULTADOS EM EXCEL -->
-                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-4">
-                    <h4 class="text-xl font-black text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-file-arrow-down text-cyan-400"></i>
-                        <span>Exportar Resultados em Excel (.xlsx)</span>
-                    </h4>
-                    <p class="text-xs text-slate-400">Escolha o modo de exportação desejado para gerar e baixar a planilha oficial com os resultados processados.</p>
-                    <div class="flex flex-col sm:flex-row gap-4 items-center">
-                        <select id="export-mode" class="w-full sm:w-auto bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400">
-                            <option value="geral">Ranking Geral</option>
-                            <option value="naipe">Separado por Naipe (Abas por Naipe)</option>
-                            <option value="bateria">Separado por Bateria (Abas por Bateria)</option>
-                        </select>
-                        <button onclick="exportResultsExcel()" class="w-full sm:w-auto px-8 py-3 bg-cyan-400 hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-download"></i>
-                            <span>Baixar Planilha Excel</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- OCR CAPTURE -->
-                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-4">
-                    <h4 class="text-xl font-black text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-camera text-cyan-400"></i>
-                        <span>Captura de Tempos via Imagem (OCR)</span>
-                    </h4>
-                    <p class="text-xs text-slate-400">Faça o upload do print do app. O sistema escaneará o <strong>USERNAME</strong> para extrair os tempos.</p>
-                    <div class="flex flex-col sm:flex-row gap-4 items-center">
-                        <input type="file" id="ocr-file-input" accept="image/*" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-cyan-400 file:text-slate-950 cursor-pointer">
-                        <button onclick="processOCRUpload()" class="w-full sm:w-auto px-8 py-3 bg-cyan-400 hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
-                            Escanear Imagem
-                        </button>
-                    </div>
-                    <div id="ocr-status-container" class="hidden flex items-center space-x-3 bg-cyan-500/10 border border-cyan-500/20 p-3 rounded-xl mt-4">
-                        <i class="fa-solid fa-circle-notch fa-spin text-cyan-400"></i>
-                        <span id="ocr-status" class="text-cyan-400 text-sm font-bold">Analisando imagem... (0%)</span>
-                    </div>
-                </div>
-
-                <!-- INSERÇÃO MANUAL -->
+                <!-- 3 - Inserção Manual de Resultados -->
                 <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
                     <h4 class="text-lg font-bold text-white flex items-center space-x-2">
                         <i class="fa-solid fa-keyboard text-blue-500"></i>
-                        <span>Inserção Manual de Resultado</span>
+                        <span>3. Inserção Manual de Resultado</span>
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         <div>
@@ -303,7 +284,7 @@
                             <input type="text" id="manual-atleta" placeholder="Nome do Atleta" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-blue-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Naipe</label>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Naipe (Automático ou Manual)</label>
                             <select id="manual-naipe" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-blue-500">
                                 <option value="MAS">Masculino (MAS)</option>
                                 <option value="FEM">Feminino (FEM)</option>
@@ -322,7 +303,7 @@
                             <input type="text" id="manual-equipe" placeholder="Nome da Equipe" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-blue-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Bateria</label>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Bateria (Automática ou Manual)</label>
                             <select id="manual-bateria" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-blue-500"></select>
                         </div>
                         <div>
@@ -337,28 +318,57 @@
                     </div>
                 </div>
 
-                <!-- UPLOAD EXCEL / CSV -->
+                <!-- 4 - Captura de Tempos via Imagem (OCR) -->
                 <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-4">
                     <h4 class="text-xl font-black text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-file-excel text-emerald-400"></i>
-                        <span>Upload de Inscritos / Resultados (Excel / CSV)</span>
+                        <i class="fa-solid fa-camera text-cyan-400"></i>
+                        <span>4. Captura de Tempos via Imagem (OCR)</span>
                     </h4>
-                    <p class="text-xs text-slate-400">Colunas esperadas na sua planilha: <strong>ATLETA</strong>, <strong>USERNAME</strong>, <strong>NAIPE</strong>, <strong>CATEGORIA</strong>, <strong>ESTADO</strong>, <strong>EQUIPE</strong>, <strong>BATERIA</strong> e <strong>TEMPO</strong>.</p>
+                    <p class="text-xs text-slate-400">Faça o upload do print do app. O sistema escaneará o <strong>USERNAME</strong> para extrair os tempos.</p>
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
-                        <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white cursor-pointer">
-                        <button onclick="processExcelUpload()" class="w-full sm:w-auto px-8 py-3 bg-emerald-500 hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
-                            Processar e Importar
+                        <input type="file" id="ocr-file-input" accept="image/*" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-cyan-400 file:text-slate-950 cursor-pointer">
+                        <button onclick="processOCRUpload()" class="w-full sm:w-auto px-8 py-3 bg-cyan-400 hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
+                            Escanear Imagem
+                        </button>
+                    </div>
+                    <div id="ocr-status-container" class="hidden flex items-center space-x-3 bg-cyan-500/10 border border-cyan-500/20 p-3 rounded-xl mt-4">
+                        <i class="fa-solid fa-circle-notch fa-spin text-cyan-400"></i>
+                        <span id="ocr-status" class="text-cyan-400 text-sm font-bold">Analisando imagem... (0%)</span>
+                    </div>
+                </div>
+
+                <!-- 5 - Exportação de Resultados em Excel (.xlsx) -->
+                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-4">
+                    <h4 class="text-xl font-black text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-file-arrow-down text-cyan-400"></i>
+                        <span>5. Exportar Resultados em Excel (.xlsx)</span>
+                    </h4>
+                    <p class="text-xs text-slate-400">Escolha o modo de exportação desejado para gerar e baixar a planilha oficial com os resultados processados.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+                        <select id="export-mode" class="w-full sm:w-auto bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400">
+                            <option value="geral">Ranking Geral</option>
+                            <option value="naipe">Separado por Naipe (Abas por Naipe)</option>
+                            <option value="bateria">Separado por Bateria (Abas por Bateria)</option>
+                        </select>
+                        <button onclick="exportResultsExcel()" class="w-full sm:w-auto px-8 py-3 bg-cyan-400 hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Baixar Planilha Excel</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- REGISTROS CADASTRADOS -->
+                <!-- 6 - Registros Armazenados (com botão para exportar resultados em PDF) -->
                 <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-6">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <h4 class="text-xl font-black text-white">Registros Armazenados no Banco de Dados</h4>
-                        <button onclick="fixModalitiesToActive()" class="px-4 py-2 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold hover:bg-amber-500/30 transition-all">
-                            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Migrar todos para a modalidade atual
-                        </button>
+                        <h4 class="text-xl font-black text-white">6. Registros Armazenados no Banco de Dados</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="exportResultsPDF()" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition-all flex items-center shadow-md">
+                                <i class="fa-solid fa-file-pdf mr-2"></i>Exportar em PDF
+                            </button>
+                            <button onclick="fixModalitiesToActive()" class="px-4 py-2 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold hover:bg-amber-500/30 transition-all">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Migrar todos para a modalidade atual
+                            </button>
+                        </div>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
@@ -564,9 +574,26 @@
             updateUIState();
         }
 
-        // FUNÇÃO DE EXPORTAÇÃO EM EXCEL COM OS MODOS SOLICITADOS
+        // AUTO-PREENCHIMENTO COMPLETO: INCLUINDO NAIPE E BATERIA AUTOMATICAMENTE
+        function handleUsernameAutofill() {
+            const usernameInput = document.getElementById('manual-username').value.trim().toUpperCase();
+            if (!usernameInput) return;
+            
+            const found = records.find(r => (r.username || '').toUpperCase() === usernameInput);
+            if (found) {
+                document.getElementById('manual-atleta').value = found.atleta || '';
+                if (found.naipe) document.getElementById('manual-naipe').value = found.naipe;
+                document.getElementById('manual-categoria').value = found.categoria || '';
+                document.getElementById('manual-estado').value = found.estado || '';
+                document.getElementById('manual-equipe').value = found.equipe || '';
+                if (found.bateria) document.getElementById('manual-bateria').value = found.bateria;
+                if (found.tempo) document.getElementById('manual-tempo').value = found.tempo;
+            }
+        }
+
+        // EXPORTAÇÃO DE RESULTADOS EM EXCEL (.XLSX)
         function exportResultsExcel() {
-            const mode = document.getElementById('export-mode').value; // 'geral', 'naipe', 'bateria'
+            const mode = document.getElementById('export-mode').value;
             let filtered = records.filter(r => r.modalidade === activeModality);
 
             if (filtered.length === 0) {
@@ -640,20 +667,45 @@
             showModal('Sucesso!', 'Planilha Excel gerada e baixada com sucesso!', 'success');
         }
 
-        function handleUsernameAutofill() {
-            const usernameInput = document.getElementById('manual-username').value.trim().toUpperCase();
-            if (!usernameInput) return;
-            
-            const found = records.find(r => (r.username || '').toUpperCase() === usernameInput);
-            if (found) {
-                document.getElementById('manual-atleta').value = found.atleta || '';
-                if (found.naipe) document.getElementById('manual-naipe').value = found.naipe;
-                document.getElementById('manual-categoria').value = found.categoria || '';
-                document.getElementById('manual-estado').value = found.estado || '';
-                document.getElementById('manual-equipe').value = found.equipe || '';
-                if (found.bateria) document.getElementById('manual-bateria').value = found.bateria;
-                if (found.tempo) document.getElementById('manual-tempo').value = found.tempo;
+        // EXPORTAÇÃO DE RESULTADOS EM PDF
+        function exportResultsPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            let filtered = records.filter(r => r.modalidade === activeModality);
+            if (filtered.length === 0) {
+                showModal('Atenção', 'Não há registros na modalidade ativa para exportar em PDF.', 'error');
+                return;
             }
+
+            filtered.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
+
+            doc.setFontSize(16);
+            doc.text(`RELATÓRIO OFICIAL - ${activeModality}`, 14, 20);
+            doc.setFontSize(10);
+            doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}`, 14, 27);
+
+            const tableRows = filtered.map((r, idx) => [
+                idx + 1,
+                r.atleta || '-',
+                r.naipe || '-',
+                r.categoria || '-',
+                r.equipe || '-',
+                r.bateria || '-',
+                r.tempo || '-'
+            ]);
+
+            doc.autoTable({
+                startY: 35,
+                head: [['Pos', 'Atleta', 'Naipe', 'Categoria', 'Equipe', 'Bateria', 'Tempo']],
+                body: tableRows,
+                theme: 'grid',
+                headStyles: { fillColor: [15, 23, 42] },
+                styles: { fontSize: 8 }
+            });
+
+            doc.save(`Resultados_${activeModality.replace(/\s+/g, '_')}.pdf`);
+            showModal('Sucesso!', 'Arquivo PDF gerado e baixado com sucesso!', 'success');
         }
 
         async function sortearBateriasAleatorioOuPersonalizado() {
