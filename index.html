@@ -1,48 +1,805 @@
-<!-- Inserção Manual de Resultado -->
-<div class="bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl space-y-4">
-    <h4 class="text-lg font-bold text-white flex items-center space-x-2">
-        <i class="fa-solid fa-keyboard text-sport-blue"></i>
-        <span>Inserção Manual de Resultado</span>
-    </h4>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- NOVO CAMPO: Username -->
-        <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Username (App Virtual)</label>
-            <input type="text" id="manual-username" placeholder="Ex: J.Doe_BR" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sport-blue">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Competições Virtuais Brasileiras - RESULTADOS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sport: {
+                            dark: '#090D16',
+                            card: '#131C2E',
+                            border: '#1E293B',
+                            cyan: '#00F2FE',
+                            blue: '#0072FF',
+                            green: '#00FF87',
+                            gold: '#FFD700',
+                            light: '#F8FAFC'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Estilos do Modo TV */
+        body.tv-mode header, body.tv-mode footer, body.tv-mode .tv-hidden { display: none !important; }
+        body.tv-mode main { max-width: 100% !important; padding: 1.5rem !important; }
+        body.tv-mode #tab-rankings { margin-top: 0 !important; }
+        .tv-header-info { display: none; }
+        body.tv-mode .tv-header-info { display: flex !important; }
+        .tv-indicator { display: none; }
+        body.tv-mode .tv-indicator { display: flex !important; }
+    </style>
+</head>
+<body class="bg-sport-dark text-slate-100 min-h-screen flex flex-col font-sans selection:bg-sport-cyan selection:text-slate-900 transition-all">
+
+    <!-- Botão Sair Modo TV -->
+    <button onclick="stopTVMode()" class="tv-indicator fixed bottom-6 right-6 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-2xl z-50 animate-bounce items-center">
+        <i class="fa-solid fa-xmark text-xl mr-2"></i> Encerrar Modo TV
+    </button>
+
+    <!-- Header / Navbar -->
+    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 shadow-sm tv-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center h-full py-2">
+                <img src="logojj.png" alt="Logo Jogos da Juventude" class="h-16 w-auto object-contain" onerror="this.onerror=null; this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+                <div id="logo-fallback" style="display:none;" class="h-14 w-14 rounded-xl bg-gradient-to-tr from-sport-blue to-sport-cyan items-center justify-center text-white font-black text-xl shadow-sm">JJ</div>
+            </div>
+            
+            <nav class="hidden md:flex items-center space-x-2">
+                <button onclick="switchTab('home')" id="nav-home" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-sport-dark text-white shadow-md">
+                    <i class="fa-solid fa-house mr-2"></i>Início
+                </button>
+                <button onclick="switchTab('rankings')" id="nav-rankings" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-sport-dark hover:bg-slate-100">
+                    <i class="fa-solid fa-trophy mr-2"></i>RANKING
+                </button>
+                <button onclick="switchTab('admin')" id="nav-admin" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-sport-dark hover:bg-slate-100">
+                    <i class="fa-solid fa-shield-halved mr-2"></i>Painel Técnico (Admin)
+                </button>
+            </nav>
+
+            <div class="md:hidden flex items-center">
+                <button onclick="toggleMobileMenu()" class="text-slate-700 hover:text-black p-2">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
         </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Atleta (Nome Completo)</label>
-            <input type="text" id="manual-atleta" placeholder="Nome do Atleta" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+
+        <!-- Menu Mobile -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-4 space-y-2 shadow-lg">
+            <button onclick="switchTab('home'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold bg-sport-dark text-white">Início</button>
+            <button onclick="switchTab('rankings'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">RANKING</button>
+            <button onclick="switchTab('admin'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">Painel Técnico (Admin)</button>
         </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Naipe</label>
-            <select id="manual-naipe" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
-                <option value="MAS">Masculino (MAS)</option>
-                <option value="FEM">Feminino (FEM)</option>
-            </select>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- TAB: INÍCIO -->
+        <section id="tab-home" class="space-y-8 animate-fadeIn">
+            <div class="relative bg-gradient-to-br from-sport-card via-[#0F172A] to-[#1E293B] rounded-3xl border border-sport-border p-8 md:p-12 overflow-hidden shadow-2xl text-white">
+                <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-sport-cyan/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute top-0 left-1/4 w-72 h-72 bg-sport-green/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
+                    <div class="md:col-span-7 space-y-6">
+                        <h2 class="text-4xl sm:text-5xl font-black tracking-tight leading-tight">
+                            DESAFIO VIRTUAL <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-sport-cyan via-sport-green to-sport-gold">JOGOS DA JUVENTUDE 2026</span>
+                        </h2>
+                        <div class="flex flex-wrap gap-4 pt-2">
+                            <button onclick="switchTab('rankings')" class="px-6 py-3.5 bg-gradient-to-r from-sport-blue to-sport-cyan text-slate-950 font-black rounded-xl shadow-lg hover:opacity-95 transition-all flex items-center space-x-2">
+                                <i class="fa-solid fa-trophy"></i>
+                                <span>Ver Rankings Oficiais</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-5 flex justify-center">
+                        <div class="relative w-full max-w-xs h-72 rounded-2xl bg-sport-card/80 backdrop-blur-md border border-sport-border flex flex-col items-center justify-center p-6 shadow-2xl overflow-hidden group">
+                            <img src="mascote.png" alt="Mascote" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.style.display='none'; document.getElementById('mascote-fallback').style.display='flex';">
+                            <div id="mascote-fallback" style="display:none;" class="flex-col items-center justify-center text-center space-y-3">
+                                <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-sport-gold to-amber-600 flex items-center justify-center shadow-lg text-slate-950 text-3xl font-black">
+                                    <i class="fa-solid fa-award"></i>
+                                </div>
+                                <span class="text-sm font-bold text-white tracking-wide">Mascote Oficial</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cards de Modalidades -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Remo -->
+                <div onclick="goToRankingModalidade('Remo')" class="bg-sport-card border border-sport-border rounded-2xl p-6 space-y-4 shadow-xl hover:border-sport-cyan cursor-pointer transition-all group">
+                    <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-sport-blue flex items-center justify-center overflow-hidden border border-blue-500/20 group-hover:scale-110 transition-transform">
+                        <img src="removirtual.png" alt="Remo" class="w-full h-full object-contain p-1" onerror="this.onerror=null; this.style.display='none';">
+                    </div>
+                    <h4 class="text-xl font-bold text-white flex items-center justify-between">
+                        <span>Remo (500m)</span>
+                        <i class="fa-solid fa-arrow-right text-xs text-sport-cyan group-hover:translate-x-1 transition-transform"></i>
+                    </h4>
+                    <p class="text-slate-400 text-sm">Prova de 500m no aplicativo EXR utilizando o remoergômetro Mormaii.</p>
+                </div>
+
+                <!-- Ciclismo -->
+                <div onclick="goToRankingModalidade('Ciclismo')" class="bg-sport-card border border-sport-border rounded-2xl p-6 space-y-4 shadow-xl hover:border-sport-cyan cursor-pointer transition-all group">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-sport-green flex items-center justify-center overflow-hidden border border-emerald-500/20 group-hover:scale-110 transition-transform">
+                        <img src="ciclismovirtual.png" alt="Ciclismo" class="w-full h-full object-contain p-1" onerror="this.onerror=null; this.style.display='none';">
+                    </div>
+                    <h4 class="text-xl font-bold text-white flex items-center justify-between">
+                        <span>Ciclismo (Sprint 300m)</span>
+                        <i class="fa-solid fa-arrow-right text-xs text-sport-cyan group-hover:translate-x-1 transition-transform"></i>
+                    </h4>
+                    <p class="text-slate-400 text-sm">Sprint de 300m no percurso Olímpico Rio 2016 via Rouvy com smart bike.</p>
+                </div>
+
+                <!-- Corrida -->
+                <div onclick="goToRankingModalidade('Corrida')" class="bg-sport-card border border-sport-border rounded-2xl p-6 space-y-4 shadow-xl hover:border-sport-cyan cursor-pointer transition-all group">
+                    <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-sport-gold flex items-center justify-center overflow-hidden border border-amber-500/20 group-hover:scale-110 transition-transform">
+                        <img src="corridavirtual.png" alt="Corrida" class="w-full h-full object-contain p-1" onerror="this.onerror=null; this.style.display='none';">
+                    </div>
+                    <h4 class="text-xl font-bold text-white flex items-center justify-between">
+                        <span>Corrida (500m)</span>
+                        <i class="fa-solid fa-arrow-right text-xs text-sport-cyan group-hover:translate-x-1 transition-transform"></i>
+                    </h4>
+                    <p class="text-slate-400 text-sm">Prova de 500m via Zwift em pista de atletismo virtual com esteira curva.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: RANKING -->
+        <section id="tab-rankings" class="space-y-6 hidden animate-fadeIn">
+            <!-- Cabeçalho Modo TV -->
+            <div class="tv-header-info bg-sport-card border border-sport-border p-4 rounded-2xl items-center justify-between shadow-2xl mb-4">
+                <div class="flex items-center space-x-3">
+                    <img src="logojjwhite.png" alt="Logo" class="h-12 w-auto object-contain max-w-[20%]">
+                    <div>
+                        <span class="text-[10px] font-bold tracking-widest text-sport-cyan uppercase block">DESAFIO VIRTUAL</span>
+                        <h2 class="text-xl font-black text-white" id="tv-mod-title">MODALIDADE</h2>
+                    </div>
+                </div>
+                <div class="text-right px-24 md:px-48">
+                    <span class="text-xs text-slate-400 uppercase tracking-wider block">Categoria / Bloco</span>
+                    <span class="text-sm font-bold text-sport-gold" id="tv-cat-badge">RANKING GERAL</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl tv-hidden">
+                <div>
+                    <h2 class="text-2xl font-black text-white">Ranking Oficial</h2>
+                    <p class="text-sm text-slate-400">Acompanhe os resultados homologados pela arbitragem.</p>
+                </div>
+                
+                <!-- Filtros & Ações -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <select id="filter-modalidade" onchange="renderLeaderboard()" class="bg-sport-dark border border-sport-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-sport-cyan">
+                        <option value="Remo">Remo (500m)</option>
+                        <option value="Ciclismo">Ciclismo (Sprint 300m)</option>
+                        <option value="Corrida">Corrida (500m)</option>
+                    </select>
+
+                    <select id="filter-naipe" onchange="renderLeaderboard()" class="bg-sport-dark border border-sport-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-sport-cyan">
+                        <option value="TODOS">Todos os Naipes</option>
+                        <option value="MAS">Masculino (MAS)</option>
+                        <option value="FEM">Feminino (FEM)</option>
+                    </select>
+
+                    <select id="filter-bateria" onchange="renderLeaderboard()" class="bg-sport-dark border border-sport-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-sport-cyan">
+                        <option value="GERAL">Ranking Geral (Todos os Blocos)</option>
+                        <option value="Bloco 1">Bloco 1</option>
+                        <option value="Bloco 2">Bloco 2</option>
+                        <option value="Bloco 3">Bloco 3</option>
+                    </select>
+
+                    <button onclick="startTVMode()" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-90 text-white font-bold rounded-xl shadow-md transition-all flex items-center">
+                        <i class="fa-solid fa-tv mr-2"></i> Modo TV
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabela de Classificação -->
+            <div class="bg-sport-card border border-sport-border rounded-2xl overflow-hidden shadow-2xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-sport-border/50 border-b border-sport-border text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                <th class="py-4 px-6 text-center w-16">Pos</th>
+                                <th class="py-4 px-6">Atleta</th>
+                                <th class="py-4 px-6">Naipe</th>
+                                <th class="py-4 px-6">Perfil</th>
+                                <th class="py-4 px-6">Bloco</th>
+                                <th class="py-4 px-6 text-right">Tempo Oficial</th>
+                                <th class="py-4 px-6 text-right">Dif. p/ Líder</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-tbody" class="divide-y divide-sport-border text-sm text-slate-200">
+                            <!-- Preenchido via Supabase -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB: PAINEL TÉCNICO (ADMIN) -->
+        <section id="tab-admin" class="space-y-6 hidden animate-fadeIn">
+            <!-- Tela de Login PIN -->
+            <div id="admin-login-screen" class="max-w-md mx-auto bg-sport-card border border-sport-border p-8 rounded-3xl shadow-2xl space-y-6">
+                <div class="text-center space-y-2">
+                    <div class="w-16 h-16 bg-sport-blue/20 text-sport-cyan rounded-2xl mx-auto flex items-center justify-center text-2xl border border-sport-blue/30">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="text-2xl font-black text-white">Acesso Restrito</h3>
+                    <p class="text-sm text-slate-400">Insira a senha técnica para gerenciar o painel.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Senha do Painel</label>
+                        <input type="password" id="admin-pin-input" placeholder="Digite a senha" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-sport-cyan">
+                    </div>
+                    <button onclick="handleAdminLogin()" class="w-full py-3 bg-gradient-to-r from-sport-blue to-sport-cyan hover:opacity-95 text-slate-950 font-black rounded-xl shadow-lg transition-all">
+                        Entrar no Painel
+                    </button>
+                    <p id="login-error" class="text-red-400 text-xs text-center hidden">Senha incorreta. Tente novamente.</p>
+                </div>
+            </div>
+
+            <!-- Conteúdo do Painel Admin -->
+            <div id="admin-panel-content" class="space-y-8 hidden">
+                <div class="flex items-center justify-between bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-sport-green/20 text-sport-green flex items-center justify-center border border-sport-green/30">
+                            <i class="fa-solid fa-user-gear"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Painel da Equipe Técnica</h3>
+                            <p class="text-xs text-slate-400">Controle de blocos, cronograma e resultados.</p>
+                        </div>
+                    </div>
+                    <button onclick="handleAdminLogout()" class="px-4 py-2 bg-sport-dark hover:bg-slate-800 text-slate-300 rounded-xl text-sm font-semibold transition-all border border-sport-border">
+                        <i class="fa-solid fa-right-from-bracket mr-2"></i>Sair
+                    </button>
+                </div>
+
+                <!-- Gestão de Blocos (Automático / Manual com Edição de Datas) -->
+                <div class="bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl space-y-6">
+                    <h4 class="text-lg font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-calendar-days text-sport-cyan"></i>
+                        <span>Gerenciamento e Cronograma dos Blocos</span>
+                    </h4>
+                    
+                    <div id="blocos-manager-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Renderizado dinamicamente via JS -->
+                    </div>
+                </div>
+
+                <!-- Inserção Manual de Resultado -->
+                <div class="bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl space-y-4">
+                    <h4 class="text-lg font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-keyboard text-sport-blue"></i>
+                        <span>Inserção Manual de Participante / Resultado</span>
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">CPF (Busca Automática)</label>
+                            <input type="text" id="manual-cpf" placeholder="000.000.000-00" maxlength="14" oninput="maskCPF(this); checkExistingCPF(this.value)" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-sport-blue">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Nome Completo</label>
+                            <input type="text" id="manual-atleta" placeholder="Nome Completo" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Subcategoria / Perfil</label>
+                            <select id="manual-subcategoria" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                                <option value="Atleta">Atleta</option>
+                                <option value="Arbitragem">Arbitragem</option>
+                                <option value="Comitê Organizador">Comitê Organizador</option>
+                                <option value="Público Geral">Público Geral</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Naipe</label>
+                            <select id="manual-naipe" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                                <option value="MAS">Masculino (MAS)</option>
+                                <option value="FEM">Feminino (FEM)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Modalidade</label>
+                            <select id="manual-modalidade" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                                <option value="Remo">Remo (500m)</option>
+                                <option value="Ciclismo">Ciclismo (Sprint 300m)</option>
+                                <option value="Corrida">Corrida (500m)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Bloco</label>
+                            <select id="manual-bloco" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                                <option value="Bloco 1">Bloco 1</option>
+                                <option value="Bloco 2">Bloco 2</option>
+                                <option value="Bloco 3">Bloco 3</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Tempo Oficial (HH:MM:SS)</label>
+                            <input type="text" id="manual-tempo" placeholder="00:00:00" maxlength="8" oninput="formatTimeInput(this)" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-sport-blue">
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="addManualRecord()" class="w-full py-2.5 bg-sport-blue hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-md">
+                                Salvar Resultado
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Registros Cadastrados -->
+                <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-6">
+                    <h4 class="text-xl font-black text-white">Registros Armazenados no Banco de Dados</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-sport-border/50 border-b border-sport-border text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                    <th class="py-3 px-4">CPF</th>
+                                    <th class="py-3 px-4">Atleta</th>
+                                    <th class="py-3 px-4">Naipe</th>
+                                    <th class="py-3 px-4">Perfil</th>
+                                    <th class="py-3 px-4">Modalidade</th>
+                                    <th class="py-3 px-4">Bloco</th>
+                                    <th class="py-3 px-4">Tempo</th>
+                                    <th class="py-3 px-4 text-right">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-records-tbody" class="divide-y divide-sport-border text-sm text-slate-300">
+                                <!-- Preenchido via Supabase -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-sport-card border-t border-sport-border py-6 mt-16 text-slate-400">
+        <div class="max-w-7xl mx-auto px-4 text-center text-sm space-y-1">
+            <p>Resultados Competições Virtuais | Sistema de Apuração em Tempo Real</p>
         </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Categoria</label>
-            <input type="text" id="manual-categoria" placeholder="Ex: SUB-30" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
-        </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Estado (Sigla)</label>
-            <input type="text" id="manual-estado" placeholder="Ex: SP, RJ" maxlength="2" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
-        </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Bateria</label>
-            <select id="manual-bateria" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
-                <!-- Preenchido dinamicamente via JS -->
-            </select>
-        </div>
-        <div>
-            <label class="block text-xs font-semibold text-slate-400 mb-1">Tempo Oficial</label>
-            <input type="text" id="manual-tempo" placeholder="00:00:00" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-sport-blue">
-        </div>
-        <div class="flex items-end">
-            <button onclick="addManualRecord()" class="w-full py-2.5 bg-sport-blue hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-md">
-                Adicionar
-            </button>
-        </div>
-    </div>
-</div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        const SUPABASE_URL = 'https://otecuxljcahtfivmthsb.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_WB_Reg-TuFE8KD8QvwBHiw_1EOotbdq';
+        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let records = [];
+        let isAdminLoggedIn = false;
+
+        // Configuração de Blocos (Padrão com Datas Iniciais solicitadas)
+        let blocosConfig = JSON.parse(localStorage.getItem('jj2026_blocos_config')) || {
+            'Bloco 1': { mode: 'auto', status: 'Ativo', start: '2026-10-18T08:00', end: '2026-10-22T23:59' },
+            'Bloco 2': { mode: 'auto', status: 'Aguardando', start: '2026-10-23T08:00', end: '2026-10-28T23:59' },
+            'Bloco 3': { mode: 'auto', status: 'Aguardando', start: '2026-10-29T08:00', end: '2026-11-03T23:59' }
+        };
+
+        // Variáveis Modo TV
+        let tvModeInterval = null;
+        let tvCycleSteps = [];
+        let tvModeCurrentIndex = 0;
+
+        async function fetchRecords() {
+            try {
+                const { data, error } = await _supabase.from('records').select('*');
+                if (!error && data) {
+                    records = data;
+                    updateUIState();
+                }
+            } catch (err) {
+                console.error("Erro ao buscar dados:", err);
+            }
+        }
+
+        function updateUIState() {
+            evaluateBlocosAutomaticStatus();
+            renderBlocosManager();
+            renderAdminRecords();
+            renderLeaderboard();
+        }
+
+        // Avaliação Automática de Blocos baseada na Data/Hora atual
+        function evaluateBlocosAutomaticStatus() {
+            const now = new Date();
+            let changed = false;
+
+            for (let b in blocosConfig) {
+                if (blocosConfig[b].mode === 'auto') {
+                    const startDate = new Date(blocosConfig[b].start);
+                    const endDate = new Date(blocosConfig[b].end);
+                    
+                    let newStatus = 'Aguardando';
+                    if (now >= startDate && now <= endDate) {
+                        newStatus = 'Ativo';
+                    } else if (now > endDate) {
+                        newStatus = 'Encerrado';
+                    }
+
+                    if (blocosConfig[b].status !== newStatus) {
+                        blocosConfig[b].status = newStatus;
+                        changed = true;
+                    }
+                }
+            }
+            if (changed) {
+                localStorage.setItem('jj2026_blocos_config', JSON.stringify(blocosConfig));
+            }
+        }
+
+        // Renderiza o painel avançado de blocos com opção de edição de datas e modos manual/automático
+        function renderBlocosManager() {
+            const container = document.getElementById('blocos-manager-grid');
+            if (!container) return;
+            container.innerHTML = '';
+
+            ['Bloco 1', 'Bloco 2', 'Bloco 3'].forEach(bName => {
+                const cfg = blocosConfig[bName];
+                let badgeColor = 'bg-amber-500/20 text-amber-300 border-amber-500/30';
+                if (cfg.status === 'Ativo') badgeColor = 'bg-sport-green/20 text-sport-green border-sport-green/30';
+                if (cfg.status === 'Encerrado') badgeColor = 'bg-red-500/20 text-red-400 border-red-500/30';
+
+                container.innerHTML += `
+                    <div class="bg-sport-dark border border-sport-border p-5 rounded-2xl space-y-4 shadow-inner">
+                        <div class="flex items-center justify-between">
+                            <h5 class="font-bold text-white text-base">${bName}</h5>
+                            <span class="px-3 py-1 rounded-full text-xs font-bold border ${badgeColor}">${cfg.status}</span>
+                        </div>
+
+                        <!-- Alternar Modo Auto / Manual -->
+                        <div class="flex items-center justify-between text-xs text-slate-300 bg-sport-card p-2.5 rounded-xl border border-sport-border">
+                            <span>Modo de Controle:</span>
+                            <select onchange="setBlocoMode('${bName}', this.value)" class="bg-sport-dark text-white text-xs px-2 py-1 rounded-lg border border-sport-border focus:outline-none">
+                                <option value="auto" ${cfg.mode === 'auto' ? 'selected' : ''}>Automático (Datas)</option>
+                                <option value="manual" ${cfg.mode === 'manual' ? 'selected' : ''}>Manual</option>
+                            </select>
+                        </div>
+
+                        <!-- Se estiver em modo manual, mostra botões de ligar/desligar -->
+                        ${cfg.mode === 'manual' ? `
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="setManualBlocoStatus('${bName}', 'Ativo')" class="py-2 bg-sport-green text-slate-950 font-bold rounded-xl text-xs hover:opacity-90 transition-all">Ativar</button>
+                                <button onclick="setManualBlocoStatus('${bName}', 'Encerrado')" class="py-2 bg-red-600 text-white font-bold rounded-xl text-xs hover:opacity-90 transition-all">Encerrar</button>
+                            </div>
+                        ` : `
+                            <!-- Edição de Datas se automático -->
+                            <div class="space-y-2 text-xs text-slate-400">
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-500">Início:</label>
+                                    <input type="datetime-local" value="${cfg.start}" onchange="updateBlocoDate('${bName}', 'start', this.value)" class="w-full bg-sport-card text-white text-xs px-2.5 py-1.5 rounded-lg border border-sport-border">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-slate-500">Término:</label>
+                                    <input type="datetime-local" value="${cfg.end}" onchange="updateBlocoDate('${bName}', 'end', this.value)" class="w-full bg-sport-card text-white text-xs px-2.5 py-1.5 rounded-lg border border-sport-border">
+                                </div>
+                            </div>
+                        `}
+                    </div>
+                `;
+            });
+        }
+
+        function setBlocoMode(bName, mode) {
+            blocosConfig[bName].mode = mode;
+            if (mode === 'auto') evaluateBlocosAutomaticStatus();
+            localStorage.setItem('jj2026_blocos_config', JSON.stringify(blocosConfig));
+            renderBlocosManager();
+        }
+
+        function setManualBlocoStatus(bName, status) {
+            blocosConfig[bName].mode = 'manual';
+            blocosConfig[bName].status = status;
+            localStorage.setItem('jj2026_blocos_config', JSON.stringify(blocosConfig));
+            renderBlocosManager();
+        }
+
+        function updateBlocoDate(bName, field, val) {
+            blocosConfig[bName][field] = val;
+            evaluateBlocosAutomaticStatus();
+            localStorage.setItem('jj2026_blocos_config', JSON.stringify(blocosConfig));
+            renderBlocosManager();
+        }
+
+        // Preenchimento automático ao digitar CPF
+        function checkExistingCPF(cpf) {
+            const cleanCPF = cpf.replace(/\D/g, '');
+            if (cleanCPF.length === 11) {
+                const found = records.find(r => r.cpf && r.cpf.replace(/\D/g, '') === cleanCPF);
+                if (found) {
+                    document.getElementById('manual-atleta').value = found.atleta || '';
+                    document.getElementById('manual-subcategoria').value = found.subcategoria || 'Atleta';
+                    document.getElementById('manual-naipe').value = found.naipe || 'MAS';
+                }
+            }
+        }
+
+        function maskCPF(input) {
+            let v = input.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length > 9) {
+                input.value = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+            } else if (v.length > 6) {
+                input.value = v.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
+            } else if (v.length > 3) {
+                input.value = v.replace(/(\d{3})(\d{1,3})/, "$1.$2");
+            } else {
+                input.value = v;
+            }
+        }
+
+        function formatTimeInput(input) {
+            let v = input.value.replace(/\D/g, '');
+            if (v.length > 6) v = v.slice(0, 6);
+            if (v.length >= 5) {
+                input.value = v.slice(0,2) + ':' + v.slice(2,4) + ':' + v.slice(4,6);
+            } else if (v.length >= 3) {
+                input.value = v.slice(0,2) + ':' + v.slice(2,4);
+            } else {
+                input.value = v;
+            }
+        }
+
+        function switchTab(tabId) {
+            ['home', 'rankings', 'admin'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${t}`);
+                if (navBtn) navBtn.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-sport-dark hover:bg-slate-100";
+            });
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) activeNav.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-sport-dark text-white shadow-md";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (tabId === 'rankings') renderLeaderboard();
+            if (tabId === 'admin' && isAdminLoggedIn) renderAdminRecords();
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        function goToRankingModalidade(mod) {
+            document.getElementById('filter-modalidade').value = mod;
+            switchTab('rankings');
+        }
+
+        function handleAdminLogin() {
+            const pin = document.getElementById('admin-pin-input').value;
+            const errorEl = document.getElementById('login-error');
+            if (pin === 'JJ2026FOZ') {
+                isAdminLoggedIn = true;
+                errorEl.classList.add('hidden');
+                document.getElementById('admin-login-screen').classList.add('hidden');
+                document.getElementById('admin-panel-content').classList.remove('hidden');
+                updateUIState();
+            } else {
+                errorEl.classList.remove('hidden');
+            }
+        }
+
+        function handleAdminLogout() {
+            isAdminLoggedIn = false;
+            document.getElementById('admin-pin-input').value = '';
+            document.getElementById('admin-panel-content').classList.add('hidden');
+            document.getElementById('admin-login-screen').classList.remove('hidden');
+        }
+
+        async function addManualRecord() {
+            const cpf = document.getElementById('manual-cpf').value.trim();
+            const atleta = document.getElementById('manual-atleta').value.trim().toUpperCase();
+            const subcategoria = document.getElementById('manual-subcategoria').value;
+            const naipe = document.getElementById('manual-naipe').value;
+            const modalidade = document.getElementById('manual-modalidade').value;
+            const bloco = document.getElementById('manual-bloco').value;
+            const tempo = document.getElementById('manual-tempo').value.trim();
+
+            if (!cpf || !atleta || !tempo) {
+                alert('CPF, Nome e Tempo são obrigatórios!');
+                return;
+            }
+
+            // Verifica se o bloco está encerrado
+            if (blocosConfig[bloco] && blocosConfig[bloco].status === 'Encerrado') {
+                alert(`O ${bloco} está encerrado. Não é permitido salvar novos tempos nele.`);
+                return;
+            }
+
+            // Regra: Se o participante (CPF) já possui registro na MESMA modalidade, atualiza o tempo (sobrescreve)
+            const cleanCPF = cpf.replace(/\D/g, '');
+            const existingRecord = records.find(r => r.cpf && r.cpf.replace(/\D/g, '') === cleanCPF && r.modalidade === modalidade);
+
+            if (existingRecord) {
+                await _supabase.from('records')
+                    .update({ tempo, bloco, atleta, subcategoria, naipe })
+                    .eq('id', existingRecord.id);
+            } else {
+                await _supabase.from('records')
+                    .insert([{ cpf, atleta, subcategoria, naipe, modalidade, bloco, tempo }]);
+            }
+
+            document.getElementById('manual-tempo').value = '';
+            await fetchRecords();
+            alert('Resultado salvo com sucesso!');
+        }
+
+        async function deleteRecord(id) {
+            await _supabase.from('records').delete().eq('id', id);
+            await fetchRecords();
+        }
+
+        function renderAdminRecords() {
+            const tbody = document.getElementById('admin-records-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            records.forEach(r => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-sport-border/30">
+                        <td class="py-3 px-4 font-mono text-xs text-sport-cyan">${r.cpf || '-'}</td>
+                        <td class="py-3 px-4 font-bold text-white">${r.atleta || '-'}</td>
+                        <td class="py-3 px-4 text-slate-300 font-semibold">${r.naipe || '-'}</td>
+                        <td class="py-3 px-4 text-slate-300">${r.subcategoria || '-'}</td>
+                        <td class="py-3 px-4 text-slate-300">${r.modalidade || '-'}</td>
+                        <td class="py-3 px-4 text-slate-300">${r.bloco || '-'}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-sport-green">${r.tempo || '-'}</td>
+                        <td class="py-3 px-4 text-right">
+                            <button onclick="deleteRecord('${r.id}')" class="text-red-400 hover:text-red-300 p-2"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderLeaderboard() {
+            const modFilter = document.getElementById('filter-modalidade').value;
+            const naipeFilter = document.getElementById('filter-naipe').value;
+            const bateriaFilter = document.getElementById('filter-bateria').value;
+            
+            const tbody = document.getElementById('leaderboard-tbody');
+            if (!tbody) return;
+
+            // Textos Modo TV
+            document.getElementById('tv-mod-title').innerText = modFilter;
+            let tvCatText = (bateriaFilter === 'GERAL' ? 'RANKING GERAL (TODOS OS BLOCOS)' : bateriaFilter.toUpperCase());
+            if (naipeFilter !== 'TODOS') tvCatText += ` - ${naipeFilter}`;
+            document.getElementById('tv-cat-badge').innerText = tvCatText;
+
+            let filtered = records.filter(r => r.modalidade === modFilter);
+
+            if (naipeFilter !== 'TODOS') {
+                filtered = filtered.filter(r => r.naipe === naipeFilter);
+            }
+
+            if (bateriaFilter !== 'GERAL') {
+                filtered = filtered.filter(r => r.bloco === bateriaFilter);
+            }
+
+            filtered.sort((a, b) => a.tempo.localeCompare(b.tempo));
+
+            tbody.innerHTML = '';
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500">Nenhum resultado registrado para este filtro.</td></tr>`;
+                return;
+            }
+
+            const leaderTimeSec = timeToSeconds(filtered[0].tempo);
+
+            filtered.forEach((r, index) => {
+                let badgeClass = "text-slate-400 font-bold";
+                if (index === 0) badgeClass = "text-amber-300 font-black bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/30";
+                if (index === 1) badgeClass = "text-slate-200 font-black bg-slate-400/20 px-3 py-1 rounded-full border border-slate-400/30";
+                if (index === 2) badgeClass = "text-amber-600 font-black bg-amber-700/20 px-3 py-1 rounded-full border border-amber-700/30";
+
+                let diffStr = "-";
+                if (index > 0) {
+                    const diffSec = timeToSeconds(r.tempo) - leaderTimeSec;
+                    diffStr = "+" + secondsToTime(diffSec);
+                } else {
+                    diffStr = "CAMPEÃO";
+                }
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-sport-border/30 transition-colors">
+                        <td class="py-4 px-6 text-center font-black ${badgeClass}">#${index + 1}</td>
+                        <td class="py-4 px-6 font-bold text-white">${r.atleta || '-'}</td>
+                        <td class="py-4 px-6 text-slate-300 font-bold">${r.naipe || '-'}</td>
+                        <td class="py-4 px-6 text-slate-300">${r.subcategoria || '-'}</td>
+                        <td class="py-4 px-6 text-slate-400">${r.bloco || '-'}</td>
+                        <td class="py-4 px-6 text-right font-mono font-black text-sport-green text-base">${r.tempo || '-'}</td>
+                        <td class="py-4 px-6 text-right font-mono text-xs text-slate-400">${diffStr}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // =========================================================
+        // MODO TV (Rotaciona a cada 15 segundos)
+        // =========================================================
+        function startTVMode() {
+            document.body.classList.add('tv-mode');
+            
+            // Ciclo: Geral MAS, Geral FEM, Bloco 1 MAS/FEM, Bloco 2 MAS/FEM, Bloco 3 MAS/FEM
+            tvCycleSteps = [
+                { b: 'GERAL', n: 'MAS' },
+                { b: 'GERAL', n: 'FEM' },
+                { b: 'Bloco 1', n: 'MAS' },
+                { b: 'Bloco 1', n: 'FEM' },
+                { b: 'Bloco 2', n: 'MAS' },
+                { b: 'Bloco 2', n: 'FEM' },
+                { b: 'Bloco 3', n: 'MAS' },
+                { b: 'Bloco 3', n: 'FEM' }
+            ];
+
+            tvModeCurrentIndex = 0;
+            applyTVStep();
+            tvModeInterval = setInterval(applyTVStep, 15000); // 15 segundos
+        }
+
+        function stopTVMode() {
+            document.body.classList.remove('tv-mode');
+            clearInterval(tvModeInterval);
+            document.getElementById('filter-bateria').value = 'GERAL';
+            document.getElementById('filter-naipe').value = 'TODOS';
+            renderLeaderboard();
+        }
+
+        function applyTVStep() {
+            if (tvCycleSteps.length === 0) return;
+            const step = tvCycleSteps[tvModeCurrentIndex];
+            
+            document.getElementById('filter-bateria').value = step.b;
+            document.getElementById('filter-naipe').value = step.n;
+            
+            renderLeaderboard();
+            tvModeCurrentIndex = (tvModeCurrentIndex + 1) % tvCycleSteps.length;
+        }
+
+        function timeToSeconds(timeStr) {
+            if (!timeStr) return 0;
+            const parts = String(timeStr).split(':').map(Number);
+            if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+            if (parts.length === 2) return parts[0] * 60 + parts[1];
+            return 0;
+        }
+
+        function secondsToTime(totalSec) {
+            const h = Math.floor(totalSec / 3600);
+            const m = Math.floor((totalSec % 3600) / 60);
+            const s = totalSec % 60;
+            if (h > 0) return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            updateUIState();
+            await fetchRecords();
+
+            // Sincronização em tempo real via Supabase
+            try {
+                _supabase
+                    .channel('public:records')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'records' }, payload => {
+                        fetchRecords();
+                    })
+                    .subscribe();
+            } catch (e) { console.log(e); }
+        });
+    </script>
+</body>
+</html>
