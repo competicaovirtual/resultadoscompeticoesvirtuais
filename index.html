@@ -134,7 +134,7 @@
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl tv-hidden">
                 <div>
                     <h2 class="text-2xl font-black text-white">Ranking Oficial</h2>
-                    <p class="text-sm text-slate-400">Consulte os resultados homologados e filtros cruzados.</p>
+                    <p class="text-sm text-slate-400">Consulte os resultados homologados separados por naipe e categoria.</p>
                 </div>
                 
                 <div class="flex flex-wrap gap-3 items-center">
@@ -153,26 +153,8 @@
                 </div>
             </div>
 
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-800/50 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                                <th class="py-4 px-6 text-center w-16">Pos</th>
-                                <th class="py-4 px-6">Atleta</th>
-                                <th class="py-4 px-6">Naipe</th>
-                                <th class="py-4 px-6">Categoria</th>
-                                <th class="py-4 px-6">Estado</th>
-                                <th class="py-4 px-6">Equipe</th>
-                                <th class="py-4 px-6">Bateria</th>
-                                <th class="py-4 px-6 text-right">Tempo Oficial</th>
-                                <th class="py-4 px-6 text-right">Dif. p/ Líder</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leaderboard-tbody" class="divide-y divide-slate-800 text-sm text-slate-200"></tbody>
-                    </table>
-                </div>
-            </div>
+            <!-- CONTAINER DINÂMICO PARA SEPARAR POR NAIPE E CATEGORIA -->
+            <div id="leaderboard-container" class="space-y-6"></div>
         </section>
 
         <!-- TAB: PAINEL TÉCNICO (ADMIN) -->
@@ -576,7 +558,6 @@
             let sortedList = [...modRecords];
 
             if (criterio === 'aleatorio') {
-                // Embaralhamento aleatório (Fisher-Yates)
                 for (let i = sortedList.length - 1; i > 0; i--) {
                     let j = Math.floor(Math.random() * (i + 1));
                     [sortedList[i], sortedList[j]] = [sortedList[j], sortedList[i]];
@@ -589,7 +570,6 @@
                 }
                 const ordemArray = ordemInput.split(',').map(s => s.trim().toUpperCase());
                 
-                // Ordenar com base na ordem manual informada de categorias
                 sortedList.sort((a, b) => {
                     let indexA = ordemArray.indexOf((a.categoria || '').toUpperCase());
                     let indexB = ordemArray.indexOf((b.categoria || '').toUpperCase());
@@ -599,7 +579,6 @@
                 });
             }
 
-            // Distribuir nas baterias respeitando o limite máximo por bateria
             let batIndex = 0;
             let currentCountInBat = 0;
             let countUpdated = 0;
@@ -907,13 +886,14 @@
             });
         }
 
+        // RANKING ATUALIZADO: SEPARADO AUTOMATICAMENTE POR NAIPE E CATEGORIA
         function renderLeaderboard() {
             const modFilter = document.getElementById('filter-modalidade') ? document.getElementById('filter-modalidade').value : activeModality;
             const naipeFilter = document.getElementById('filter-naipe') ? document.getElementById('filter-naipe').value : 'TODOS';
             const batFilter = document.getElementById('filter-bateria') ? document.getElementById('filter-bateria').value : 'GERAL';
             
-            const tbody = document.getElementById('leaderboard-tbody');
-            if (!tbody) return;
+            const container = document.getElementById('leaderboard-container');
+            if (!container) return;
 
             if (document.getElementById('tv-mod-title')) document.getElementById('tv-mod-title').innerText = modFilter;
             let tvCat = batFilter === 'GERAL' ? 'RANKING GERAL' : batFilter;
@@ -924,45 +904,95 @@
             if (naipeFilter !== 'TODOS') filtered = filtered.filter(r => r.naipe === naipeFilter);
             if (batFilter !== 'GERAL') filtered = filtered.filter(r => r.bateria === batFilter);
 
-            filtered.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
+            // Agrupar os registos por Naipe e Categoria
+            const groups = {};
+            filtered.forEach(r => {
+                const naipe = r.naipe || 'GERAL';
+                const categoria = r.categoria || 'GERAL';
+                const key = `${naipe}___${categoria}`;
+                if (!groups[key]) {
+                    groups[key] = { naipe, categoria, records: [] };
+                }
+                groups[key].records.push(r);
+            });
 
-            tbody.innerHTML = '';
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-500">Nenhum resultado registrado para esta seleção.</td></tr>`;
+            container.innerHTML = '';
+            const groupKeys = Object.keys(groups);
+
+            if (groupKeys.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl">Nenhum resultado registrado para esta seleção.</div>`;
                 return;
             }
 
-            const leaderTimeSec = timeToSeconds(filtered[0].tempo);
+            groupKeys.forEach(key => {
+                const g = groups[key];
+                // Ordenar por tempo dentro de cada grupo de naipe/categoria
+                g.records.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
+                const leaderTimeSec = timeToSeconds(g.records[0].tempo);
 
-            filtered.forEach((r, index) => {
-                let badgeClass = "text-slate-400 font-bold";
-                if (index === 0) badgeClass = "text-amber-400 font-black bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/30";
-                if (index === 1) badgeClass = "text-slate-200 font-black bg-slate-400/20 px-3 py-1 rounded-full border border-slate-400/30";
-                if (index === 2) badgeClass = "text-amber-600 font-black bg-amber-700/20 px-3 py-1 rounded-full border border-amber-700/30";
+                let htmlTableRows = '';
+                g.records.forEach((r, index) => {
+                    let badgeClass = "text-slate-400 font-bold";
+                    if (index === 0) badgeClass = "text-amber-400 font-black bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/30";
+                    if (index === 1) badgeClass = "text-slate-200 font-black bg-slate-400/20 px-3 py-1 rounded-full border border-slate-400/30";
+                    if (index === 2) badgeClass = "text-amber-600 font-black bg-amber-700/20 px-3 py-1 rounded-full border border-amber-700/30";
 
-                let diffStr = "-";
-                if (index > 0) {
-                    const currentSec = timeToSeconds(r.tempo);
-                    const diffSec = currentSec - leaderTimeSec;
-                    diffStr = "+" + secondsToTime(diffSec);
-                } else {
-                    diffStr = "CAMPEÃO";
-                }
+                    let diffStr = "-";
+                    if (index > 0) {
+                        const currentSec = timeToSeconds(r.tempo);
+                        const diffSec = currentSec - leaderTimeSec;
+                        diffStr = "+" + secondsToTime(diffSec);
+                    } else {
+                        diffStr = "CAMPEÃO";
+                    }
 
-                const equipeVal = r.equipe || r['equipe / clube / escola'] || '-';
+                    const equipeVal = r.equipe || r['equipe / clube / escola'] || '-';
 
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-800/30 transition-colors">
-                        <td class="py-4 px-6 text-center font-black ${badgeClass}">#${index + 1}</td>
-                        <td class="py-4 px-6 font-bold text-white">${r.atleta || '-'}</td>
-                        <td class="py-4 px-6 text-slate-300">${r.naipe || '-'}</td>
-                        <td class="py-4 px-6 text-slate-300">${r.categoria || '-'}</td>
-                        <td class="py-4 px-6 text-slate-300">${getStateDisplay(r.estado)}</td>
-                        <td class="py-4 px-6 text-slate-300">${equipeVal}</td>
-                        <td class="py-4 px-6 text-slate-400">${r.bateria || '-'}</td>
-                        <td class="py-4 px-6 text-right font-mono font-black text-emerald-400 text-base">${r.tempo || '-'}</td>
-                        <td class="py-4 px-6 text-right font-mono text-xs text-slate-400">${diffStr}</td>
-                    </tr>
+                    htmlTableRows += `
+                        <tr class="hover:bg-slate-800/30 transition-colors">
+                            <td class="py-4 px-6 text-center font-black ${badgeClass}">#${index + 1}</td>
+                            <td class="py-4 px-6 font-bold text-white">${r.atleta || '-'}</td>
+                            <td class="py-4 px-6 text-slate-300">${r.naipe || '-'}</td>
+                            <td class="py-4 px-6 text-slate-300">${r.categoria || '-'}</td>
+                            <td class="py-4 px-6 text-slate-300">${getStateDisplay(r.estado)}</td>
+                            <td class="py-4 px-6 text-slate-300">${equipeVal}</td>
+                            <td class="py-4 px-6 text-slate-400">${r.bateria || '-'}</td>
+                            <td class="py-4 px-6 text-right font-mono font-black text-emerald-400 text-base">${r.tempo || '-'}</td>
+                            <td class="py-4 px-6 text-right font-mono text-xs text-slate-400">${diffStr}</td>
+                        </tr>
+                    `;
+                });
+
+                container.innerHTML += `
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl mb-6">
+                        <div class="bg-slate-800/70 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                            <h3 class="text-base font-black text-cyan-400 uppercase tracking-wider flex items-center space-x-2">
+                                <i class="fa-solid fa-trophy mr-2 text-amber-400"></i>
+                                <span>Naipe: ${g.naipe} &bull; Categoria: ${g.categoria}</span>
+                            </h3>
+                            <span class="text-xs font-bold text-slate-400 bg-slate-950 px-3 py-1 rounded-xl border border-slate-800">${g.records.length} Atleta(s)</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-800/30 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                        <th class="py-3 px-6 text-center w-16">Pos</th>
+                                        <th class="py-3 px-6">Atleta</th>
+                                        <th class="py-3 px-6">Naipe</th>
+                                        <th class="py-3 px-6">Categoria</th>
+                                        <th class="py-3 px-6">Estado</th>
+                                        <th class="py-3 px-6">Equipe</th>
+                                        <th class="py-3 px-6">Bateria</th>
+                                        <th class="py-3 px-6 text-right">Tempo Oficial</th>
+                                        <th class="py-3 px-6 text-right">Dif. p/ Líder</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800 text-sm text-slate-200">
+                                    ${htmlTableRows}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 `;
             });
         }
