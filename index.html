@@ -383,9 +383,11 @@
 
     <!-- Script Application Logic -->
     <script>
+        // CERTIFIQUE-SE DE INSERIR SUA URL E CHAVE ANON CORRETAS DO SUPABASE ABAIXO:
         const SUPABASE_URL = 'https://vmdvunvvphkglnoeknjj.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishableWB_Reg-TuFE8KD8QvwBHiw_1EOotbdq';
-        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_URL ? SUPABASE_ANON_KEY : 'dummy');
+        const SUPABASE_ANON_KEY = 'SUA_CHAVE_ANON_PUBLICA_AQUI'; // Cole sua chave exata do painel Supabase
+        
+        const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let records = [];
         let activeModality = localStorage.getItem('app_active_modality') || 'CICLISMO VIRTUAL 2026';
@@ -526,7 +528,6 @@
             updateUIState();
         }
 
-        // FUNÇÃO DE SORTEIO DE BATERIAS
         async function sortearBaterias() {
             if (batteries.length === 0) {
                 showModal('Atenção', 'Cadastre pelo menos uma bateria antes de realizar o sorteio.', 'error');
@@ -539,7 +540,6 @@
                 return;
             }
 
-            // Embaralhar aleatoriamente os atletas (Fisher-Yates shuffle)
             let shuffled = [...modRecords];
             for (let i = shuffled.length - 1; i > 0; i--) {
                 let j = Math.floor(Math.random() * (i + 1));
@@ -828,7 +828,7 @@
                 const isCurrent = r.modalidade === activeModality;
                 const equipeVal = r.equipe || r['equipe / clube / escola'] || '-';
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-800/30 transition-colors ${isCurrent ? '' : 'opacity-50'}">
+                    <tr class="hover:bg-slate-800/35 transition-colors ${isCurrent ? '' : 'opacity-50'}">
                         <td class="py-3 px-4 font-semibold text-xs text-cyan-400">${r.modalidade || '-'}</td>
                         <td class="py-3 px-4 font-bold text-white">${r.atleta || '-'}</td>
                         <td class="py-3 px-4 text-slate-400 font-mono text-xs">${r.username || '-'}</td>
