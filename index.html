@@ -6,6 +6,7 @@
     <title>Competições Virtuais Brasileiras - RESULTADOS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Biblioteca SheetJS para leitura de arquivos Excel (XLS/XLSX) e CSV -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script>
         tailwind.config = {
@@ -47,37 +48,42 @@
     </button>
 
     <!-- Header / Navbar -->
-    <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 shadow-sm tv-hidden">
+    <header class="bg-sport-card/95 backdrop-blur-md border-b border-sport-border sticky top-0 z-50 shadow-lg tv-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <div class="flex items-center h-full py-2">
-                <img src="logojj.png" alt="Logo Jogos da Juventude" class="h-16 w-auto object-contain" onerror="this.onerror=null; this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
-                <div id="logo-fallback" style="display:none;" class="h-14 w-14 rounded-xl bg-gradient-to-tr from-sport-blue to-sport-cyan items-center justify-center text-white font-black text-xl shadow-sm">JJ</div>
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center h-full py-1">
+                    <img src="logocvb.png" alt="Logo Competições Virtuais Brasileiras" class="h-12 w-auto object-contain" onerror="this.onerror=null; this.style.display='none';">
+                </div>
+                <div>
+                    <span class="text-xs font-bold tracking-widest text-sport-cyan uppercase">Plataforma Oficial</span>
+                    <h1 class="text-lg font-black tracking-tight text-white">Competições Virtuais Brasileiras</h1>
+                </div>
             </div>
             
             <nav class="hidden md:flex items-center space-x-2">
-                <button onclick="switchTab('home')" id="nav-home" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-sport-dark text-white shadow-md">
+                <button onclick="switchTab('home')" id="nav-home" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-sport-blue text-white shadow-md">
                     <i class="fa-solid fa-house mr-2"></i>Início
                 </button>
-                <button onclick="switchTab('rankings')" id="nav-rankings" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-sport-dark hover:bg-slate-100">
+                <button onclick="switchTab('rankings')" id="nav-rankings" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:text-white hover:bg-slate-800">
                     <i class="fa-solid fa-trophy mr-2"></i>RANKING
                 </button>
-                <button onclick="switchTab('admin')" id="nav-admin" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-sport-dark hover:bg-slate-100">
+                <button onclick="switchTab('admin')" id="nav-admin" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:text-white hover:bg-slate-800">
                     <i class="fa-solid fa-shield-halved mr-2"></i>Painel Técnico (Admin)
                 </button>
             </nav>
 
             <div class="md:hidden flex items-center">
-                <button onclick="toggleMobileMenu()" class="text-slate-700 hover:text-black p-2">
+                <button onclick="toggleMobileMenu()" class="text-slate-300 hover:text-white p-2">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
             </div>
         </div>
 
         <!-- Menu Mobile -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-4 space-y-2 shadow-lg">
-            <button onclick="switchTab('home'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold bg-sport-dark text-white">Início</button>
-            <button onclick="switchTab('rankings'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">RANKING</button>
-            <button onclick="switchTab('admin'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">Painel Técnico (Admin)</button>
+        <div id="mobile-menu" class="hidden md:hidden bg-sport-card border-b border-sport-border px-4 pt-2 pb-4 space-y-2 shadow-xl">
+            <button onclick="switchTab('home'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold bg-sport-blue text-white">Início</button>
+            <button onclick="switchTab('rankings'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:bg-slate-800">RANKING</button>
+            <button onclick="switchTab('admin'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:bg-slate-800">Painel Técnico (Admin)</button>
         </div>
     </header>
 
@@ -86,73 +92,45 @@
 
         <!-- TAB: INÍCIO -->
         <section id="tab-home" class="space-y-8 animate-fadeIn">
+            <!-- Hero Banner -->
             <div class="relative bg-gradient-to-br from-sport-card via-[#0F172A] to-[#1E293B] rounded-3xl border border-sport-border p-8 md:p-12 overflow-hidden shadow-2xl text-white">
                 <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-sport-cyan/10 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="absolute top-0 left-1/4 w-72 h-72 bg-sport-green/10 rounded-full blur-3xl pointer-events-none"></div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
                     <div class="md:col-span-7 space-y-6">
+                        <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-sport-green/20 border border-sport-green/40 text-emerald-300 text-xs font-bold tracking-wider uppercase">
+                            <span class="w-2 h-2 rounded-full bg-sport-green animate-pulse"></span>
+                            <span>Modalidade Ativa: <strong id="hero-active-mod" class="text-white ml-1">Carregando...</strong></span>
+                        </div>
                         <h2 class="text-4xl sm:text-5xl font-black tracking-tight leading-tight">
-                            DESAFIO VIRTUAL <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-sport-cyan via-sport-green to-sport-gold">JOGOS DA JUVENTUDE 2026</span>
+                            SISTEMA DE RESULTADOS <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-sport-cyan via-sport-green to-sport-gold">EM TEMPO REAL</span>
                         </h2>
+                        <p class="text-slate-300 text-base max-w-xl">
+                            Acompanhe os rankings atualizados bateria após bateria com apuração oficial em tempo real.
+                        </p>
                         <div class="flex flex-wrap gap-4 pt-2">
                             <button onclick="switchTab('rankings')" class="px-6 py-3.5 bg-gradient-to-r from-sport-blue to-sport-cyan text-slate-950 font-black rounded-xl shadow-lg hover:opacity-95 transition-all flex items-center space-x-2">
                                 <i class="fa-solid fa-trophy"></i>
-                                <span>Ver Rankings Oficiais</span>
+                                <span>Ver Ranking da Modalidade</span>
                             </button>
                         </div>
                     </div>
 
+                    <!-- Bloco da Logo Oficial -->
                     <div class="md:col-span-5 flex justify-center">
                         <div class="relative w-full max-w-xs h-72 rounded-2xl bg-sport-card/80 backdrop-blur-md border border-sport-border flex flex-col items-center justify-center p-6 shadow-2xl overflow-hidden group">
-                            <img src="mascote.png" alt="Mascote" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.style.display='none'; document.getElementById('mascote-fallback').style.display='flex';">
-                            <div id="mascote-fallback" style="display:none;" class="flex-col items-center justify-center text-center space-y-3">
+                            <img src="jacajebsciclismo.png" alt="Logo Oficial" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.style.display='none'; document.getElementById('logo-off-fallback').style.display='flex';">
+                            
+                            <div id="logo-off-fallback" style="display:none;" class="flex-col items-center justify-center text-center space-y-3">
                                 <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-sport-gold to-amber-600 flex items-center justify-center shadow-lg text-slate-950 text-3xl font-black">
                                     <i class="fa-solid fa-award"></i>
                                 </div>
-                                <span class="text-sm font-bold text-white tracking-wide">Mascote Oficial</span>
+                                <span class="text-sm font-bold text-white tracking-wide">LOGO OFICIAL</span>
+                                <span class="text-xs text-slate-400">Competições Virtuais</span>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Cards de Modalidades -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Remo -->
-                <div onclick="goToRankingModalidade('Remo')" class="bg-sport-card border border-sport-border rounded-2xl p-6 space-y-4 shadow-xl hover:border-sport-cyan cursor-pointer transition-all group">
-                    <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-sport-blue flex items-center justify-center overflow-hidden border border-blue-500/20 group-hover:scale-110 transition-transform">
-                        <img src="removirtual.png" alt="Remo" class="w-full h-full object-contain p-1" onerror="this.onerror=null; this.style.display='none';">
-                    </div>
-                    <h4 class="text-xl font-bold text-white flex items-center justify-between">
-                        <span>Remo (500m)</span>
-                        <i class="fa-solid fa-arrow-right text-xs text-sport-cyan group-hover:translate-x-1 transition-transform"></i>
-                    </h4>
-                    <p class="text-slate-400 text-sm">Prova de 500m no aplicativo EXR utilizando o remoergômetro Mormaii.</p>
-                </div>
-
-                <!-- Ciclismo -->
-                <div onclick="goToRankingModalidade('Ciclismo')" class="bg-sport-card border border-sport-border rounded-2xl p-6 space-y-4 shadow-xl hover:border-sport-cyan cursor-pointer transition-all group">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-sport-green flex items-center justify-center overflow-hidden border border-emerald-500/20 group-hover:scale-110 transition-transform">
-                        <img src="ciclismovirtual.png" alt="Ciclismo" class="w-full h-full object-contain p-1" onerror="this.onerror=null; this.style.display='none';">
-                    </div>
-                    <h4 class="text-xl font-bold text-white flex items-center justify-between">
-                        <span>Ciclismo (Sprint 300m)</span>
-                        <i class="fa-solid fa-arrow-right text-xs text-sport-cyan group-hover:translate-x-1 transition-transform"></i>
-                    </h4>
-                    <p class="text-slate-400 text-sm">Sprint de 300m no percurso Olímpico Rio 2016 via Rouvy com smart bike.</p>
-                </div>
-
-                <!-- Corrida -->
-                <div onclick="goToRankingModalidade('Corrida')" class="bg-sport-card border border-sport-border rounded-2xl p-6 space-y-4 shadow-xl hover:border-sport-cyan cursor-pointer transition-all group">
-                    <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-sport-gold flex items-center justify-center overflow-hidden border border-amber-500/20 group-hover:scale-110 transition-transform">
-                        <img src="corridavirtual.png" alt="Corrida" class="w-full h-full object-contain p-1" onerror="this.onerror=null; this.style.display='none';">
-                    </div>
-                    <h4 class="text-xl font-bold text-white flex items-center justify-between">
-                        <span>Corrida (500m)</span>
-                        <i class="fa-solid fa-arrow-right text-xs text-sport-cyan group-hover:translate-x-1 transition-transform"></i>
-                    </h4>
-                    <p class="text-slate-400 text-sm">Prova de 500m via Zwift em pista de atletismo virtual com esteira curva.</p>
                 </div>
             </div>
         </section>
@@ -162,14 +140,14 @@
             <!-- Cabeçalho Modo TV -->
             <div class="tv-header-info bg-sport-card border border-sport-border p-4 rounded-2xl items-center justify-between shadow-2xl mb-4">
                 <div class="flex items-center space-x-3">
-                    <img src="logojjwhite.png" alt="Logo" class="h-12 w-auto object-contain max-w-[20%]">
+                    <img src="logojjwhite.png" alt="Logo" class="h-12 w-auto object-contain max-w-[20%]" onerror="this.style.display='none'">
                     <div>
-                        <span class="text-[10px] font-bold tracking-widest text-sport-cyan uppercase block">DESAFIO VIRTUAL</span>
+                        <span class="text-[10px] font-bold tracking-widest text-sport-cyan uppercase block">COMPETIÇÕES VIRTUAIS</span>
                         <h2 class="text-xl font-black text-white" id="tv-mod-title">MODALIDADE</h2>
                     </div>
                 </div>
-                <div class="text-right px-24 md:px-48">
-                    <span class="text-xs text-slate-400 uppercase tracking-wider block">Categoria / Bloco</span>
+                <div class="text-right px-6">
+                    <span class="text-xs text-slate-400 uppercase tracking-wider block">Categoria / Filtro</span>
                     <span class="text-sm font-bold text-sport-gold" id="tv-cat-badge">RANKING GERAL</span>
                 </div>
             </div>
@@ -177,28 +155,14 @@
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl tv-hidden">
                 <div>
                     <h2 class="text-2xl font-black text-white">Ranking Oficial</h2>
-                    <p class="text-sm text-slate-400">Acompanhe os resultados homologados pela arbitragem.</p>
+                    <p class="text-sm text-slate-400">Modalidade Ativa: <span id="ranking-active-mod-label" class="text-sport-cyan font-bold">---</span></p>
                 </div>
                 
-                <!-- Filtros & Ações -->
-                <div class="flex flex-wrap items-center gap-3">
-                    <select id="filter-modalidade" onchange="renderLeaderboard()" class="bg-sport-dark border border-sport-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-sport-cyan">
-                        <option value="Remo">Remo (500m)</option>
-                        <option value="Ciclismo">Ciclismo (Sprint 300m)</option>
-                        <option value="Corrida">Corrida (500m)</option>
-                    </select>
-
-                    <select id="filter-naipe" onchange="renderLeaderboard()" class="bg-sport-dark border border-sport-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-sport-cyan">
-                        <option value="TODOS">Todos os Naipes</option>
-                        <option value="MAS">Masculino (MAS)</option>
-                        <option value="FEM">Feminino (FEM)</option>
-                    </select>
-
+                <!-- Filtros & Modo TV -->
+                <div class="flex flex-wrap gap-3 items-center">
                     <select id="filter-bateria" onchange="renderLeaderboard()" class="bg-sport-dark border border-sport-border rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-sport-cyan">
-                        <option value="GERAL">Ranking Geral (Todos os Blocos)</option>
-                        <option value="Bloco 1">Bloco 1</option>
-                        <option value="Bloco 2">Bloco 2</option>
-                        <option value="Bloco 3">Bloco 3</option>
+                        <option value="Geral_MAS">Ranking Geral - Masculino (MAS)</option>
+                        <option value="Geral_FEM">Ranking Geral - Feminino (FEM)</option>
                     </select>
 
                     <button onclick="startTVMode()" class="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:opacity-90 text-white font-bold rounded-xl shadow-md transition-all flex items-center">
@@ -216,8 +180,10 @@
                                 <th class="py-4 px-6 text-center w-16">Pos</th>
                                 <th class="py-4 px-6">Atleta</th>
                                 <th class="py-4 px-6">Naipe</th>
-                                <th class="py-4 px-6">Perfil</th>
-                                <th class="py-4 px-6">Bloco</th>
+                                <th class="py-4 px-6">Categoria</th>
+                                <th class="py-4 px-6">Estado</th>
+                                <th class="py-4 px-6">Equipe / Clube / Escola</th>
+                                <th class="py-4 px-6">Bateria</th>
                                 <th class="py-4 px-6 text-right">Tempo Oficial</th>
                                 <th class="py-4 px-6 text-right">Dif. p/ Líder</th>
                             </tr>
@@ -239,7 +205,7 @@
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <h3 class="text-2xl font-black text-white">Acesso Restrito</h3>
-                    <p class="text-sm text-slate-400">Insira a senha técnica para gerenciar o painel.</p>
+                    <p class="text-sm text-slate-400">Insira a senha técnica para gerenciar a modalidade e os resultados.</p>
                 </div>
 
                 <div class="space-y-4">
@@ -254,7 +220,7 @@
                 </div>
             </div>
 
-            <!-- Conteúdo do Painel Admin -->
+            <!-- Conteúdo do Painel Admin (Após Login) -->
             <div id="admin-panel-content" class="space-y-8 hidden">
                 <div class="flex items-center justify-between bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl">
                     <div class="flex items-center space-x-3">
@@ -263,7 +229,7 @@
                         </div>
                         <div>
                             <h3 class="text-lg font-bold text-white">Painel da Equipe Técnica</h3>
-                            <p class="text-xs text-slate-400">Controle de blocos, cronograma e resultados.</p>
+                            <p class="text-xs text-slate-400">Gerenciamento de modalidade ativa, baterias e tempos.</p>
                         </div>
                     </div>
                     <button onclick="handleAdminLogout()" class="px-4 py-2 bg-sport-dark hover:bg-slate-800 text-slate-300 rounded-xl text-sm font-semibold transition-all border border-sport-border">
@@ -271,15 +237,34 @@
                     </button>
                 </div>
 
-                <!-- Gestão de Blocos (Automático / Manual com Edição de Datas) -->
-                <div class="bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl space-y-6">
+                <!-- Configurar Modalidade Ativa do Evento -->
+                <div class="bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl space-y-4">
                     <h4 class="text-lg font-bold text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-calendar-days text-sport-cyan"></i>
-                        <span>Gerenciamento e Cronograma dos Blocos</span>
+                        <i class="fa-solid fa-sliders text-sport-cyan"></i>
+                        <span>Configurar Modalidade Ativa do Evento</span>
                     </h4>
-                    
-                    <div id="blocos-manager-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Renderizado dinamicamente via JS -->
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <input type="text" id="admin-active-mod-input" placeholder="Ex: CICLISMO VIRTUAL JEBS 2026" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-cyan">
+                        <button onclick="saveActiveModality()" class="px-6 py-3 bg-sport-blue hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-md">
+                            Atualizar Modalidade
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sistema de Inserção e Gestão de Baterias -->
+                <div class="bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl space-y-4">
+                    <h4 class="text-lg font-bold text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-layer-group text-sport-green"></i>
+                        <span>Gerenciamento de Baterias</span>
+                    </h4>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <input type="text" id="new-battery-input" placeholder="NOME DA BATERIA (EX: BATERIA 1 MAS, BATERIA 1 FEM)" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-sport-green">
+                        <button onclick="addBattery()" class="px-6 py-3 bg-sport-green hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md">
+                            Adicionar Bateria
+                        </button>
+                    </div>
+                    <div id="batteries-list-container" class="flex flex-wrap gap-2 pt-2">
+                        <!-- Lista de baterias dinâmicas -->
                     </div>
                 </div>
 
@@ -287,25 +272,12 @@
                 <div class="bg-sport-card border border-sport-border p-6 rounded-2xl shadow-xl space-y-4">
                     <h4 class="text-lg font-bold text-white flex items-center space-x-2">
                         <i class="fa-solid fa-keyboard text-sport-blue"></i>
-                        <span>Inserção Manual de Participante / Resultado</span>
+                        <span>Inserção Manual de Resultado</span>
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">CPF (Busca Automática)</label>
-                            <input type="text" id="manual-cpf" placeholder="000.000.000-00" maxlength="14" oninput="maskCPF(this); checkExistingCPF(this.value)" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-sport-blue">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Nome Completo</label>
-                            <input type="text" id="manual-atleta" placeholder="Nome Completo" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Subcategoria / Perfil</label>
-                            <select id="manual-subcategoria" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
-                                <option value="Atleta">Atleta</option>
-                                <option value="Arbitragem">Arbitragem</option>
-                                <option value="Comitê Organizador">Comitê Organizador</option>
-                                <option value="Público Geral">Público Geral</option>
-                            </select>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Atleta</label>
+                            <input type="text" id="manual-atleta" placeholder="Nome do Atleta" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Naipe</label>
@@ -315,46 +287,134 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Modalidade</label>
-                            <select id="manual-modalidade" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
-                                <option value="Remo">Remo (500m)</option>
-                                <option value="Ciclismo">Ciclismo (Sprint 300m)</option>
-                                <option value="Corrida">Corrida (500m)</option>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Categoria</label>
+                            <input type="text" id="manual-categoria" placeholder="Ex: SUB-30" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Estado (Sigla)</label>
+                            <input type="text" id="manual-estado" placeholder="Ex: SP, RJ, MG" maxlength="2" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Equipe/Clube/Escola</label>
+                            <input type="text" id="manual-equipe" placeholder="Nome da Equipe" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Bateria</label>
+                            <select id="manual-bateria" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
+                                <!-- Preenchido dinamicamente via JS -->
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Bloco</label>
-                            <select id="manual-bloco" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-sport-blue">
-                                <option value="Bloco 1">Bloco 1</option>
-                                <option value="Bloco 2">Bloco 2</option>
-                                <option value="Bloco 3">Bloco 3</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Tempo Oficial (HH:MM:SS)</label>
-                            <input type="text" id="manual-tempo" placeholder="00:00:00" maxlength="8" oninput="formatTimeInput(this)" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-sport-blue">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Tempo Oficial</label>
+                            <input type="text" id="manual-tempo" placeholder="00:00:00" class="w-full bg-sport-dark border border-sport-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sport-blue">
                         </div>
                         <div class="flex items-end">
                             <button onclick="addManualRecord()" class="w-full py-2.5 bg-sport-blue hover:bg-blue-600 text-white font-bold rounded-xl transition-all shadow-md">
-                                Salvar Resultado
+                                Adicionar
                             </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload de Arquivo Excel (XLS/XLSX) ou CSV -->
+                <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-4">
+                    <h4 class="text-xl font-black text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-file-excel text-sport-green"></i>
+                        <span>Upload de Resultados (Excel / CSV)</span>
+                    </h4>
+                    <p class="text-xs text-slate-400">O arquivo deve possuir cabeçalhos correspondentes: <strong>ATLETA</strong>, <strong>NAIPE</strong>, <strong>CATEGORIA</strong>, <strong>ESTADO</strong>, <strong>EQUIPE / CLUBE / ESCOLA</strong>, <strong>BATERIA</strong> e <strong>TEMPO</strong>.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+                        <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-sport-blue file:text-white hover:file:bg-blue-600 cursor-pointer">
+                        <button onclick="processExcelUpload()" class="w-full sm:w-auto px-8 py-3 bg-sport-green hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
+                            Processar e Importar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- MÓDULO DE SORTEIO DE BATERIAS -->
+                <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-6">
+                    <div>
+                        <h4 class="text-xl font-black text-white flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-lg bg-sport-gold/20 text-sport-gold flex items-center justify-center border border-sport-gold/30">
+                                <i class="fa-solid fa-dice"></i>
+                            </div>
+                            <span>Sorteio e Montagem de Baterias</span>
+                        </h4>
+                        <p class="text-xs text-slate-400 mt-2">Faça o upload da planilha de <strong>inscritos</strong> para dividi-los automaticamente em baterias. A planilha deve conter as colunas: ATLETA, NAIPE, CATEGORIA, ESTADO.</p>
+                    </div>
+
+                    <!-- Critérios de Sorteio Manuais -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-sport-dark p-5 rounded-2xl border border-sport-border">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Qtd. de Atletas por Bateria</label>
+                            <input type="number" id="sorteio-qtd" value="8" min="1" class="w-full bg-sport-card border border-sport-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sport-gold transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Agrupar por Naipe?</label>
+                            <select id="sorteio-naipe" class="w-full bg-sport-card border border-sport-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sport-gold transition-colors">
+                                <option value="sim">Sim (Separar MAS/FEM)</option>
+                                <option value="nao">Não (Baterias Mistas)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Agrupar por Categoria?</label>
+                            <select id="sorteio-categoria" class="w-full bg-sport-card border border-sport-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sport-gold transition-colors">
+                                <option value="sim">Sim</option>
+                                <option value="nao">Não (Baterias Mistas)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Regra de Distribuição</label>
+                            <select id="sorteio-aleatorio" class="w-full bg-sport-card border border-sport-border rounded-xl px-3 py-2 text-white focus:outline-none focus:border-sport-gold transition-colors">
+                                <option value="sim">Aleatória (Sorteio)</option>
+                                <option value="nao">Manter Ordem da Planilha</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Área de Upload e Ação -->
+                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+                        <input type="file" id="sorteio-file-input" accept=".xlsx, .xls, .csv" class="w-full bg-sport-dark border border-sport-border rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-sport-gold file:text-slate-900 hover:file:bg-yellow-500 cursor-pointer transition-all">
+                        <button onclick="processarSorteio()" class="w-full sm:w-auto px-8 py-3 bg-sport-gold hover:bg-yellow-500 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
+                            Gerar Baterias
+                        </button>
+                    </div>
+
+                    <!-- Resultado do Sorteio -->
+                    <div id="sorteio-resultado-container" class="hidden border-t border-sport-border pt-6 mt-6 space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <h5 class="text-lg font-bold text-white">Resultado do Sorteio</h5>
+                                <p id="sorteio-resumo-texto" class="text-xs text-sport-cyan font-semibold"></p>
+                            </div>
+                            <button onclick="exportarSorteioExcel()" class="px-5 py-2.5 bg-sport-green text-slate-950 font-bold rounded-xl text-sm hover:opacity-90 transition-all shadow-md flex items-center space-x-2">
+                                <i class="fa-solid fa-file-arrow-down"></i>
+                                <span>Exportar Planilha Gerada</span>
+                            </button>
+                        </div>
+                        <div id="sorteio-list" class="max-h-96 overflow-y-auto space-y-4 pr-2">
+                            <!-- Renderizado via JavaScript -->
                         </div>
                     </div>
                 </div>
 
                 <!-- Lista de Registros Cadastrados -->
                 <div class="bg-sport-card border border-sport-border p-8 rounded-3xl shadow-xl space-y-6">
-                    <h4 class="text-xl font-black text-white">Registros Armazenados no Banco de Dados</h4>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <h4 class="text-xl font-black text-white">Registros Armazenados no Banco de Dados</h4>
+                        <button onclick="fixModalitiesToActive()" class="px-4 py-2 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-xl text-xs font-bold hover:bg-amber-500/30 transition-all">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Migrar todos para a modalidade atual
+                        </button>
+                    </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-sport-border/50 border-b border-sport-border text-xs font-bold text-slate-400 uppercase tracking-wider">
-                                    <th class="py-3 px-4">CPF</th>
+                                    <th class="py-3 px-4">Modalidade no Banco</th>
                                     <th class="py-3 px-4">Atleta</th>
                                     <th class="py-3 px-4">Naipe</th>
-                                    <th class="py-3 px-4">Perfil</th>
-                                    <th class="py-3 px-4">Modalidade</th>
-                                    <th class="py-3 px-4">Bloco</th>
+                                    <th class="py-3 px-4">Categoria</th>
+                                    <th class="py-3 px-4">Bateria</th>
                                     <th class="py-3 px-4">Tempo</th>
                                     <th class="py-3 px-4 text-right">Ação</th>
                                 </tr>
@@ -377,213 +437,220 @@
         </div>
     </footer>
 
+    <!-- Modal Customizado -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-sport-card border border-sport-border max-w-sm w-full p-6 rounded-3xl shadow-2xl text-center space-y-4">
+            <div id="modal-icon" class="w-14 h-14 rounded-full bg-sport-green/20 text-sport-green flex items-center justify-center mx-auto text-2xl border border-sport-green/30">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h4 id="modal-title" class="text-lg font-bold text-white">Sucesso</h4>
+            <p id="modal-message" class="text-sm text-slate-300">Mensagem aqui</p>
+            <button onclick="closeModal()" class="w-full py-2.5 bg-sport-blue hover:bg-blue-600 text-white font-bold rounded-xl text-sm transition-all">Entendido</button>
+        </div>
+    </div>
+
     <!-- JavaScript Application Logic -->
     <script>
         const SUPABASE_URL = 'https://otecuxljcahtfivmthsb.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_WB_Reg-TuFE8KD8QvwBHiw_1EOotbdq';
+        const SUPABASE_ANON_KEY = 'sb_publishable_0SG41jvxnZnaw0lP1ODmjA_Ig75sACZ';
         const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let records = [];
+        let activeModality = localStorage.getItem('app_active_modality') || 'CICLISMO VIRTUAL JEBS 2026';
+        let batteries = JSON.parse(localStorage.getItem('app_batteries')) || ['BATERIA 1 MAS', 'BATERIA 1 FEM', 'BATERIA 2 MAS', 'BATERIA 2 FEM'];
         let isAdminLoggedIn = false;
 
-        // Configuração de Blocos (Padrão com Datas Iniciais solicitadas)
-        let blocosConfig = JSON.parse(localStorage.getItem('jj2026_blocos_config')) || {
-            'Bloco 1': { mode: 'auto', status: 'Ativo', start: '2026-10-18T08:00', end: '2026-10-22T23:59' },
-            'Bloco 2': { mode: 'auto', status: 'Aguardando', start: '2026-10-23T08:00', end: '2026-10-28T23:59' },
-            'Bloco 3': { mode: 'auto', status: 'Aguardando', start: '2026-10-29T08:00', end: '2026-11-03T23:59' }
-        };
-
-        // Variáveis Modo TV
+        // Variáveis Modo TV Automático
         let tvModeInterval = null;
         let tvCycleSteps = [];
         let tvModeCurrentIndex = 0;
 
+        const stateFlags = {
+            'AC': 'https://upload.wikimedia.org/wikipedia/commons/4/4c/Bandeira_do_Acre.svg',
+            'AL': 'https://upload.wikimedia.org/wikipedia/commons/8/88/Bandeira_de_Alagoas.svg',
+            'AP': 'https://upload.wikimedia.org/wikipedia/commons/0/0c/Bandeira_do_Amap%C3%A1.svg',
+            'AM': 'https://upload.wikimedia.org/wikipedia/commons/6/6b/Bandeira_do_Amazonas.svg',
+            'BA': 'https://upload.wikimedia.org/wikipedia/commons/2/28/Bandeira_da_Bahia.svg',
+            'CE': 'https://upload.wikimedia.org/wikipedia/commons/2/2e/Bandeira_do_Cear%C3%A1.svg',
+            'DF': 'https://upload.wikimedia.org/wikipedia/commons/3/3c/Bandeira_do_Distrito_Federal_%28Brasil%29.svg',
+            'ES': 'https://upload.wikimedia.org/wikipedia/commons/4/43/Bandeira_do_Esp%C3%ADrito_Santo.svg',
+            'GO': 'https://upload.wikimedia.org/wikipedia/commons/b/be/Flag_of_Goi%C3%A1s.svg',
+            'MA': 'https://upload.wikimedia.org/wikipedia/commons/4/45/Bandeira_do_Maranh%C3%A3o.svg',
+            'MT': 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Bandeira_de_Mato_Grosso.svg',
+            'MS': 'https://upload.wikimedia.org/wikipedia/commons/6/64/Bandeira_de_Mato_Grosso_do_Sul.svg',
+            'MG': 'https://upload.wikimedia.org/wikipedia/commons/f/f4/Bandeira_de_Minas_Gerais.svg',
+            'PA': 'https://upload.wikimedia.org/wikipedia/commons/0/02/Bandeira_do_Par%C3%A1.svg',
+            'PB': 'https://upload.wikimedia.org/wikipedia/commons/b/bb/Bandeira_da_Para%C3%ADba.svg',
+            'PR': 'https://upload.wikimedia.org/wikipedia/commons/9/93/Bandeira_do_Paran%C3%A1.svg',
+            'PE': 'https://upload.wikimedia.org/wikipedia/commons/5/59/Bandeira_de_Pernambuco.svg',
+            'PI': 'https://upload.wikimedia.org/wikipedia/commons/3/33/Bandeira_do_Piau%C3%AD.svg',
+            'RJ': 'https://upload.wikimedia.org/wikipedia/commons/7/73/Bandeira_do_estado_do_Rio_de_Janeiro.svg',
+            'RN': 'https://upload.wikimedia.org/wikipedia/commons/3/30/Bandeira_do_Rio_Grande_do_Norte.svg',
+            'RS': 'https://upload.wikimedia.org/wikipedia/commons/6/63/Bandeira_do_Rio_Grande_do_Sul.svg',
+            'RO': 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Bandeira_de_Rond%C3%B4nia.svg',
+            'RR': 'https://upload.wikimedia.org/wikipedia/commons/9/98/Bandeira_do_Roraima.svg',
+            'SC': 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Bandeira_de_Santa_Catarina.svg',
+            'SP': 'https://upload.wikimedia.org/wikipedia/commons/2/2b/Bandeira_do_estado_de_S%C3%A3o_Paulo.svg',
+            'SE': 'https://upload.wikimedia.org/wikipedia/commons/b/be/Bandeira_de_Sergipe.svg',
+            'TO': 'https://upload.wikimedia.org/wikipedia/commons/f/ff/Bandeira_do_Tocantins.svg'
+        };
+
+        const stateNames = {
+            'ACRE': 'AC', 'ALAGOAS': 'AL', 'AMAPA': 'AP', 'AMAPÁ': 'AP', 'AMAZONAS': 'AM',
+            'BAHIA': 'BA', 'CEARA': 'CE', 'CEARÁ': 'CE', 'DISTRITO FEDERAL': 'DF', 'ESPIRITO SANTO': 'ES', 'ESPÍRITO SANTO': 'ES',
+            'GOIAS': 'GO', 'GOIÁS': 'GO', 'MARANHAO': 'MA', 'MARANHÃO': 'MA', 'MATO GROSSO': 'MT', 'MATO GROSSO DO SUL': 'MS',
+            'MINAS GERAIS': 'MG', 'PARA': 'PA', 'PARÁ': 'PA', 'PARAIBA': 'PB', 'PARAÍBA': 'PB', 'PARANA': 'PR', 'PARANÁ': 'PR',
+            'PERNAMBUCO': 'PE', 'PIAUI': 'PI', 'PIAUÍ': 'PI', 'RIO DE JANEIRO': 'RJ', 'RIO GRANDE DO NORTE': 'RN',
+            'RIO GRANDE DO SUL': 'RS', 'RONDONIA': 'RO', 'RONDÔNIA': 'RO', 'RORAIMA': 'RR', 'SANTA CATARINA': 'SC',
+            'SAO PAULO': 'SP', 'SÃO PAULO': 'SP', 'SERGIPE': 'SE', 'TOCANTINS': 'TO'
+        };
+
+        function getStateDisplay(val) {
+            if (!val) return '-';
+            const cleanVal = val.trim().toUpperCase();
+            let sigla = stateNames[cleanVal] || (stateFlags[cleanVal] ? cleanVal : null);
+            if (sigla) {
+                const flagUrl = stateFlags[sigla];
+                return `<div class="flex items-center space-x-2"><img src="${flagUrl}" alt="${sigla}" class="w-6 h-4 object-cover rounded-sm border border-slate-600 shadow-sm"> <span>| ${sigla}</span></div>`;
+            }
+            return cleanVal;
+        }
+
         async function fetchRecords() {
             try {
-                const { data, error } = await _supabase.from('records').select('*');
-                if (!error && data) {
+                const { data, error } = await _supabase.from('resultados').select('*');
+                if (error) {
+                    console.error("Erro do Supabase ao buscar dados:", error);
+                    return;
+                }
+                if (data) {
                     records = data;
                     updateUIState();
                 }
             } catch (err) {
-                console.error("Erro ao buscar dados:", err);
+                console.error("Erro inesperado ao buscar dados:", err);
             }
         }
 
         function updateUIState() {
-            evaluateBlocosAutomaticStatus();
-            renderBlocosManager();
+            document.getElementById('hero-active-mod').innerText = activeModality;
+            document.getElementById('ranking-active-mod-label').innerText = activeModality;
+            if (document.getElementById('admin-active-mod-input')) {
+                document.getElementById('admin-active-mod-input').value = activeModality;
+            }
+
+            renderBatteriesSelects();
+            renderAdminBatteriesList();
+            renderManualBateriaSelect();
             renderAdminRecords();
             renderLeaderboard();
-        }
-
-        // Avaliação Automática de Blocos baseada na Data/Hora atual
-        function evaluateBlocosAutomaticStatus() {
-            const now = new Date();
-            let changed = false;
-
-            for (let b in blocosConfig) {
-                if (blocosConfig[b].mode === 'auto') {
-                    const startDate = new Date(blocosConfig[b].start);
-                    const endDate = new Date(blocosConfig[b].end);
-                    
-                    let newStatus = 'Aguardando';
-                    if (now >= startDate && now <= endDate) {
-                        newStatus = 'Ativo';
-                    } else if (now > endDate) {
-                        newStatus = 'Encerrado';
-                    }
-
-                    if (blocosConfig[b].status !== newStatus) {
-                        blocosConfig[b].status = newStatus;
-                        changed = true;
-                    }
-                }
-            }
-            if (changed) {
-                localStorage.setItem('jj2026_blocos_config', JSON.stringify(blocosConfig));
-            }
-        }
-
-        // Renderiza o painel avançado de blocos com opção de edição de datas e modos manual/automático
-        function renderBlocosManager() {
-            const container = document.getElementById('blocos-manager-grid');
-            if (!container) return;
-            container.innerHTML = '';
-
-            ['Bloco 1', 'Bloco 2', 'Bloco 3'].forEach(bName => {
-                const cfg = blocosConfig[bName];
-                let badgeColor = 'bg-amber-500/20 text-amber-300 border-amber-500/30';
-                if (cfg.status === 'Ativo') badgeColor = 'bg-sport-green/20 text-sport-green border-sport-green/30';
-                if (cfg.status === 'Encerrado') badgeColor = 'bg-red-500/20 text-red-400 border-red-500/30';
-
-                container.innerHTML += `
-                    <div class="bg-sport-dark border border-sport-border p-5 rounded-2xl space-y-4 shadow-inner">
-                        <div class="flex items-center justify-between">
-                            <h5 class="font-bold text-white text-base">${bName}</h5>
-                            <span class="px-3 py-1 rounded-full text-xs font-bold border ${badgeColor}">${cfg.status}</span>
-                        </div>
-
-                        <!-- Alternar Modo Auto / Manual -->
-                        <div class="flex items-center justify-between text-xs text-slate-300 bg-sport-card p-2.5 rounded-xl border border-sport-border">
-                            <span>Modo de Controle:</span>
-                            <select onchange="setBlocoMode('${bName}', this.value)" class="bg-sport-dark text-white text-xs px-2 py-1 rounded-lg border border-sport-border focus:outline-none">
-                                <option value="auto" ${cfg.mode === 'auto' ? 'selected' : ''}>Automático (Datas)</option>
-                                <option value="manual" ${cfg.mode === 'manual' ? 'selected' : ''}>Manual</option>
-                            </select>
-                        </div>
-
-                        <!-- Se estiver em modo manual, mostra botões de ligar/desligar -->
-                        ${cfg.mode === 'manual' ? `
-                            <div class="grid grid-cols-2 gap-2">
-                                <button onclick="setManualBlocoStatus('${bName}', 'Ativo')" class="py-2 bg-sport-green text-slate-950 font-bold rounded-xl text-xs hover:opacity-90 transition-all">Ativar</button>
-                                <button onclick="setManualBlocoStatus('${bName}', 'Encerrado')" class="py-2 bg-red-600 text-white font-bold rounded-xl text-xs hover:opacity-90 transition-all">Encerrar</button>
-                            </div>
-                        ` : `
-                            <!-- Edição de Datas se automático -->
-                            <div class="space-y-2 text-xs text-slate-400">
-                                <div>
-                                    <label class="block text-[10px] uppercase font-bold text-slate-500">Início:</label>
-                                    <input type="datetime-local" value="${cfg.start}" onchange="updateBlocoDate('${bName}', 'start', this.value)" class="w-full bg-sport-card text-white text-xs px-2.5 py-1.5 rounded-lg border border-sport-border">
-                                </div>
-                                <div>
-                                    <label class="block text-[10px] uppercase font-bold text-slate-500">Término:</label>
-                                    <input type="datetime-local" value="${cfg.end}" onchange="updateBlocoDate('${bName}', 'end', this.value)" class="w-full bg-sport-card text-white text-xs px-2.5 py-1.5 rounded-lg border border-sport-border">
-                                </div>
-                            </div>
-                        `}
-                    </div>
-                `;
-            });
-        }
-
-        function setBlocoMode(bName, mode) {
-            blocosConfig[bName].mode = mode;
-            if (mode === 'auto') evaluateBlocosAutomaticStatus();
-            localStorage.setItem('jj2026_blocos_config', JSON.stringify(blocosConfig));
-            renderBlocosManager();
-        }
-
-        function setManualBlocoStatus(bName, status) {
-            blocosConfig[bName].mode = 'manual';
-            blocosConfig[bName].status = status;
-            localStorage.setItem('jj2026_blocos_config', JSON.stringify(blocosConfig));
-            renderBlocosManager();
-        }
-
-        function updateBlocoDate(bName, field, val) {
-            blocosConfig[bName][field] = val;
-            evaluateBlocosAutomaticStatus();
-            localStorage.setItem('jj2026_blocos_config', JSON.stringify(blocosConfig));
-            renderBlocosManager();
-        }
-
-        // Preenchimento automático ao digitar CPF
-        function checkExistingCPF(cpf) {
-            const cleanCPF = cpf.replace(/\D/g, '');
-            if (cleanCPF.length === 11) {
-                const found = records.find(r => r.cpf && r.cpf.replace(/\D/g, '') === cleanCPF);
-                if (found) {
-                    document.getElementById('manual-atleta').value = found.atleta || '';
-                    document.getElementById('manual-subcategoria').value = found.subcategoria || 'Atleta';
-                    document.getElementById('manual-naipe').value = found.naipe || 'MAS';
-                }
-            }
-        }
-
-        function maskCPF(input) {
-            let v = input.value.replace(/\D/g, '');
-            if (v.length > 11) v = v.slice(0, 11);
-            if (v.length > 9) {
-                input.value = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
-            } else if (v.length > 6) {
-                input.value = v.replace(/(\d{3})(\d{3})(\d{1,3})/, "$1.$2.$3");
-            } else if (v.length > 3) {
-                input.value = v.replace(/(\d{3})(\d{1,3})/, "$1.$2");
-            } else {
-                input.value = v;
-            }
-        }
-
-        function formatTimeInput(input) {
-            let v = input.value.replace(/\D/g, '');
-            if (v.length > 6) v = v.slice(0, 6);
-            if (v.length >= 5) {
-                input.value = v.slice(0,2) + ':' + v.slice(2,4) + ':' + v.slice(4,6);
-            } else if (v.length >= 3) {
-                input.value = v.slice(0,2) + ':' + v.slice(2,4);
-            } else {
-                input.value = v;
-            }
         }
 
         function switchTab(tabId) {
             ['home', 'rankings', 'admin'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 const navBtn = document.getElementById(`nav-${t}`);
-                if (navBtn) navBtn.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-sport-dark hover:bg-slate-100";
+                if (navBtn) {
+                    navBtn.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:text-white hover:bg-slate-800";
+                }
             });
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             const activeNav = document.getElementById(`nav-${tabId}`);
-            if (activeNav) activeNav.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-sport-dark text-white shadow-md";
+            if (activeNav) {
+                activeNav.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-sport-blue text-white shadow-md";
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
             if (tabId === 'rankings') renderLeaderboard();
             if (tabId === 'admin' && isAdminLoggedIn) renderAdminRecords();
         }
 
         function toggleMobileMenu() {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
         }
 
-        function goToRankingModalidade(mod) {
-            document.getElementById('filter-modalidade').value = mod;
-            switchTab('rankings');
+        function saveActiveModality() {
+            const val = document.getElementById('admin-active-mod-input').value.trim().toUpperCase();
+            if (!val) {
+                showModal('Atenção', 'Digite o nome da modalidade ativa.', 'error');
+                return;
+            }
+            activeModality = val;
+            localStorage.setItem('app_active_modality', activeModality);
+            updateUIState();
+            showModal('Sucesso', 'Modalidade ativa atualizada com sucesso!', 'success');
+        }
+
+        function addBattery() {
+            const input = document.getElementById('new-battery-input');
+            const batName = input.value.trim().toUpperCase();
+            if (!batName) return;
+            if (batteries.includes(batName)) {
+                showModal('Atenção', 'Esta bateria já está cadastrada.', 'error');
+                return;
+            }
+            batteries.push(batName);
+            localStorage.setItem('app_batteries', JSON.stringify(batteries));
+            input.value = '';
+            updateUIState();
+            showModal('Sucesso', 'Bateria adicionada com sucesso!', 'success');
+        }
+
+        function removeBattery(batName) {
+            if (batteries.length <= 1) {
+                showModal('Atenção', 'O sistema precisa ter ao menos uma bateria.', 'error');
+                return;
+            }
+            batteries = batteries.filter(b => b !== batName);
+            localStorage.setItem('app_batteries', JSON.stringify(batteries));
+            updateUIState();
+        }
+
+        function renderBatteriesSelects() {
+            const filterSelect = document.getElementById('filter-bateria');
+            if (filterSelect) {
+                const currentVal = filterSelect.value;
+                filterSelect.innerHTML = `
+                    <option value="Geral_MAS">Ranking Geral - Masculino (MAS)</option>
+                    <option value="Geral_FEM">Ranking Geral - Feminino (FEM)</option>
+                `;
+                batteries.forEach(b => {
+                    filterSelect.innerHTML += `<option value="${b}">${b}</option>`;
+                });
+                if (filterSelect.querySelector(`option[value="${currentVal}"]`)) {
+                    filterSelect.value = currentVal;
+                }
+            }
+        }
+
+        function renderAdminBatteriesList() {
+            const container = document.getElementById('batteries-list-container');
+            if (!container) return;
+            container.innerHTML = '';
+            batteries.forEach(b => {
+                container.innerHTML += `
+                    <div class="inline-flex items-center space-x-2 bg-sport-dark border border-sport-border px-3.5 py-2 rounded-xl text-sm">
+                        <span class="text-white font-semibold">${b}</span>
+                        <button onclick="removeBattery('${b}')" class="text-red-400 hover:text-red-300 ml-2"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                `;
+            });
+        }
+
+        function renderManualBateriaSelect() {
+            const select = document.getElementById('manual-bateria');
+            if (!select) return;
+            select.innerHTML = '';
+            batteries.forEach(b => {
+                select.innerHTML += `<option value="${b}">${b}</option>`;
+            });
         }
 
         function handleAdminLogin() {
             const pin = document.getElementById('admin-pin-input').value;
             const errorEl = document.getElementById('login-error');
-            if (pin === 'JJ2026FOZ') {
+
+            if (pin === 'Virtu@lBr09') {
                 isAdminLoggedIn = true;
                 errorEl.classList.add('hidden');
                 document.getElementById('admin-login-screen').classList.add('hidden');
@@ -602,61 +669,167 @@
         }
 
         async function addManualRecord() {
-            const cpf = document.getElementById('manual-cpf').value.trim();
             const atleta = document.getElementById('manual-atleta').value.trim().toUpperCase();
-            const subcategoria = document.getElementById('manual-subcategoria').value;
             const naipe = document.getElementById('manual-naipe').value;
-            const modalidade = document.getElementById('manual-modalidade').value;
-            const bloco = document.getElementById('manual-bloco').value;
+            const categoria = document.getElementById('manual-categoria').value.trim().toUpperCase();
+            const estado = document.getElementById('manual-estado').value.trim().toUpperCase();
+            const equipe = document.getElementById('manual-equipe').value.trim().toUpperCase();
+            const bateria = document.getElementById('manual-bateria').value;
             const tempo = document.getElementById('manual-tempo').value.trim();
 
-            if (!cpf || !atleta || !tempo) {
-                alert('CPF, Nome e Tempo são obrigatórios!');
+            if (!atleta || !tempo) {
+                showModal('Atenção', 'O nome do atleta e o tempo oficial são obrigatórios.', 'error');
                 return;
             }
 
-            // Verifica se o bloco está encerrado
-            if (blocosConfig[bloco] && blocosConfig[bloco].status === 'Encerrado') {
-                alert(`O ${bloco} está encerrado. Não é permitido salvar novos tempos nele.`);
+            const modalidade = activeModality; 
+            const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
+
+            try {
+                let error;
+                if (existingRecord) {
+                    const res = await _supabase.from('resultados')
+                        .update({ tempo: tempo, bateria: bateria, categoria: categoria, naipe: naipe, estado: estado, equipe: equipe })
+                        .eq('id', existingRecord.id);
+                    error = res.error;
+                } else {
+                    const res = await _supabase.from('resultados')
+                        .insert([{ atleta, naipe, categoria, estado, equipe, modalidade, bateria, tempo }]);
+                    error = res.error;
+                }
+
+                if (error) {
+                    showModal('Erro', 'Banco recusou a gravação: ' + error.message, 'error');
+                    return;
+                }
+
+                document.getElementById('manual-atleta').value = '';
+                document.getElementById('manual-categoria').value = '';
+                document.getElementById('manual-estado').value = '';
+                document.getElementById('manual-equipe').value = '';
+                document.getElementById('manual-tempo').value = '';
+
+                await fetchRecords();
+                showModal('Sucesso', 'Registro inserido/atualizado manualmente com sucesso!', 'success');
+            } catch (err) {
+                showModal('Erro', 'Não foi possível salvar o registro.', 'error');
+            }
+        }
+
+        async function processExcelUpload() {
+            const fileInput = document.getElementById('excel-file-input');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showModal('Atenção', 'Selecione um arquivo Excel (.xlsx, .xls) ou CSV.', 'error');
                 return;
             }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
 
-            // Regra: Se o participante (CPF) já possui registro na MESMA modalidade, atualiza o tempo (sobrescreve)
-            const cleanCPF = cpf.replace(/\D/g, '');
-            const existingRecord = records.find(r => r.cpf && r.cpf.replace(/\D/g, '') === cleanCPF && r.modalidade === modalidade);
+            reader.onload = async function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
-            if (existingRecord) {
-                await _supabase.from('records')
-                    .update({ tempo, bloco, atleta, subcategoria, naipe })
-                    .eq('id', existingRecord.id);
-            } else {
-                await _supabase.from('records')
-                    .insert([{ cpf, atleta, subcategoria, naipe, modalidade, bloco, tempo }]);
+                    if (jsonRows.length === 0) {
+                        showModal('Atenção', 'O arquivo enviado está vazio ou sem dados válidos.', 'error');
+                        return;
+                    }
+
+                    let countProcessed = 0;
+                    for (let row of jsonRows) {
+                        const keys = Object.keys(row);
+                        
+                        let atletaKey = keys.find(k => /atleta|nome/i.test(k)) || keys[0];
+                        let naipeKey = keys.find(k => /naipe|genero|sexo/i.test(k));
+                        let categoriaKey = keys.find(k => /categoria|subcategoria/i.test(k));
+                        let estadoKey = keys.find(k => /estado|uf/i.test(k));
+                        let equipeKey = keys.find(k => /equipe|clube|escola/i.test(k));
+                        let bateriaKey = keys.find(k => /bateria/i.test(k));
+                        let tempoKey = keys.find(k => /tempo|resultado/i.test(k));
+
+                        const atleta = String(row[atletaKey] || '').trim().toUpperCase();
+                        let naipe = naipeKey ? String(row[naipeKey] || '').trim().toUpperCase() : '';
+                        const categoria = categoriaKey ? String(row[categoriaKey] || '').trim().toUpperCase() : '';
+                        const estado = estadoKey ? String(row[estadoKey] || '').trim().toUpperCase() : '';
+                        const equipe = equipeKey ? String(row[equipeKey] || '').trim().toUpperCase() : '';
+                        const bateria = bateriaKey ? String(row[bateriaKey] || batteries[0]).trim().toUpperCase() : batteries[0];
+                        const tempo = tempoKey ? String(row[tempoKey] || '00:00:00').trim() : '00:00:00';
+
+                        if (!naipe) {
+                            if (/fem|feminino/i.test(bateria) || /fem|feminino/i.test(categoria)) {
+                                naipe = 'FEM';
+                            } else {
+                                naipe = 'MAS';
+                            }
+                        }
+
+                        if (atleta && tempo) {
+                            const modalidade = activeModality; 
+                            const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
+
+                            if (existingRecord) {
+                                await _supabase.from('resultados')
+                                    .update({ tempo: tempo, bateria: bateria, categoria: categoria, naipe: naipe, estado: estado, equipe: equipe })
+                                    .eq('id', existingRecord.id);
+                            } else {
+                                await _supabase.from('resultados')
+                                    .insert([{ atleta, naipe, categoria, estado, equipe, modalidade, bateria, tempo }]);
+                            }
+                            countProcessed++;
+                        }
+                    }
+
+                    fileInput.value = '';
+                    await fetchRecords();
+                    showModal('Sucesso', `${countProcessed} registros importados para a modalidade "${activeModality}"!`, 'success');
+                } catch (err) {
+                    showModal('Erro', 'Não foi possível processar o arquivo. Verifique o formato.', 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        async function fixModalitiesToActive() {
+            if (records.length === 0) {
+                showModal('Atenção', 'Não há registros no banco para migrar.', 'error');
+                return;
             }
-
-            document.getElementById('manual-tempo').value = '';
+            for (let r of records) {
+                await _supabase.from('resultados').update({ modalidade: activeModality }).eq('id', r.id);
+            }
             await fetchRecords();
-            alert('Resultado salvo com sucesso!');
+            showModal('Sucesso', 'Todos os registros foram migrados para a modalidade ativa atual!', 'success');
         }
 
         async function deleteRecord(id) {
-            await _supabase.from('records').delete().eq('id', id);
-            await fetchRecords();
+            const { error } = await _supabase.from('resultados').delete().eq('id', id);
+            if (!error) {
+                await fetchRecords();
+            }
         }
 
         function renderAdminRecords() {
             const tbody = document.getElementById('admin-records-tbody');
             if (!tbody) return;
             tbody.innerHTML = '';
+
+            if (records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-500">Nenhum registro encontrado no banco de dados.</td></tr>`;
+                return;
+            }
+
             records.forEach(r => {
+                const isCurrent = r.modalidade === activeModality;
                 tbody.innerHTML += `
-                    <tr class="hover:bg-sport-border/30">
-                        <td class="py-3 px-4 font-mono text-xs text-sport-cyan">${r.cpf || '-'}</td>
+                    <tr class="hover:bg-sport-border/30 transition-colors ${isCurrent ? '' : 'opacity-50'}">
+                        <td class="py-3 px-4 font-semibold text-xs text-sport-cyan">${r.modalidade || '-'}</td>
                         <td class="py-3 px-4 font-bold text-white">${r.atleta || '-'}</td>
-                        <td class="py-3 px-4 text-slate-300 font-semibold">${r.naipe || '-'}</td>
-                        <td class="py-3 px-4 text-slate-300">${r.subcategoria || '-'}</td>
-                        <td class="py-3 px-4 text-slate-300">${r.modalidade || '-'}</td>
-                        <td class="py-3 px-4 text-slate-300">${r.bloco || '-'}</td>
+                        <td class="py-3 px-4 text-slate-300">${r.naipe || '-'}</td>
+                        <td class="py-3 px-4 text-slate-300">${r.categoria || '-'}</td>
+                        <td class="py-3 px-4 text-slate-300">${r.bateria || '-'}</td>
                         <td class="py-3 px-4 font-mono font-bold text-sport-green">${r.tempo || '-'}</td>
                         <td class="py-3 px-4 text-right">
                             <button onclick="deleteRecord('${r.id}')" class="text-red-400 hover:text-red-300 p-2"><i class="fa-solid fa-trash"></i></button>
@@ -667,34 +840,29 @@
         }
 
         function renderLeaderboard() {
-            const modFilter = document.getElementById('filter-modalidade').value;
-            const naipeFilter = document.getElementById('filter-naipe').value;
             const bateriaFilter = document.getElementById('filter-bateria').value;
-            
             const tbody = document.getElementById('leaderboard-tbody');
             if (!tbody) return;
 
-            // Textos Modo TV
-            document.getElementById('tv-mod-title').innerText = modFilter;
-            let tvCatText = (bateriaFilter === 'GERAL' ? 'RANKING GERAL (TODOS OS BLOCOS)' : bateriaFilter.toUpperCase());
-            if (naipeFilter !== 'TODOS') tvCatText += ` - ${naipeFilter}`;
-            document.getElementById('tv-cat-badge').innerText = tvCatText;
+            let filtered = records.filter(r => r.modalidade === activeModality);
 
-            let filtered = records.filter(r => r.modalidade === modFilter);
-
-            if (naipeFilter !== 'TODOS') {
-                filtered = filtered.filter(r => r.naipe === naipeFilter);
-            }
-
-            if (bateriaFilter !== 'GERAL') {
-                filtered = filtered.filter(r => r.bloco === bateriaFilter);
+            if (bateriaFilter === 'Geral_MAS') {
+                filtered = filtered.filter(r => /mas|masculino/i.test(r.bateria) || /mas|masculino/i.test(r.categoria) || r.naipe === 'MAS');
+            } else if (bateriaFilter === 'Geral_FEM') {
+                filtered = filtered.filter(r => /fem|feminino/i.test(r.bateria) || /fem|feminino/i.test(r.categoria) || r.naipe === 'FEM');
+            } else {
+                filtered = filtered.filter(r => r.bateria === bateriaFilter);
             }
 
             filtered.sort((a, b) => a.tempo.localeCompare(b.tempo));
 
+            // Atualiza textos do cabeçalho Modo TV
+            document.getElementById('tv-mod-title').innerText = activeModality;
+            document.getElementById('tv-cat-badge').innerText = bateriaFilter.replace('_', ' - ');
+
             tbody.innerHTML = '';
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500">Nenhum resultado registrado para este filtro.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" class="py-8 text-center text-slate-500">Nenhum resultado registrado para esta seleção.</td></tr>`;
                 return;
             }
 
@@ -708,7 +876,8 @@
 
                 let diffStr = "-";
                 if (index > 0) {
-                    const diffSec = timeToSeconds(r.tempo) - leaderTimeSec;
+                    const currentSec = timeToSeconds(r.tempo);
+                    const diffSec = currentSec - leaderTimeSec;
                     diffStr = "+" + secondsToTime(diffSec);
                 } else {
                     diffStr = "CAMPEÃO";
@@ -718,9 +887,11 @@
                     <tr class="hover:bg-sport-border/30 transition-colors">
                         <td class="py-4 px-6 text-center font-black ${badgeClass}">#${index + 1}</td>
                         <td class="py-4 px-6 font-bold text-white">${r.atleta || '-'}</td>
-                        <td class="py-4 px-6 text-slate-300 font-bold">${r.naipe || '-'}</td>
-                        <td class="py-4 px-6 text-slate-300">${r.subcategoria || '-'}</td>
-                        <td class="py-4 px-6 text-slate-400">${r.bloco || '-'}</td>
+                        <td class="py-4 px-6 text-slate-300">${r.naipe || '-'}</td>
+                        <td class="py-4 px-6 text-slate-300">${r.categoria || '-'}</td>
+                        <td class="py-4 px-6 text-slate-300">${getStateDisplay(r.estado)}</td>
+                        <td class="py-4 px-6 text-slate-300">${r.equipe || '-'}</td>
+                        <td class="py-4 px-6 text-slate-400">${r.bateria || '-'}</td>
                         <td class="py-4 px-6 text-right font-mono font-black text-sport-green text-base">${r.tempo || '-'}</td>
                         <td class="py-4 px-6 text-right font-mono text-xs text-slate-400">${diffStr}</td>
                     </tr>
@@ -729,22 +900,19 @@
         }
 
         // =========================================================
-        // MODO TV (Rotaciona a cada 15 segundos)
+        // MODO TV AUTOMÁTICO (Rotaciona telas a cada 15 segundos)
         // =========================================================
         function startTVMode() {
             document.body.classList.add('tv-mode');
             
-            // Ciclo: Geral MAS, Geral FEM, Bloco 1 MAS/FEM, Bloco 2 MAS/FEM, Bloco 3 MAS/FEM
+            // Ciclo automático pelas opções de baterias e geral
             tvCycleSteps = [
-                { b: 'GERAL', n: 'MAS' },
-                { b: 'GERAL', n: 'FEM' },
-                { b: 'Bloco 1', n: 'MAS' },
-                { b: 'Bloco 1', n: 'FEM' },
-                { b: 'Bloco 2', n: 'MAS' },
-                { b: 'Bloco 2', n: 'FEM' },
-                { b: 'Bloco 3', n: 'MAS' },
-                { b: 'Bloco 3', n: 'FEM' }
+                { val: 'Geral_MAS' },
+                { val: 'Geral_FEM' }
             ];
+            batteries.forEach(b => {
+                tvCycleSteps.push({ val: b });
+            });
 
             tvModeCurrentIndex = 0;
             applyTVStep();
@@ -754,18 +922,14 @@
         function stopTVMode() {
             document.body.classList.remove('tv-mode');
             clearInterval(tvModeInterval);
-            document.getElementById('filter-bateria').value = 'GERAL';
-            document.getElementById('filter-naipe').value = 'TODOS';
+            document.getElementById('filter-bateria').value = 'Geral_MAS';
             renderLeaderboard();
         }
 
         function applyTVStep() {
             if (tvCycleSteps.length === 0) return;
             const step = tvCycleSteps[tvModeCurrentIndex];
-            
-            document.getElementById('filter-bateria').value = step.b;
-            document.getElementById('filter-naipe').value = step.n;
-            
+            document.getElementById('filter-bateria').value = step.val;
             renderLeaderboard();
             tvModeCurrentIndex = (tvModeCurrentIndex + 1) % tvCycleSteps.length;
         }
@@ -773,8 +937,11 @@
         function timeToSeconds(timeStr) {
             if (!timeStr) return 0;
             const parts = String(timeStr).split(':').map(Number);
-            if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
-            if (parts.length === 2) return parts[0] * 60 + parts[1];
+            if (parts.length === 3) {
+                return parts[0] * 3600 + parts[1] * 60 + parts[2];
+            } else if (parts.length === 2) {
+                return parts[0] * 60 + parts[1];
+            }
             return 0;
         }
 
@@ -782,23 +949,190 @@
             const h = Math.floor(totalSec / 3600);
             const m = Math.floor((totalSec % 3600) / 60);
             const s = totalSec % 60;
-            if (h > 0) return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            if (h > 0) {
+                return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            }
             return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+
+        function showModal(title, message, type = 'success') {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            const icon = document.getElementById('modal-icon');
+            if (type === 'success') {
+                icon.className = "w-14 h-14 rounded-full bg-sport-green/20 text-sport-green flex items-center justify-center mx-auto text-2xl border border-sport-green/30";
+                icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+            } else {
+                icon.className = "w-14 h-14 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center mx-auto text-2xl border border-red-500/30";
+                icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            }
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        // =========================================================================
+        // SISTEMA DE SORTEIO DE BATERIAS
+        // =========================================================================
+        let atletasSorteados = [];
+
+        async function processarSorteio() {
+            const fileInput = document.getElementById('sorteio-file-input');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showModal('Atenção', 'Selecione a planilha de inscritos para realizar o sorteio.', 'error');
+                return;
+            }
+
+            const qtdPorBateria = parseInt(document.getElementById('sorteio-qtd').value) || 8;
+            const agruparNaipe = document.getElementById('sorteio-naipe').value === 'sim';
+            const agruparCategoria = document.getElementById('sorteio-categoria').value === 'sim';
+            const aleatorio = document.getElementById('sorteio-aleatorio').value === 'sim';
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+                    if (jsonRows.length === 0) {
+                        showModal('Atenção', 'A planilha está vazia.', 'error');
+                        return;
+                    }
+
+                    let atletas = jsonRows.map(row => {
+                        const keys = Object.keys(row);
+                        const getVal = (regex) => {
+                            const key = keys.find(k => regex.test(k));
+                            return key ? String(row[key]).trim().toUpperCase() : '';
+                        };
+                        return {
+                            ATLETA: getVal(/atleta|nome/i),
+                            NAIPE: getVal(/naipe|genero|sexo/i),
+                            CATEGORIA: getVal(/categoria/i),
+                            ESTADO: getVal(/estado|uf/i),
+                            EQUIPE: getVal(/equipe|clube|escola/i)
+                        };
+                    }).filter(a => a.ATLETA);
+
+                    let grupos = {};
+                    atletas.forEach(a => {
+                        let chave = "GERAL";
+                        if (agruparNaipe && agruparCategoria) chave = `${a.NAIPE}_${a.CATEGORIA}`;
+                        else if (agruparNaipe) chave = a.NAIPE || 'MISTO';
+                        else if (agruparCategoria) chave = a.CATEGORIA || 'GERAL';
+
+                        if (!grupos[chave]) grupos[chave] = [];
+                        grupos[chave].push(a);
+                    });
+
+                    atletasSorteados = [];
+                    let contadorBaterias = 1;
+
+                    for (let chaveGrupo in grupos) {
+                        let lista = grupos[chaveGrupo];
+                        
+                        if (aleatorio) {
+                            for (let i = lista.length - 1; i > 0; i--) {
+                                const j = Math.floor(Math.random() * (i + 1));
+                                [lista[i], lista[j]] = [lista[j], lista[i]];
+                            }
+                        }
+
+                        for (let i = 0; i < lista.length; i += qtdPorBateria) {
+                            const chunk = lista.slice(i, i + qtdPorBateria);
+                            let nomeBateria = `BATERIA ${contadorBaterias}`;
+                            if (chaveGrupo !== "GERAL") {
+                                nomeBateria += ` (${chaveGrupo.replace('_', ' ')})`;
+                            }
+                            
+                            chunk.forEach(atl => {
+                                atletasSorteados.push({
+                                    "ATLETA": atl.ATLETA,
+                                    "NAIPE": atl.NAIPE,
+                                    "CATEGORIA": atl.CATEGORIA,
+                                    "ESTADO": atl.ESTADO,
+                                    "EQUIPE / CLUBE / ESCOLA": atl.EQUIPE,
+                                    "BATERIA": nomeBateria
+                                });
+                            });
+                            contadorBaterias++;
+                        }
+                    }
+
+                    renderSorteioResult(contadorBaterias - 1);
+                    showModal('Sorteio Finalizado!', `Foram geradas ${contadorBaterias - 1} baterias com sucesso.`, 'success');
+
+                } catch (err) {
+                    showModal('Erro', 'Ocorreu um erro ao processar a planilha.', 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function renderSorteioResult(totalBaterias) {
+            document.getElementById('sorteio-resultado-container').classList.remove('hidden');
+            document.getElementById('sorteio-resumo-texto').innerText = `${atletasSorteados.length} atletas distribuídos em ${totalBaterias} baterias.`;
+            
+            const listDiv = document.getElementById('sorteio-list');
+            listDiv.innerHTML = '';
+
+            const bateriasVisuais = {};
+            atletasSorteados.forEach(a => {
+                if (!bateriasVisuais[a.BATERIA]) bateriasVisuais[a.BATERIA] = [];
+                bateriasVisuais[a.BATERIA].push(a);
+            });
+
+            for (let batNome in bateriasVisuais) {
+                let cardHTML = `
+                    <div class="bg-sport-dark border border-sport-border rounded-xl overflow-hidden">
+                        <div class="bg-sport-border/60 px-4 py-2 flex justify-between items-center">
+                            <span class="text-sm font-black text-sport-gold">${batNome}</span>
+                            <span class="text-xs text-slate-400 font-bold bg-sport-card px-2 py-1 rounded-md border border-sport-border">${bateriasVisuais[batNome].length} Atletas</span>
+                        </div>
+                        <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">
+                `;
+                bateriasVisuais[batNome].forEach((atl, index) => {
+                    cardHTML += `
+                        <div class="text-xs text-slate-300 flex items-center border-b border-sport-border/50 pb-1">
+                            <span class="font-bold text-white w-5">${index + 1}.</span> 
+                            <span class="truncate flex-grow">${atl.ATLETA}</span> 
+                            <span class="opacity-60 ml-2 font-mono">${atl.ESTADO || '-'}</span>
+                        </div>
+                    `;
+                });
+                cardHTML += `</div></div>`;
+                listDiv.innerHTML += cardHTML;
+            }
+        }
+
+        function exportarSorteioExcel() {
+            if (atletasSorteados.length === 0) return;
+            const worksheet = XLSX.utils.json_to_sheet(atletasSorteados);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Baterias_Geradas");
+            XLSX.writeFile(workbook, "Lista_Sorteio_Baterias.xlsx");
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
             updateUIState();
             await fetchRecords();
 
-            // Sincronização em tempo real via Supabase
             try {
                 _supabase
-                    .channel('public:records')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'records' }, payload => {
+                    .channel('public:resultados')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'resultados' }, payload => {
                         fetchRecords();
                     })
                     .subscribe();
-            } catch (e) { console.log(e); }
+            } catch (e) {
+                console.log("Realtime não conectado:", e);
+            }
         });
     </script>
 </body>
