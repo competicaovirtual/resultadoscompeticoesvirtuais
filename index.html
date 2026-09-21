@@ -6,7 +6,7 @@
     <title>Competições Virtuais Brasileiras - RESULTADOS</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- SheetJS para leitura de Excel / CSV -->
+    <!-- SheetJS para leitura e exportação de Excel / CSV -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <!-- Tesseract.js para OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
@@ -208,7 +208,7 @@
                     </div>
                 </div>
 
-                <!-- GERENCIAMENTO DE BATERIAS E SORTEIO (ALEATÓRIO OU PERSONALIZADO) -->
+                <!-- GERENCIAMENTO DE BATERIAS E SORTEIO -->
                 <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-6">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <h4 class="text-lg font-bold text-white flex items-center space-x-2">
@@ -217,7 +217,6 @@
                         </h4>
                     </div>
 
-                    <!-- Configurações de Sorteio: Aleatório ou Personalizado -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-950 p-4 rounded-2xl border border-slate-800">
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Máx. Atletas por Bateria</label>
@@ -249,6 +248,26 @@
                     <div id="batteries-list-container" class="flex flex-wrap gap-2 pt-2"></div>
                 </div>
 
+                <!-- EXPORTAÇÃO DE RESULTADOS EM EXCEL -->
+                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-4">
+                    <h4 class="text-xl font-black text-white flex items-center space-x-2">
+                        <i class="fa-solid fa-file-arrow-down text-cyan-400"></i>
+                        <span>Exportar Resultados em Excel (.xlsx)</span>
+                    </h4>
+                    <p class="text-xs text-slate-400">Escolha o modo de exportação desejado para gerar e baixar a planilha oficial com os resultados processados.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 items-center">
+                        <select id="export-mode" class="w-full sm:w-auto bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400">
+                            <option value="geral">Ranking Geral</option>
+                            <option value="naipe">Separado por Naipe (Abas por Naipe)</option>
+                            <option value="bateria">Separado por Bateria (Abas por Bateria)</option>
+                        </select>
+                        <button onclick="exportResultsExcel()" class="w-full sm:w-auto px-8 py-3 bg-cyan-400 hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Baixar Planilha Excel</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- OCR CAPTURE -->
                 <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-4">
                     <h4 class="text-xl font-black text-white flex items-center space-x-2">
@@ -276,12 +295,12 @@
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Atleta</label>
-                            <input type="text" id="manual-atleta" placeholder="Nome do Atleta" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-blue-500">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Username (Gamer Tag) - Digite p/ Autopreencher</label>
+                            <input type="text" id="manual-username" placeholder="Tag no Jogo" oninput="handleUsernameAutofill()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Username (Gamer Tag)</label>
-                            <input type="text" id="manual-username" placeholder="Tag no Jogo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-blue-500">
+                            <label class="block text-xs font-semibold text-slate-400 mb-1">Atleta</label>
+                            <input type="text" id="manual-atleta" placeholder="Nome do Atleta" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-blue-500">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Naipe</label>
@@ -313,7 +332,7 @@
                     </div>
                     <div class="flex justify-end pt-2">
                         <button onclick="addManualRecord()" class="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-md">
-                            Adicionar Registro
+                            Adicionar / Atualizar Registro
                         </button>
                     </div>
                 </div>
@@ -385,7 +404,6 @@
 
     <!-- Script Application Logic -->
     <script>
-        // CONFIGURAÇÃO SUPABASE COM SUA CHAVE JWT ATUALIZADA
         const SUPABASE_URL = 'https://otecuxljcahtfivmthsb.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90ZWN1eGxqY2FodGZpdm10aHNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0OTYxMzgsImV4cCI6MjEwNTA3MjEzOH0.NUX1C8M4Z2f38eB6EqDdgTxA-GdrWKksvKk15bcWIZg';
         
@@ -476,9 +494,15 @@
             const batSelect = document.getElementById('filter-bateria');
             if (batSelect) {
                 let currentBat = batSelect.value || 'GERAL';
+                const naipeVal = document.getElementById('filter-naipe') ? document.getElementById('filter-naipe').value : 'TODOS';
+                
                 batSelect.innerHTML = `<option value="GERAL">Ranking Geral</option>`;
                 batteries.forEach(b => {
-                    batSelect.innerHTML += `<option value="${b}">${b}</option>`;
+                    if (naipeVal === 'TODOS') {
+                        batSelect.innerHTML += `<option value="${b}">${b}</option>`;
+                    } else {
+                        batSelect.innerHTML += `<option value="${b}|${naipeVal}">${b} | ${naipeVal}</option>`;
+                    }
                 });
                 if(batSelect.querySelector(`option[value="${currentBat}"]`)) batSelect.value = currentBat;
             }
@@ -540,7 +564,98 @@
             updateUIState();
         }
 
-        // SORTEIO: ALEATÓRIO OU PERSONALIZADO (ORDEM MANUAL)
+        // FUNÇÃO DE EXPORTAÇÃO EM EXCEL COM OS MODOS SOLICITADOS
+        function exportResultsExcel() {
+            const mode = document.getElementById('export-mode').value; // 'geral', 'naipe', 'bateria'
+            let filtered = records.filter(r => r.modalidade === activeModality);
+
+            if (filtered.length === 0) {
+                showModal('Atenção', 'Não há registros na modalidade ativa para exportar.', 'error');
+                return;
+            }
+
+            let wb = XLSX.utils.book_new();
+
+            if (mode === 'geral') {
+                filtered.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
+                const dataToExport = filtered.map((r, idx) => ({
+                    'Posição': idx + 1,
+                    'Atleta': r.atleta,
+                    'Username': r.username || '',
+                    'Naipe': r.naipe || '',
+                    'Categoria': r.categoria || '',
+                    'Estado': r.estado || '',
+                    'Equipe': r.equipe || '',
+                    'Bateria': r.bateria || '',
+                    'Tempo Oficial': r.tempo || ''
+                }));
+                let ws = XLSX.utils.json_to_sheet(dataToExport);
+                XLSX.utils.book_append_sheet(wb, ws, "Ranking Geral");
+                XLSX.writeFile(wb, `Ranking_Geral_${activeModality.replace(/\s+/g, '_')}.xlsx`);
+            } 
+            else if (mode === 'naipe') {
+                const naipes = [...new Set(filtered.map(r => r.naipe).filter(Boolean))];
+                naipes.forEach(naipe => {
+                    let naipeRecords = filtered.filter(r => r.naipe === naipe);
+                    naipeRecords.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
+                    const dataToExport = naipeRecords.map((r, idx) => ({
+                        'Posição': idx + 1,
+                        'Atleta': r.atleta,
+                        'Username': r.username || '',
+                        'Naipe': r.naipe || '',
+                        'Categoria': r.categoria || '',
+                        'Estado': r.estado || '',
+                        'Equipe': r.equipe || '',
+                        'Bateria': r.bateria || '',
+                        'Tempo Oficial': r.tempo || ''
+                    }));
+                    let ws = XLSX.utils.json_to_sheet(dataToExport);
+                    XLSX.utils.book_append_sheet(wb, ws, `Naipe_${naipe}`);
+                });
+                XLSX.writeFile(wb, `Ranking_Por_Naipe_${activeModality.replace(/\s+/g, '_')}.xlsx`);
+            }
+            else if (mode === 'bateria') {
+                batteries.forEach(bat => {
+                    let batRecords = filtered.filter(r => r.bateria === bat);
+                    if (batRecords.length > 0) {
+                        batRecords.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
+                        const dataToExport = batRecords.map((r, idx) => ({
+                            'Posição': idx + 1,
+                            'Atleta': r.atleta,
+                            'Username': r.username || '',
+                            'Naipe': r.naipe || '',
+                            'Categoria': r.categoria || '',
+                            'Estado': r.estado || '',
+                            'Equipe': r.equipe || '',
+                            'Bateria': r.bateria || '',
+                            'Tempo Oficial': r.tempo || ''
+                        }));
+                        let ws = XLSX.utils.json_to_sheet(dataToExport);
+                        let sheetName = bat.substring(0, 31);
+                        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                    }
+                });
+                XLSX.writeFile(wb, `Ranking_Por_Bateria_${activeModality.replace(/\s+/g, '_')}.xlsx`);
+            }
+            showModal('Sucesso!', 'Planilha Excel gerada e baixada com sucesso!', 'success');
+        }
+
+        function handleUsernameAutofill() {
+            const usernameInput = document.getElementById('manual-username').value.trim().toUpperCase();
+            if (!usernameInput) return;
+            
+            const found = records.find(r => (r.username || '').toUpperCase() === usernameInput);
+            if (found) {
+                document.getElementById('manual-atleta').value = found.atleta || '';
+                if (found.naipe) document.getElementById('manual-naipe').value = found.naipe;
+                document.getElementById('manual-categoria').value = found.categoria || '';
+                document.getElementById('manual-estado').value = found.estado || '';
+                document.getElementById('manual-equipe').value = found.equipe || '';
+                if (found.bateria) document.getElementById('manual-bateria').value = found.bateria;
+                if (found.tempo) document.getElementById('manual-tempo').value = found.tempo;
+            }
+        }
+
         async function sortearBateriasAleatorioOuPersonalizado() {
             if (batteries.length === 0) {
                 showModal('Atenção', 'Cadastre pelo menos uma bateria antes de realizar o sorteio.', 'error');
@@ -715,7 +830,7 @@
             if (!atleta) { showModal('Atenção', 'O nome do atleta é obrigatório.', 'error'); return; }
 
             const modalidade = activeModality; 
-            const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
+            const existingRecord = records.find(r => (r.username && r.username.toUpperCase() === username.toUpperCase()) || (r.atleta === atleta && r.modalidade === modalidade));
 
             try {
                 const payload = { 
@@ -743,8 +858,8 @@
                     return;
                 }
 
-                document.getElementById('manual-atleta').value = '';
                 document.getElementById('manual-username').value = '';
+                document.getElementById('manual-atleta').value = '';
                 document.getElementById('manual-categoria').value = '';
                 document.getElementById('manual-estado').value = '';
                 document.getElementById('manual-equipe').value = '';
@@ -886,7 +1001,6 @@
             });
         }
 
-        // RANKING ATUALIZADO: SEPARADO AUTOMATICAMENTE POR NAIPE E CATEGORIA
         function renderLeaderboard() {
             const modFilter = document.getElementById('filter-modalidade') ? document.getElementById('filter-modalidade').value : activeModality;
             const naipeFilter = document.getElementById('filter-naipe') ? document.getElementById('filter-naipe').value : 'TODOS';
@@ -901,10 +1015,18 @@
             if (document.getElementById('tv-cat-badge')) document.getElementById('tv-cat-badge').innerText = tvCat;
 
             let filtered = records.filter(r => r.modalidade === modFilter);
-            if (naipeFilter !== 'TODOS') filtered = filtered.filter(r => r.naipe === naipeFilter);
-            if (batFilter !== 'GERAL') filtered = filtered.filter(r => r.bateria === batFilter);
+            if (naipeFilter !== 'TODOS') {
+                filtered = filtered.filter(r => r.naipe === naipeFilter);
+            }
+            if (batFilter !== 'GERAL') {
+                if (batFilter.includes('|')) {
+                    const [batName, batNaipe] = batFilter.split('|');
+                    filtered = filtered.filter(r => r.bateria === batName && r.naipe === batNaipe);
+                } else {
+                    filtered = filtered.filter(r => r.bateria === batFilter);
+                }
+            }
 
-            // Agrupar os registos por Naipe e Categoria
             const groups = {};
             filtered.forEach(r => {
                 const naipe = r.naipe || 'GERAL';
@@ -926,16 +1048,24 @@
 
             groupKeys.forEach(key => {
                 const g = groups[key];
-                // Ordenar por tempo dentro de cada grupo de naipe/categoria
                 g.records.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
                 const leaderTimeSec = timeToSeconds(g.records[0].tempo);
 
                 let htmlTableRows = '';
                 g.records.forEach((r, index) => {
                     let badgeClass = "text-slate-400 font-bold";
-                    if (index === 0) badgeClass = "text-amber-400 font-black bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/30";
-                    if (index === 1) badgeClass = "text-slate-200 font-black bg-slate-400/20 px-3 py-1 rounded-full border border-slate-400/30";
-                    if (index === 2) badgeClass = "text-amber-600 font-black bg-amber-700/20 px-3 py-1 rounded-full border border-amber-700/30";
+                    let medalIcon = "";
+                    
+                    if (index === 0) {
+                        badgeClass = "text-amber-400 font-black bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/30";
+                        medalIcon = '<i class="fa-solid fa-medal text-amber-400 mr-1.5 text-base" title="Ouro"></i>';
+                    } else if (index === 1) {
+                        badgeClass = "text-slate-200 font-black bg-slate-400/20 px-3 py-1 rounded-full border border-slate-400/30";
+                        medalIcon = '<i class="fa-solid fa-medal text-slate-300 mr-1.5 text-base" title="Prata"></i>';
+                    } else if (index === 2) {
+                        badgeClass = "text-amber-600 font-black bg-amber-700/20 px-3 py-1 rounded-full border border-amber-700/30";
+                        medalIcon = '<i class="fa-solid fa-medal text-amber-600 mr-1.5 text-base" title="Bronze"></i>';
+                    }
 
                     let diffStr = "-";
                     if (index > 0) {
@@ -943,14 +1073,15 @@
                         const diffSec = currentSec - leaderTimeSec;
                         diffStr = "+" + secondsToTime(diffSec);
                     } else {
-                        diffStr = "CAMPEÃO";
+                        const isFem = (r.naipe || '').toUpperCase() === 'FEM';
+                        diffStr = isFem ? "CAMPEÃ" : "CAMPEÃO";
                     }
 
                     const equipeVal = r.equipe || r['equipe / clube / escola'] || '-';
 
                     htmlTableRows += `
                         <tr class="hover:bg-slate-800/30 transition-colors">
-                            <td class="py-4 px-6 text-center font-black ${badgeClass}">#${index + 1}</td>
+                            <td class="py-4 px-6 text-center font-black ${badgeClass}">${medalIcon}#${index + 1}</td>
                             <td class="py-4 px-6 font-bold text-white">${r.atleta || '-'}</td>
                             <td class="py-4 px-6 text-slate-300">${r.naipe || '-'}</td>
                             <td class="py-4 px-6 text-slate-300">${r.categoria || '-'}</td>
@@ -976,7 +1107,7 @@
                             <table class="w-full text-left border-collapse">
                                 <thead>
                                     <tr class="bg-slate-800/30 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
-                                        <th class="py-3 px-6 text-center w-16">Pos</th>
+                                        <th class="py-3 px-6 text-center w-24">Pos</th>
                                         <th class="py-3 px-6">Atleta</th>
                                         <th class="py-3 px-6">Naipe</th>
                                         <th class="py-3 px-6">Categoria</th>
