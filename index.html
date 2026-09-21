@@ -163,7 +163,7 @@
                                 <th class="py-4 px-6">Naipe</th>
                                 <th class="py-4 px-6">Categoria</th>
                                 <th class="py-4 px-6">Estado</th>
-                                <th class="py-4 px-6">Equipe / Clube / Escola</th>
+                                <th class="py-4 px-6">Equipe</th>
                                 <th class="py-4 px-6">Bateria</th>
                                 <th class="py-4 px-6 text-right">Tempo Oficial</th>
                                 <th class="py-4 px-6 text-right">Dif. p/ Líder</th>
@@ -205,7 +205,7 @@
                         </div>
                         <div>
                             <h3 class="text-lg font-bold text-white">Painel da Equipe Técnica</h3>
-                            <p class="text-xs text-slate-400">Gerenciamento de modalidade ativa, baterias e tempos.</p>
+                            <p class="text-xs text-slate-400">Gerenciamento de modalidade ativa, baterias, sorteio e tempos.</p>
                         </div>
                     </div>
                     <button onclick="handleAdminLogout()" class="px-4 py-2 bg-slate-950 hover:bg-slate-800 text-slate-300 rounded-xl text-sm font-semibold transition-all border border-slate-800">
@@ -226,11 +226,18 @@
                     </div>
                 </div>
 
+                <!-- GERENCIAMENTO DE BATERIAS E SORTEIO -->
                 <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
-                    <h4 class="text-lg font-bold text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-layer-group text-emerald-400"></i>
-                        <span>Gerenciamento de Baterias</span>
-                    </h4>
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <h4 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-layer-group text-emerald-400"></i>
+                            <span>Gerenciamento de Baterias e Sorteio</span>
+                        </h4>
+                        <button onclick="sortearBaterias()" class="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-black rounded-xl transition-all shadow-md flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-shuffle"></i>
+                            <span>Sortear Atletas nas Baterias</span>
+                        </button>
+                    </div>
                     <div class="flex flex-col sm:flex-row gap-4">
                         <input type="text" id="new-battery-input" placeholder="NOME DA BATERIA (EX: BATERIA 1)" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-emerald-400">
                         <button onclick="addBattery()" class="px-6 py-3 bg-emerald-500 hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md">
@@ -519,6 +526,40 @@
             updateUIState();
         }
 
+        // FUNÇÃO DE SORTEIO DE BATERIAS
+        async function sortearBaterias() {
+            if (batteries.length === 0) {
+                showModal('Atenção', 'Cadastre pelo menos uma bateria antes de realizar o sorteio.', 'error');
+                return;
+            }
+            
+            const modRecords = records.filter(r => r.modalidade === activeModality);
+            if (modRecords.length === 0) {
+                showModal('Atenção', 'Não há atletas cadastrados na modalidade ativa para sortear.', 'error');
+                return;
+            }
+
+            // Embaralhar aleatoriamente os atletas (Fisher-Yates shuffle)
+            let shuffled = [...modRecords];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+
+            let countUpdated = 0;
+            for (let i = 0; i < shuffled.length; i++) {
+                let targetBattery = batteries[i % batteries.length];
+                let rec = shuffled[i];
+                if (rec.id) {
+                    const { error } = await _supabase.from('resultados').update({ bateria: targetBattery }).eq('id', rec.id);
+                    if (!error) countUpdated++;
+                }
+            }
+
+            await fetchRecords();
+            showModal('Sucesso!', `${shuffled.length} atletas foram sorteados e distribuídos aleatoriamente entre as ${batteries.length} baterias!`, 'success');
+        }
+
         function renderAdminBatteriesList() {
             const container = document.getElementById('batteries-list-container');
             if (!container) return;
@@ -692,7 +733,7 @@
                     if (jsonRows.length === 0) { showModal('Atenção', 'Planilha vazia.', 'error'); return; }
 
                     let countProcessed = 0;
-                    let errorOccurred = false;
+                    let lastErrorMessage = '';
 
                     for (let row of jsonRows) {
                         const keys = Object.keys(row);
@@ -711,8 +752,8 @@
                         const categoria = categoriaKey ? String(row[categoriaKey] || '').trim().toUpperCase() : '';
                         const estado = estadoKey ? String(row[estadoKey] || '').trim().toUpperCase() : '';
                         const equipe = equipeKey ? String(row[equipeKey] || '').trim().toUpperCase() : '';
-                        const bateria = bateriaKey ? String(row[bateriaKey] || batteries[0]).trim().toUpperCase() : batteries[0];
-                        const tempo = tempoKey ? String(row[tempoKey] || '00:00:00').trim() : '00:00:00';
+                        const bateria = bateriaKey && String(row[bateriaKey]).trim() !== '' ? String(row[bateriaKey]).trim().toUpperCase() : (batteries[0] || 'BATERIA 1');
+                        const tempo = tempoKey && String(row[tempoKey]).trim() !== '' ? String(row[tempoKey]).trim() : '00:00:00';
 
                         if (atleta) {
                             const modalidade = activeModality;
@@ -739,7 +780,7 @@
 
                             if (res.error) {
                                 console.error("Erro ao inserir linha:", res.error);
-                                errorOccurred = true;
+                                lastErrorMessage = res.error.message;
                             } else {
                                 countProcessed++;
                             }
@@ -748,8 +789,8 @@
                     fileInput.value = '';
                     await fetchRecords();
 
-                    if (errorOccurred) {
-                        showModal('Atenção', 'Alguns registros falharam. Verifique se a coluna "equipe" está criada na tabela do Supabase.', 'error');
+                    if (lastErrorMessage) {
+                        showModal('Atenção', `Alguns registros falharam. Erro do Supabase: ${lastErrorMessage}`, 'error');
                     } else {
                         showModal('Sucesso', `${countProcessed} inscritos/registros importados com sucesso para o banco!`, 'success');
                     }
