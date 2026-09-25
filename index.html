@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Novo Título -->
     <title>CAMPEONATO PAULISTA SABESP DE REMO VIRTUAL</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -25,8 +24,8 @@
         body.tv-mode .tv-indicator { display: flex !important; }
     </style>
 </head>
-<!-- Layout alterado para amarelo (yellow-400) e verde (green-600) na base dark -->
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-yellow-400 selection:text-slate-950 transition-all">
+<!-- FUNDO DA PÁGINA AMARELO E TEXTO ESCURO -->
+<body class="bg-yellow-400 text-slate-900 min-h-screen flex flex-col font-sans selection:bg-green-500 selection:text-white transition-all">
 
     <!-- Botão Sair Modo TV -->
     <button onclick="stopTVMode()" class="tv-indicator fixed bottom-6 right-6 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-2xl z-50 animate-bounce items-center">
@@ -34,38 +33,34 @@
     </button>
 
     <!-- Header / Navbar -->
-    <header class="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50 shadow-lg tv-hidden">
+    <header class="bg-yellow-400/95 backdrop-blur-md border-b border-yellow-500 sticky top-0 z-50 shadow-sm tv-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            
-            <!-- Removido logo CVB e textos do cabeçalho conforme solicitado -->
-            <div class="flex items-center space-x-3">
-                <!-- Espaço vazio mantido intencionalmente para alinhar o menu à direita/centro -->
-            </div>
+            <div class="flex items-center space-x-3"></div>
             
             <nav class="hidden md:flex items-center space-x-2">
-                <button onclick="switchTab('home')" id="nav-home" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-yellow-400 text-slate-950 shadow-md">
+                <button onclick="switchTab('home')" id="nav-home" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-green-600 text-white shadow-md">
                     <i class="fa-solid fa-house mr-2"></i>Início
                 </button>
-                <button onclick="switchTab('rankings')" id="nav-rankings" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:text-white hover:bg-slate-800">
+                <button onclick="switchTab('rankings')" id="nav-rankings" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-700 hover:text-slate-900 hover:bg-yellow-300">
                     <i class="fa-solid fa-trophy mr-2"></i>RANKING
                 </button>
-                <button onclick="switchTab('admin')" id="nav-admin" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:text-white hover:bg-slate-800">
+                <button onclick="switchTab('admin')" id="nav-admin" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-700 hover:text-slate-900 hover:bg-yellow-300">
                     <i class="fa-solid fa-shield-halved mr-2"></i>Painel Técnico (Admin)
                 </button>
             </nav>
 
             <div class="md:hidden flex items-center">
-                <button onclick="toggleMobileMenu()" class="text-slate-300 hover:text-white p-2">
+                <button onclick="toggleMobileMenu()" class="text-slate-800 hover:text-slate-900 p-2">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
             </div>
         </div>
 
         <!-- Menu Mobile -->
-        <div id="mobile-menu" class="hidden md:hidden bg-slate-900 border-b border-slate-800 px-4 pt-2 pb-4 space-y-2 shadow-xl">
-            <button onclick="switchTab('home'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold bg-yellow-400 text-slate-950">Início</button>
-            <button onclick="switchTab('rankings'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:bg-slate-800">RANKING</button>
-            <button onclick="switchTab('admin'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-300 hover:bg-slate-800">Painel Técnico (Admin)</button>
+        <div id="mobile-menu" class="hidden md:hidden bg-yellow-400 border-b border-yellow-500 px-4 pt-2 pb-4 space-y-2 shadow-xl">
+            <button onclick="switchTab('home'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold bg-green-600 text-white">Início</button>
+            <button onclick="switchTab('rankings'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-800 hover:bg-yellow-300">RANKING</button>
+            <button onclick="switchTab('admin'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-800 hover:bg-yellow-300">Painel Técnico (Admin)</button>
         </div>
     </header>
 
@@ -74,207 +69,222 @@
 
         <!-- TAB: INÍCIO -->
         <section id="tab-home" class="space-y-8 animate-fadeIn">
-            <div class="relative bg-gradient-to-br from-slate-900 via-[#1a1c18] to-[#1a2016] rounded-3xl border border-slate-800 p-8 md:p-12 overflow-hidden shadow-2xl text-white">
-                <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-yellow-400/10 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="absolute top-0 left-1/4 w-72 h-72 bg-green-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <!-- Hero Section (Sem os tons de azul e ardósia) -->
+            <div class="relative bg-white rounded-3xl border border-yellow-500 p-8 md:p-12 overflow-hidden shadow-2xl text-slate-900 flex flex-col items-center">
+                <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-yellow-300/30 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute top-0 left-1/4 w-72 h-72 bg-green-400/20 rounded-full blur-3xl pointer-events-none"></div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
-                    <div class="md:col-span-7 space-y-6">
-                        <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-green-500/20 border border-green-500/40 text-green-300 text-xs font-bold tracking-wider uppercase">
-                            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                            <span>Modalidade Ativa: <strong id="hero-active-mod" class="text-white ml-1">Carregando...</strong></span>
-                        </div>
-                        
-                        <!-- Novo Header com Logo Sabesp Inline -->
-                        <h2 class="text-4xl sm:text-5xl font-black tracking-tight leading-tight flex flex-wrap items-center gap-3">
-                            <span>CAMPEONATO PAULISTA</span>
-                            <img src="logosabesp.png" alt="SABESP" class="h-10 sm:h-14 object-contain inline-block drop-shadow-lg" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                            <span style="display:none;" class="text-yellow-400">SABESP</span>
-                            <span>DE REMO VIRTUAL</span>
-                        </h2>
-                        
-                        <!-- Descrição alterada -->
-                        <p class="text-slate-300 text-base max-w-xl">
-                            Acompanhe os rankings atualizados em tempo real.
-                        </p>
-                        
-                        <div class="flex flex-wrap gap-4 pt-2">
-                            <button onclick="switchTab('rankings')" class="px-6 py-3.5 bg-gradient-to-r from-yellow-400 to-green-500 text-slate-950 font-black rounded-xl shadow-[0_0_15px_rgba(250,204,21,0.4)] hover:opacity-95 transition-all flex items-center space-x-2">
-                                <i class="fa-solid fa-trophy"></i>
-                                <span>Ver Ranking Oficial</span>
-                            </button>
-                        </div>
+                <div class="flex flex-col items-center text-center space-y-6 relative z-10 w-full">
+                    
+                    <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-green-100 border border-green-500 text-green-800 text-xs font-bold tracking-wider uppercase">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        <span>Modalidade Ativa: <strong id="hero-active-mod" class="text-slate-900 ml-1">Carregando...</strong></span>
+                    </div>
+                    
+                    <!-- TEXTO CENTRALIZADO COM SABESP -->
+                    <h2 class="text-4xl sm:text-6xl font-black tracking-tight leading-tight flex flex-col items-center justify-center gap-4">
+                        <span class="text-slate-900">CAMPEONATO PAULISTA</span>
+                        <img src="logosabesp.png" alt="SABESP" class="h-16 sm:h-24 object-contain drop-shadow-md">
+                        <span class="text-slate-900">DE REMO VIRTUAL</span>
+                    </h2>
+                    
+                    <p class="text-slate-600 text-lg max-w-xl">
+                        Acompanhe os rankings atualizados em tempo real.
+                    </p>
+                    
+                    <div class="flex flex-wrap justify-center gap-4 pt-2">
+                        <button onclick="switchTab('rankings')" class="px-8 py-4 bg-green-600 text-white font-black rounded-xl shadow-lg hover:bg-green-700 transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-trophy"></i>
+                            <span>Ver Ranking Oficial</span>
+                        </button>
                     </div>
 
-                    <!-- LOGO MASCOTE: alterado para logocbr -->
-                    <div class="md:col-span-5 flex justify-center">
-                        <div class="relative w-full max-w-xs h-72 rounded-2xl bg-slate-900/80 backdrop-blur-md border border-slate-800 flex flex-col items-center justify-center p-6 shadow-2xl overflow-hidden group">
-                            <img src="logocbr.png" alt="CBR Logo" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.style.display='none'; document.getElementById('logo-off-fallback').style.display='flex';">
+                    <!-- MASCOTE CBR - TAMANHO AUMENTADO -->
+                    <div class="mt-8 flex justify-center w-full">
+                        <div class="relative w-full max-w-sm h-80 sm:max-w-lg sm:h-96 rounded-3xl bg-yellow-50 border border-yellow-300 flex flex-col items-center justify-center p-6 shadow-xl overflow-hidden group">
+                            <img src="logocbr.png" alt="CBR Logo" class="w-full h-full object-contain drop-shadow-xl group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.style.display='none'; document.getElementById('logo-off-fallback').style.display='flex';">
                             <div id="logo-off-fallback" style="display:none;" class="flex-col items-center justify-center text-center space-y-3">
-                                <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-yellow-400 to-green-500 flex items-center justify-center shadow-lg text-slate-950 text-3xl font-black">
+                                <div class="w-20 h-20 rounded-2xl bg-yellow-400 flex items-center justify-center shadow-lg text-slate-900 text-3xl font-black">
                                     <i class="fa-solid fa-award"></i>
                                 </div>
-                                <span class="text-sm font-bold text-white tracking-wide">CBR</span>
-                                <span class="text-xs text-slate-400">Remo Virtual</span>
+                                <span class="text-sm font-bold text-slate-900 tracking-wide">CBR</span>
+                                <span class="text-xs text-slate-600">Remo Virtual</span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Sessão de Logos Centralizada no corpo da página inicial -->
-            <div class="flex justify-center mt-10">
-                <div class="flex flex-wrap items-center justify-center gap-6 sm:gap-12 bg-slate-900/60 backdrop-blur-sm border border-slate-800 p-8 rounded-3xl w-full max-w-5xl shadow-xl">
-                    <img src="logocob.png" alt="COB" class="h-16 sm:h-20 object-contain drop-shadow-md">
-                    <img src="logocbr.png" alt="CBR" class="h-16 sm:h-20 object-contain drop-shadow-md">
-                    <img src="logosabesp.png" alt="SABESP" class="h-16 sm:h-20 object-contain drop-shadow-md">
-                    <img src="logoaiwa.png" alt="AIWA" class="h-16 sm:h-20 object-contain drop-shadow-md">
-                    <img src="logoexr.png" alt="EXR" class="h-16 sm:h-20 object-contain drop-shadow-md">
+            <!-- BLOCO DE LOGOS (Fundo Escuro para evidenciar os logotipos, com a exata proporção pedida) -->
+            <div class="flex justify-center mt-12 w-full">
+                <div class="bg-slate-950 border border-slate-900 p-8 rounded-3xl w-full max-w-5xl shadow-2xl flex flex-col items-center space-y-8">
+                    <!-- Linha Superior (COB/CBR | SABESP | AIWA) -->
+                    <div class="flex flex-row items-center justify-between w-full">
+                        <!-- Esquerda: COB e CBR proporcionais (médios) -->
+                        <div class="flex items-center space-x-4 sm:space-x-8 w-1/3 justify-start">
+                            <img src="logocob.png" alt="COB" class="h-12 sm:h-20 object-contain drop-shadow-md">
+                            <img src="logocbr.png" alt="CBR" class="h-12 sm:h-20 object-contain drop-shadow-md">
+                        </div>
+                        
+                        <!-- Centro: Sabesp Gigante -->
+                        <div class="flex flex-grow items-center justify-center w-1/3">
+                            <img src="logosabesp.png" alt="SABESP" class="h-20 sm:h-32 object-contain drop-shadow-xl scale-125">
+                        </div>
+
+                        <!-- Direita: AIWA pequena -->
+                        <div class="flex items-center justify-end w-1/3">
+                            <img src="logoaiwa.png" alt="AIWA" class="h-6 sm:h-10 object-contain drop-shadow-md">
+                        </div>
+                    </div>
+                    
+                    <!-- Linha Inferior: EXR desbotada/pequena no centro -->
+                    <div class="flex justify-center w-full pt-2">
+                        <img src="logoexr.png" alt="EXR" class="h-6 sm:h-8 object-contain opacity-50 drop-shadow-md">
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- TAB: RANKING -->
         <section id="tab-rankings" class="space-y-6 hidden animate-fadeIn">
-            <div class="tv-header-info bg-slate-900 border border-slate-800 p-4 rounded-2xl items-center justify-between shadow-2xl mb-4">
+            <div class="tv-header-info bg-white border border-yellow-500 p-4 rounded-2xl items-center justify-between shadow-2xl mb-4">
                 <div class="flex items-center space-x-3">
                     <img src="logosabesp.png" alt="SABESP Logo" class="h-12 w-auto object-contain max-w-[20%]" onerror="this.style.display='none'">
                     <div>
-                        <h2 class="text-xl font-black text-white uppercase" id="tv-mod-title">MODALIDADE</h2>
+                        <h2 class="text-xl font-black text-slate-900 uppercase" id="tv-mod-title">MODALIDADE</h2>
                     </div>
                 </div>
                 <div class="text-right px-6">
-                    <span class="text-xs text-slate-400 uppercase tracking-wider block">Categoria / Bateria / Naipe</span>
-                    <span class="text-sm font-bold text-yellow-400" id="tv-cat-badge">RANKING GERAL</span>
+                    <span class="text-xs text-slate-500 uppercase tracking-wider block">Categoria / Bateria / Naipe</span>
+                    <span class="text-sm font-bold text-green-700" id="tv-cat-badge">RANKING GERAL</span>
                 </div>
             </div>
 
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl tv-hidden">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-yellow-500 p-6 rounded-2xl shadow-xl tv-hidden">
                 <div>
-                    <h2 class="text-2xl font-black text-white">Ranking Oficial</h2>
-                    <p class="text-sm text-slate-400">Consulte os resultados homologados separados por naipe e categoria.</p>
+                    <h2 class="text-2xl font-black text-slate-900">Ranking Oficial</h2>
+                    <p class="text-sm text-slate-600">Consulte os resultados homologados separados por naipe e categoria.</p>
                 </div>
                 
                 <div class="flex flex-wrap gap-3 items-center">
-                    <select id="filter-modalidade" onchange="renderLeaderboard()" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-yellow-400"></select>
-                    <select id="filter-naipe" onchange="renderLeaderboard()" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-yellow-400">
+                    <select id="filter-modalidade" onchange="renderLeaderboard()" class="bg-white border border-yellow-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-green-500"></select>
+                    <select id="filter-naipe" onchange="renderLeaderboard()" class="bg-white border border-yellow-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-green-500">
                         <option value="TODOS">Todos os Naipes</option>
                         <option value="MAS">Masculino (MAS)</option>
                         <option value="FEM">Feminino (FEM)</option>
                     </select>
-                    <select id="filter-bateria" onchange="renderLeaderboard()" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-yellow-400">
+                    <select id="filter-bateria" onchange="renderLeaderboard()" class="bg-white border border-yellow-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-green-500">
                         <option value="GERAL">Ranking Geral</option>
                     </select>
-                    <button onclick="startTVMode()" class="px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:opacity-90 text-white font-bold rounded-xl shadow-md transition-all flex items-center">
+                    <button onclick="startTVMode()" class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-md transition-all flex items-center">
                         <i class="fa-solid fa-tv mr-2"></i> Modo TV
                     </button>
                 </div>
             </div>
 
-            <!-- CONTAINER DINÂMICO PARA SEPARAR POR NAIPE E CATEGORIA -->
+            <!-- CONTAINER DINÂMICO -->
             <div id="leaderboard-container" class="space-y-6"></div>
         </section>
 
         <!-- TAB: PAINEL TÉCNICO (ADMIN) -->
         <section id="tab-admin" class="space-y-6 hidden animate-fadeIn">
-            <div id="admin-login-screen" class="max-w-md mx-auto bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl space-y-6">
+            <div id="admin-login-screen" class="max-w-md mx-auto bg-white border border-yellow-500 p-8 rounded-3xl shadow-2xl space-y-6">
                 <div class="text-center space-y-2">
-                    <div class="w-16 h-16 bg-yellow-400/20 text-yellow-400 rounded-2xl mx-auto flex items-center justify-center text-2xl border border-yellow-500/30">
+                    <div class="w-16 h-16 bg-yellow-100 text-yellow-600 rounded-2xl mx-auto flex items-center justify-center text-2xl border border-yellow-300">
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
-                    <h3 class="text-2xl font-black text-white">Acesso Restrito</h3>
-                    <p class="text-sm text-slate-400">Insira a senha técnica para gerenciar a modalidade e os resultados.</p>
+                    <h3 class="text-2xl font-black text-slate-900">Acesso Restrito</h3>
+                    <p class="text-sm text-slate-600">Insira a senha técnica para gerenciar a modalidade e os resultados.</p>
                 </div>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold uppercase text-slate-400 mb-2">Senha do Painel</label>
-                        <input type="password" id="admin-pin-input" placeholder="Digite a senha" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-yellow-400">
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Senha do Painel</label>
+                        <input type="password" id="admin-pin-input" placeholder="Digite a senha" class="w-full bg-yellow-50 border border-yellow-300 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-green-500">
                     </div>
-                    <button onclick="handleAdminLogin()" class="w-full py-3 bg-gradient-to-r from-green-600 to-yellow-500 hover:opacity-95 text-slate-950 font-black rounded-xl shadow-lg transition-all">
+                    <button onclick="handleAdminLogin()" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl shadow-lg transition-all">
                         Entrar no Painel
                     </button>
-                    <p id="login-error" class="text-red-400 text-xs text-center hidden">Senha incorreta. Tente novamente.</p>
+                    <p id="login-error" class="text-red-600 text-xs text-center hidden">Senha incorreta. Tente novamente.</p>
                 </div>
             </div>
 
             <div id="admin-panel-content" class="space-y-8 hidden">
-                <div class="flex items-center justify-between bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+                <div class="flex items-center justify-between bg-white border border-yellow-500 p-6 rounded-2xl shadow-xl">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-xl bg-green-500/20 text-green-400 flex items-center justify-center border border-green-500/30">
+                        <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center border border-green-300">
                             <i class="fa-solid fa-user-gear"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-white">Painel da Equipe Técnica</h3>
-                            <p class="text-xs text-slate-400">Gerenciamento de modalidade ativa, baterias, sorteio e tempos.</p>
+                            <h3 class="text-lg font-bold text-slate-900">Painel da Equipe Técnica</h3>
+                            <p class="text-xs text-slate-600">Gerenciamento de modalidade ativa, baterias, sorteio e tempos.</p>
                         </div>
                     </div>
-                    <button onclick="handleAdminLogout()" class="px-4 py-2 bg-slate-950 hover:bg-slate-800 text-slate-300 rounded-xl text-sm font-semibold transition-all border border-slate-800">
+                    <button onclick="handleAdminLogout()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-all border border-slate-300">
                         <i class="fa-solid fa-right-from-bracket mr-2"></i>Sair
                     </button>
                 </div>
 
-                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
-                    <h4 class="text-lg font-bold text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-sliders text-yellow-400"></i>
+                <div class="bg-white border border-yellow-500 p-6 rounded-2xl shadow-xl space-y-4">
+                    <h4 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-sliders text-yellow-500"></i>
                         <span>Configurar Modalidade Ativa do Evento</span>
                     </h4>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <!-- Placeholder alterado -->
-                        <input type="text" id="admin-active-mod-input" placeholder="Ex: REMO VIRTUAL 500M" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-yellow-400">
-                        <button onclick="saveActiveModality()" class="px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-all shadow-md">
+                        <input type="text" id="admin-active-mod-input" placeholder="Ex: REMO VIRTUAL 500M" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-yellow-50 border border-yellow-300 rounded-xl px-4 py-3 text-slate-900 uppercase focus:outline-none focus:border-green-500">
+                        <button onclick="saveActiveModality()" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-all shadow-md">
                             Atualizar Modalidade
                         </button>
                     </div>
                 </div>
 
-                <!-- 1 - Upload de Inscritos / Resultados (Excel / CSV) -->
-                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-4">
-                    <h4 class="text-xl font-black text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-file-excel text-green-400"></i>
+                <!-- 1 - Upload de Inscritos -->
+                <div class="bg-white border border-yellow-500 p-8 rounded-3xl shadow-xl space-y-4">
+                    <h4 class="text-xl font-black text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-file-excel text-green-600"></i>
                         <span>1. Upload de Inscritos / Resultados (Excel / CSV)</span>
                     </h4>
-                    <p class="text-xs text-slate-400">Colunas esperadas na sua planilha: <strong>ATLETA</strong>, <strong>USERNAME</strong>, <strong>NAIPE</strong>, <strong>CATEGORIA</strong>, <strong>ESTADO</strong>, <strong>EQUIPE</strong>, <strong>BATERIA</strong> e <strong>TEMPO</strong>.</p>
+                    <p class="text-xs text-slate-600">Colunas esperadas: <strong>ATLETA</strong>, <strong>USERNAME</strong>, <strong>NAIPE</strong>, <strong>CATEGORIA</strong>, <strong>ESTADO</strong>, <strong>EQUIPE</strong>, <strong>BATERIA</strong> e <strong>TEMPO</strong>.</p>
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
-                        <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-slate-950 cursor-pointer">
-                        <button onclick="processExcelUpload()" class="w-full sm:w-auto px-8 py-3 bg-green-500 hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
+                        <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="w-full bg-yellow-50 border border-yellow-300 rounded-xl px-4 py-3 text-slate-900 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-slate-900 cursor-pointer">
+                        <button onclick="processExcelUpload()" class="w-full sm:w-auto px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl transition-all shadow-md whitespace-nowrap">
                             Processar e Importar
                         </button>
                     </div>
                 </div>
 
                 <!-- 2 - Gerenciamento de Baterias e Sorteio -->
-                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-6">
+                <div class="bg-white border border-yellow-500 p-6 rounded-2xl shadow-xl space-y-6">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <h4 class="text-lg font-bold text-white flex items-center space-x-2">
-                            <i class="fa-solid fa-layer-group text-green-400"></i>
+                        <h4 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                            <i class="fa-solid fa-layer-group text-green-600"></i>
                             <span>2. Gerenciamento de Baterias e Sorteio</span>
                         </h4>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-yellow-50 p-4 rounded-2xl border border-yellow-300">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Máx. Atletas por Bateria</label>
-                            <input type="number" id="sorteio-max-por-bateria" value="20" min="1" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-yellow-400">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Máx. Atletas por Bateria</label>
+                            <input type="number" id="sorteio-max-por-bateria" value="20" min="1" class="w-full bg-white border border-yellow-300 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-green-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Critério de Distribuição</label>
-                            <select id="sorteio-criterio" onchange="toggleCriterioPersonalizado()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-yellow-400">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Critério de Distribuição</label>
+                            <select id="sorteio-criterio" onchange="toggleCriterioPersonalizado()" class="w-full bg-white border border-yellow-300 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-green-500">
                                 <option value="aleatorio">Aleatório</option>
                                 <option value="personalizado">Personalizado (Ordem Manual)</option>
                             </select>
                         </div>
                         <div id="criterio-personalizado-container" class="hidden">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Ordem Manual (Categorias vírgula)</label>
-                            <input type="text" id="sorteio-ordem-manual" placeholder="Ex: ELITE, SUB-30, MASTER" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-yellow-400">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Ordem Manual (Categorias vírgula)</label>
+                            <input type="text" id="sorteio-ordem-manual" placeholder="Ex: ELITE, SUB-30, MASTER" class="w-full bg-white border border-yellow-300 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-green-500">
                         </div>
                     </div>
 
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
-                        <input type="text" id="new-battery-input" placeholder="NOME DA BATERIA (EX: BATERIA 1)" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white uppercase focus:outline-none focus:border-green-400">
-                        <button onclick="addBattery()" class="px-6 py-3 bg-green-500 hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
+                        <input type="text" id="new-battery-input" placeholder="NOME DA BATERIA (EX: BATERIA 1)" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-yellow-50 border border-yellow-300 rounded-xl px-4 py-3 text-slate-900 uppercase focus:outline-none focus:border-green-500">
+                        <button onclick="addBattery()" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl transition-all shadow-md whitespace-nowrap">
                             Adicionar Bateria
                         </button>
-                        <button onclick="sortearBateriasAleatorioOuPersonalizado()" class="px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black rounded-xl transition-all shadow-md flex items-center justify-center space-x-2 whitespace-nowrap">
+                        <button onclick="sortearBateriasAleatorioOuPersonalizado()" class="px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-black rounded-xl transition-all shadow-md flex items-center justify-center space-x-2 whitespace-nowrap">
                             <i class="fa-solid fa-shuffle"></i>
                             <span>Executar Sorteio</span>
                         </button>
@@ -283,111 +293,111 @@
                 </div>
 
                 <!-- 3 - Inserção Manual de Resultados -->
-                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
-                    <h4 class="text-lg font-bold text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-keyboard text-green-500"></i>
+                <div class="bg-white border border-yellow-500 p-6 rounded-2xl shadow-xl space-y-4">
+                    <h4 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-keyboard text-green-600"></i>
                         <span>3. Inserção Manual de Resultado</span>
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Username (Gamer Tag) - Digite p/ Autopreencher</label>
-                            <input type="text" id="manual-username" placeholder="Tag no Jogo" oninput="handleUsernameAutofill()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-yellow-400">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Username (Gamer Tag)</label>
+                            <input type="text" id="manual-username" placeholder="Tag no Jogo" oninput="handleUsernameAutofill()" class="w-full bg-yellow-50 border border-yellow-300 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-green-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Atleta</label>
-                            <input type="text" id="manual-atleta" placeholder="Nome do Atleta" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-yellow-400">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Atleta</label>
+                            <input type="text" id="manual-atleta" placeholder="Nome do Atleta" class="w-full bg-yellow-50 border border-yellow-300 rounded-xl px-3 py-2 text-slate-900 uppercase focus:outline-none focus:border-green-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Naipe (Automático ou Manual)</label>
-                            <select id="manual-naipe" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-yellow-400">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Naipe</label>
+                            <select id="manual-naipe" class="w-full bg-yellow-50 border border-yellow-300 rounded-xl px-3 py-2 text-slate-900 uppercase focus:outline-none focus:border-green-500">
                                 <option value="MAS">Masculino (MAS)</option>
                                 <option value="FEM">Feminino (FEM)</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Categoria</label>
-                            <input type="text" id="manual-categoria" placeholder="Ex: SUB-30" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-yellow-400">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Categoria</label>
+                            <input type="text" id="manual-categoria" placeholder="Ex: SUB-30" class="w-full bg-yellow-50 border border-yellow-300 rounded-xl px-3 py-2 text-slate-900 uppercase focus:outline-none focus:border-green-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Estado (Sigla)</label>
-                            <input type="text" id="manual-estado" placeholder="Ex: SP, RJ" maxlength="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-yellow-400">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Estado (Sigla)</label>
+                            <input type="text" id="manual-estado" placeholder="Ex: SP, RJ" maxlength="2" class="w-full bg-yellow-50 border border-yellow-300 rounded-xl px-3 py-2 text-slate-900 uppercase focus:outline-none focus:border-green-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Equipe</label>
-                            <input type="text" id="manual-equipe" placeholder="Nome da Equipe" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-yellow-400">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Equipe</label>
+                            <input type="text" id="manual-equipe" placeholder="Nome da Equipe" class="w-full bg-yellow-50 border border-yellow-300 rounded-xl px-3 py-2 text-slate-900 uppercase focus:outline-none focus:border-green-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Bateria (Automática ou Manual)</label>
-                            <select id="manual-bateria" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white uppercase focus:outline-none focus:border-yellow-400"></select>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Bateria</label>
+                            <select id="manual-bateria" class="w-full bg-yellow-50 border border-yellow-300 rounded-xl px-3 py-2 text-slate-900 uppercase focus:outline-none focus:border-green-500"></select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Tempo Oficial (HH:MM:SS)</label>
-                            <input type="text" id="manual-tempo" placeholder="00:00:00" maxlength="8" oninput="formatTimeInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white font-mono focus:outline-none focus:border-yellow-400">
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tempo Oficial (HH:MM:SS)</label>
+                            <input type="text" id="manual-tempo" placeholder="00:00:00" maxlength="8" oninput="formatTimeInput(this)" class="w-full bg-yellow-50 border border-yellow-300 rounded-xl px-3 py-2 text-slate-900 font-mono focus:outline-none focus:border-green-500">
                         </div>
                     </div>
                     <div class="flex justify-end pt-2">
-                        <button onclick="addManualRecord()" class="px-8 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-all shadow-md">
+                        <button onclick="addManualRecord()" class="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-all shadow-md">
                             Adicionar / Atualizar Registro
                         </button>
                     </div>
                 </div>
 
                 <!-- 4 - Captura de Tempos via Imagem (OCR) -->
-                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-4">
-                    <h4 class="text-xl font-black text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-camera text-yellow-400"></i>
+                <div class="bg-white border border-yellow-500 p-8 rounded-3xl shadow-xl space-y-4">
+                    <h4 class="text-xl font-black text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-camera text-yellow-500"></i>
                         <span>4. Captura de Tempos via Imagem (OCR)</span>
                     </h4>
-                    <p class="text-xs text-slate-400">Faça o upload do print do app. O sistema detectará automaticamente nomes cortados com <strong>"..."</strong>.</p>
+                    <p class="text-xs text-slate-600">Faça o upload do print do app. O sistema detectará automaticamente nomes cortados com <strong>"..."</strong>.</p>
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
-                        <input type="file" id="ocr-file-input" accept="image/*" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-slate-950 cursor-pointer">
-                        <button onclick="processOCRUpload()" class="w-full sm:w-auto px-8 py-3 bg-yellow-400 hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
+                        <input type="file" id="ocr-file-input" accept="image/*" class="w-full bg-yellow-50 border border-yellow-300 rounded-xl px-4 py-3 text-slate-900 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-slate-900 cursor-pointer">
+                        <button onclick="processOCRUpload()" class="w-full sm:w-auto px-8 py-3 bg-yellow-400 hover:opacity-90 text-slate-900 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
                             Escanear Imagem
                         </button>
                     </div>
-                    <div id="ocr-status-container" class="hidden flex items-center space-x-3 bg-yellow-500/10 border border-yellow-500/20 p-3 rounded-xl mt-4">
-                        <i class="fa-solid fa-circle-notch fa-spin text-yellow-400"></i>
-                        <span id="ocr-status" class="text-yellow-400 text-sm font-bold">Analisando imagem... (0%)</span>
+                    <div id="ocr-status-container" class="hidden flex items-center space-x-3 bg-green-100 border border-green-200 p-3 rounded-xl mt-4">
+                        <i class="fa-solid fa-circle-notch fa-spin text-green-600"></i>
+                        <span id="ocr-status" class="text-green-700 text-sm font-bold">Analisando imagem... (0%)</span>
                     </div>
                 </div>
 
-                <!-- 5 - Exportação de Resultados em Excel (.xlsx) -->
-                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-4">
-                    <h4 class="text-xl font-black text-white flex items-center space-x-2">
-                        <i class="fa-solid fa-file-arrow-down text-yellow-400"></i>
+                <!-- 5 - Exportação de Resultados em Excel -->
+                <div class="bg-white border border-yellow-500 p-8 rounded-3xl shadow-xl space-y-4">
+                    <h4 class="text-xl font-black text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-file-arrow-down text-yellow-500"></i>
                         <span>5. Exportar Resultados em Excel (.xlsx)</span>
                     </h4>
-                    <p class="text-xs text-slate-400">Escolha o modo de exportação desejado para gerar e baixar a planilha oficial com os resultados processados.</p>
+                    <p class="text-xs text-slate-600">Escolha o modo de exportação desejado para gerar e baixar a planilha oficial com os resultados processados.</p>
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
-                        <select id="export-mode" class="w-full sm:w-auto bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-yellow-400">
+                        <select id="export-mode" class="w-full sm:w-auto bg-yellow-50 border border-yellow-300 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-green-500">
                             <option value="geral">Ranking Geral</option>
                             <option value="naipe">Separado por Naipe (Abas por Naipe)</option>
                             <option value="bateria">Separado por Bateria (Abas por Bateria)</option>
                         </select>
-                        <button onclick="exportResultsExcel()" class="w-full sm:w-auto px-8 py-3 bg-yellow-400 hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap flex items-center justify-center space-x-2">
+                        <button onclick="exportResultsExcel()" class="w-full sm:w-auto px-8 py-3 bg-yellow-400 hover:opacity-90 text-slate-900 font-black rounded-xl transition-all shadow-md whitespace-nowrap flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-download"></i>
                             <span>Baixar Planilha Excel</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- 6 - Registros Armazenados (com botão para exportar resultados em PDF) -->
-                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-6">
+                <!-- 6 - Registros Armazenados -->
+                <div class="bg-white border border-yellow-500 p-8 rounded-3xl shadow-xl space-y-6">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <h4 class="text-xl font-black text-white">6. Registros Armazenados no Banco de Dados</h4>
+                        <h4 class="text-xl font-black text-slate-900">6. Registros Armazenados no Banco de Dados</h4>
                         <div class="flex flex-wrap gap-2">
-                            <button onclick="exportResultsPDF()" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition-all flex items-center shadow-md">
+                            <button onclick="exportResultsPDF()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all flex items-center shadow-md">
                                 <i class="fa-solid fa-file-pdf mr-2"></i>Exportar em PDF
                             </button>
-                            <button onclick="fixModalitiesToActive()" class="px-4 py-2 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-xl text-xs font-bold hover:bg-yellow-500/30 transition-all">
+                            <button onclick="fixModalitiesToActive()" class="px-4 py-2 bg-yellow-100 text-yellow-700 border border-yellow-300 rounded-xl text-xs font-bold hover:bg-yellow-200 transition-all">
                                 <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Migrar todos para a modalidade atual
                             </button>
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto rounded-xl border border-yellow-300">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="bg-slate-800/50 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                <tr class="bg-yellow-100 border-b border-yellow-300 text-xs font-bold text-slate-700 uppercase tracking-wider">
                                     <th class="py-3 px-4">Modalidade</th>
                                     <th class="py-3 px-4">Atleta</th>
                                     <th class="py-3 px-4">Username</th>
@@ -399,7 +409,7 @@
                                     <th class="py-3 px-4 text-right">Ação</th>
                                 </tr>
                             </thead>
-                            <tbody id="admin-records-tbody" class="divide-y divide-slate-800 text-sm text-slate-300"></tbody>
+                            <tbody id="admin-records-tbody" class="divide-y divide-yellow-200 text-sm text-slate-800 bg-white"></tbody>
                         </table>
                     </div>
                 </div>
@@ -407,22 +417,21 @@
         </section>
     </main>
 
-    <!-- Footer limpo conforme solicitado -->
-    <footer class="bg-slate-900 border-t border-slate-800 py-6 mt-16 text-slate-400">
+    <footer class="bg-yellow-500 border-t border-yellow-600 py-6 mt-16 text-slate-900 font-medium">
         <div class="max-w-7xl mx-auto px-4 text-center text-sm space-y-1">
             <p>Resultados Competições Virtuais</p>
         </div>
     </footer>
 
-    <!-- Modal Customizado -->
-    <div id="custom-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 max-w-sm w-full p-6 rounded-3xl shadow-2xl text-center space-y-4">
-            <div id="modal-icon" class="w-14 h-14 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mx-auto text-2xl border border-green-500/30">
+    <!-- Modal Customizado (Light/Yellow) -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white border border-yellow-500 max-w-sm w-full p-6 rounded-3xl shadow-2xl text-center space-y-4">
+            <div id="modal-icon" class="w-14 h-14 rounded-full bg-green-100 text-green-600 flex items-center justify-center mx-auto text-2xl border border-green-300">
                 <i class="fa-solid fa-check"></i>
             </div>
-            <h4 id="modal-title" class="text-lg font-bold text-white">Sucesso</h4>
-            <p id="modal-message" class="text-sm text-slate-300">Mensagem aqui</p>
-            <button onclick="closeModal()" class="w-full py-2.5 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl text-sm transition-all">Entendido</button>
+            <h4 id="modal-title" class="text-lg font-bold text-slate-900">Sucesso</h4>
+            <p id="modal-message" class="text-sm text-slate-600">Mensagem aqui</p>
+            <button onclick="closeModal()" class="w-full py-2.5 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl text-sm transition-all shadow-md">Entendido</button>
         </div>
     </div>
 
@@ -434,7 +443,6 @@
         const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let records = [];
-        // Default atualizado para REMO VIRTUAL 500M
         let activeModality = localStorage.getItem('app_active_modality') || 'REMO VIRTUAL 500M';
         let batteries = JSON.parse(localStorage.getItem('app_batteries')) || ['BATERIA 1', 'BATERIA 2'];
         let isAdminLoggedIn = false;
@@ -450,7 +458,6 @@
             'RJ': 'https://upload.wikimedia.org/wikipedia/commons/7/73/Bandeira_do_estado_do_Rio_de_Janeiro.svg',
             'MG': 'https://upload.wikimedia.org/wikipedia/commons/f/f4/Bandeira_de_Minas_Gerais.svg'
         };
-
         const stateNames = { 'SAO PAULO': 'SP', 'SÃO PAULO': 'SP', 'RIO DE JANEIRO': 'RJ', 'MINAS GERAIS': 'MG' };
 
         function getStateDisplay(val) {
@@ -458,7 +465,7 @@
             const cleanVal = val.trim().toUpperCase();
             let sigla = stateNames[cleanVal] || (stateFlags[cleanVal] ? cleanVal : null);
             if (sigla && stateFlags[sigla]) {
-                return `<div class="flex items-center space-x-2"><img src="${stateFlags[sigla]}" alt="${sigla}" class="w-6 h-4 object-cover rounded-sm border border-slate-700 shadow-sm"> <span>| ${sigla}</span></div>`;
+                return `<div class="flex items-center space-x-2"><img src="${stateFlags[sigla]}" alt="${sigla}" class="w-6 h-4 object-cover rounded-sm border border-slate-300 shadow-sm"> <span>| ${sigla}</span></div>`;
             }
             return cleanVal;
         }
@@ -478,17 +485,9 @@
         async function fetchRecords() {
             try {
                 const { data, error } = await _supabase.from('resultados').select('*');
-                if (error) {
-                    console.warn("Aviso do Supabase:", error.message);
-                    return;
-                }
-                if (data) {
-                    records = data;
-                    updateUIState();
-                }
-            } catch (err) {
-                console.warn("Conexão Supabase em espera.");
-            }
+                if (error) { console.warn("Aviso do Supabase:", error.message); return; }
+                if (data) { records = data; updateUIState(); }
+            } catch (err) {}
         }
 
         function updateUIState() {
@@ -510,24 +509,17 @@
                 if (!uniqueMods.includes(activeModality) && activeModality) uniqueMods.push(activeModality);
                 let currentMod = modSelect.value || activeModality;
                 modSelect.innerHTML = '';
-                uniqueMods.forEach(m => {
-                    modSelect.innerHTML += `<option value="${m}">${m}</option>`;
-                });
+                uniqueMods.forEach(m => { modSelect.innerHTML += `<option value="${m}">${m}</option>`; });
                 if(modSelect.querySelector(`option[value="${currentMod}"]`)) modSelect.value = currentMod;
             }
-
             const batSelect = document.getElementById('filter-bateria');
             if (batSelect) {
                 let currentBat = batSelect.value || 'GERAL';
                 const naipeVal = document.getElementById('filter-naipe') ? document.getElementById('filter-naipe').value : 'TODOS';
-                
                 batSelect.innerHTML = `<option value="GERAL">Ranking Geral</option>`;
                 batteries.forEach(b => {
-                    if (naipeVal === 'TODOS') {
-                        batSelect.innerHTML += `<option value="${b}">${b}</option>`;
-                    } else {
-                        batSelect.innerHTML += `<option value="${b}|${naipeVal}">${b} | ${naipeVal}</option>`;
-                    }
+                    if (naipeVal === 'TODOS') batSelect.innerHTML += `<option value="${b}">${b}</option>`;
+                    else batSelect.innerHTML += `<option value="${b}|${naipeVal}">${b} | ${naipeVal}</option>`;
                 });
                 if(batSelect.querySelector(`option[value="${currentBat}"]`)) batSelect.value = currentBat;
             }
@@ -537,11 +529,11 @@
             ['home', 'rankings', 'admin'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 const navBtn = document.getElementById(`nav-${t}`);
-                if (navBtn) navBtn.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-400 hover:text-white hover:bg-slate-800";
+                if (navBtn) navBtn.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-700 hover:text-slate-900 hover:bg-yellow-300";
             });
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             const activeNav = document.getElementById(`nav-${tabId}`);
-            if (activeNav) activeNav.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-yellow-400 text-slate-950 shadow-md";
+            if (activeNav) activeNav.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-green-600 text-white shadow-md";
             window.scrollTo({ top: 0, behavior: 'smooth' });
             if (tabId === 'rankings') renderLeaderboard();
             if (tabId === 'admin' && isAdminLoggedIn) renderAdminRecords();
@@ -554,11 +546,8 @@
         function toggleCriterioPersonalizado() {
             const criterio = document.getElementById('sorteio-criterio').value;
             const container = document.getElementById('criterio-personalizado-container');
-            if (criterio === 'personalizado') {
-                container.classList.remove('hidden');
-            } else {
-                container.classList.add('hidden');
-            }
+            if (criterio === 'personalizado') container.classList.remove('hidden');
+            else container.classList.add('hidden');
         }
 
         function saveActiveModality() {
@@ -592,7 +581,6 @@
         function handleUsernameAutofill() {
             const usernameInput = document.getElementById('manual-username').value.trim().toUpperCase();
             if (!usernameInput) return;
-            
             const found = records.find(r => (r.username || '').toUpperCase() === usernameInput);
             if (found) {
                 document.getElementById('manual-atleta').value = found.atleta || '';
@@ -608,71 +596,33 @@
         function exportResultsExcel() {
             const mode = document.getElementById('export-mode').value;
             let filtered = records.filter(r => r.modalidade === activeModality);
-
-            if (filtered.length === 0) {
-                showModal('Atenção', 'Não há registros na modalidade ativa para exportar.', 'error');
-                return;
-            }
-
+            if (filtered.length === 0) { showModal('Atenção', 'Não há registros na modalidade ativa para exportar.', 'error'); return; }
             let wb = XLSX.utils.book_new();
 
             if (mode === 'geral') {
                 filtered.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
-                const dataToExport = filtered.map((r, idx) => ({
-                    'Posição': idx + 1,
-                    'Atleta': r.atleta,
-                    'Username': r.username || '',
-                    'Naipe': r.naipe || '',
-                    'Categoria': r.categoria || '',
-                    'Estado': r.estado || '',
-                    'Equipe': r.equipe || '',
-                    'Bateria': r.bateria || '',
-                    'Tempo Oficial': r.tempo || ''
-                }));
+                const dataToExport = filtered.map((r, idx) => ({ 'Posição': idx + 1, 'Atleta': r.atleta, 'Username': r.username || '', 'Naipe': r.naipe || '', 'Categoria': r.categoria || '', 'Estado': r.estado || '', 'Equipe': r.equipe || '', 'Bateria': r.bateria || '', 'Tempo Oficial': r.tempo || '' }));
                 let ws = XLSX.utils.json_to_sheet(dataToExport);
                 XLSX.utils.book_append_sheet(wb, ws, "Ranking Geral");
                 XLSX.writeFile(wb, `Ranking_Geral_${activeModality.replace(/\s+/g, '_')}.xlsx`);
-            } 
-            else if (mode === 'naipe') {
+            } else if (mode === 'naipe') {
                 const naipes = [...new Set(filtered.map(r => r.naipe).filter(Boolean))];
                 naipes.forEach(naipe => {
                     let naipeRecords = filtered.filter(r => r.naipe === naipe);
                     naipeRecords.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
-                    const dataToExport = naipeRecords.map((r, idx) => ({
-                        'Posição': idx + 1,
-                        'Atleta': r.atleta,
-                        'Username': r.username || '',
-                        'Naipe': r.naipe || '',
-                        'Categoria': r.categoria || '',
-                        'Estado': r.estado || '',
-                        'Equipe': r.equipe || '',
-                        'Bateria': r.bateria || '',
-                        'Tempo Oficial': r.tempo || ''
-                    }));
+                    const dataToExport = naipeRecords.map((r, idx) => ({ 'Posição': idx + 1, 'Atleta': r.atleta, 'Username': r.username || '', 'Naipe': r.naipe || '', 'Categoria': r.categoria || '', 'Estado': r.estado || '', 'Equipe': r.equipe || '', 'Bateria': r.bateria || '', 'Tempo Oficial': r.tempo || '' }));
                     let ws = XLSX.utils.json_to_sheet(dataToExport);
                     XLSX.utils.book_append_sheet(wb, ws, `Naipe_${naipe}`);
                 });
                 XLSX.writeFile(wb, `Ranking_Por_Naipe_${activeModality.replace(/\s+/g, '_')}.xlsx`);
-            }
-            else if (mode === 'bateria') {
+            } else if (mode === 'bateria') {
                 batteries.forEach(bat => {
                     let batRecords = filtered.filter(r => r.bateria === bat);
                     if (batRecords.length > 0) {
                         batRecords.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
-                        const dataToExport = batRecords.map((r, idx) => ({
-                            'Posição': idx + 1,
-                            'Atleta': r.atleta,
-                            'Username': r.username || '',
-                            'Naipe': r.naipe || '',
-                            'Categoria': r.categoria || '',
-                            'Estado': r.estado || '',
-                            'Equipe': r.equipe || '',
-                            'Bateria': r.bateria || '',
-                            'Tempo Oficial': r.tempo || ''
-                        }));
+                        const dataToExport = batRecords.map((r, idx) => ({ 'Posição': idx + 1, 'Atleta': r.atleta, 'Username': r.username || '', 'Naipe': r.naipe || '', 'Categoria': r.categoria || '', 'Estado': r.estado || '', 'Equipe': r.equipe || '', 'Bateria': r.bateria || '', 'Tempo Oficial': r.tempo || '' }));
                         let ws = XLSX.utils.json_to_sheet(dataToExport);
-                        let sheetName = bat.substring(0, 31);
-                        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+                        XLSX.utils.book_append_sheet(wb, ws, bat.substring(0, 31));
                     }
                 });
                 XLSX.writeFile(wb, `Ranking_Por_Bateria_${activeModality.replace(/\s+/g, '_')}.xlsx`);
@@ -683,90 +633,44 @@
         function exportResultsPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-
             let filtered = records.filter(r => r.modalidade === activeModality);
-            if (filtered.length === 0) {
-                showModal('Atenção', 'Não há registros na modalidade ativa para exportar em PDF.', 'error');
-                return;
-            }
-
+            if (filtered.length === 0) { showModal('Atenção', 'Não há registros na modalidade ativa para exportar.', 'error'); return; }
             filtered.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
 
-            doc.setFontSize(16);
-            doc.text(`RELATÓRIO OFICIAL - ${activeModality}`, 14, 20);
-            doc.setFontSize(10);
-            doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}`, 14, 27);
-
-            const tableRows = filtered.map((r, idx) => [
-                idx + 1,
-                r.atleta || '-',
-                r.naipe || '-',
-                r.categoria || '-',
-                r.equipe || '-',
-                r.bateria || '-',
-                r.tempo || '-'
-            ]);
-
-            doc.autoTable({
-                startY: 35,
-                head: [['Pos', 'Atleta', 'Naipe', 'Categoria', 'Equipe', 'Bateria', 'Tempo']],
-                body: tableRows,
-                theme: 'grid',
-                headStyles: { fillColor: [15, 23, 42] },
-                styles: { fontSize: 8 }
-            });
-
+            doc.setFontSize(16); doc.text(`RELATÓRIO OFICIAL - ${activeModality}`, 14, 20);
+            doc.setFontSize(10); doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}`, 14, 27);
+            const tableRows = filtered.map((r, idx) => [ idx + 1, r.atleta || '-', r.naipe || '-', r.categoria || '-', r.equipe || '-', r.bateria || '-', r.tempo || '-' ]);
+            
+            doc.autoTable({ startY: 35, head: [['Pos', 'Atleta', 'Naipe', 'Categoria', 'Equipe', 'Bateria', 'Tempo']], body: tableRows, theme: 'grid', headStyles: { fillColor: [22, 163, 74] }, styles: { fontSize: 8 } });
             doc.save(`Resultados_${activeModality.replace(/\s+/g, '_')}.pdf`);
             showModal('Sucesso!', 'Arquivo PDF gerado e baixado com sucesso!', 'success');
         }
 
         async function sortearBateriasAleatorioOuPersonalizado() {
-            if (batteries.length === 0) {
-                showModal('Atenção', 'Cadastre pelo menos uma bateria antes de realizar o sorteio.', 'error');
-                return;
-            }
-
+            if (batteries.length === 0) { showModal('Atenção', 'Cadastre pelo menos uma bateria.', 'error'); return; }
             let modRecords = records.filter(r => r.modalidade === activeModality);
-            if (modRecords.length === 0) {
-                showModal('Atenção', 'Não há atletas cadastrados na modalidade ativa para sortear.', 'error');
-                return;
-            }
-
+            if (modRecords.length === 0) { showModal('Atenção', 'Não há atletas cadastrados.', 'error'); return; }
             const maxPorBateria = parseInt(document.getElementById('sorteio-max-por-bateria').value) || 20;
             const criterio = document.getElementById('sorteio-criterio').value;
             let sortedList = [...modRecords];
 
             if (criterio === 'aleatorio') {
-                for (let i = sortedList.length - 1; i > 0; i--) {
-                    let j = Math.floor(Math.random() * (i + 1));
-                    [sortedList[i], sortedList[j]] = [sortedList[j], sortedList[i]];
-                }
+                for (let i = sortedList.length - 1; i > 0; i--) { let j = Math.floor(Math.random() * (i + 1)); [sortedList[i], sortedList[j]] = [sortedList[j], sortedList[i]]; }
             } else if (criterio === 'personalizado') {
                 const ordemInput = document.getElementById('sorteio-ordem-manual').value;
-                if (ordemInput.trim() === '') {
-                    showModal('Atenção', 'Informe a ordem manual das categorias separadas por vírgula.', 'error');
-                    return;
-                }
+                if (ordemInput.trim() === '') { showModal('Atenção', 'Informe a ordem manual.', 'error'); return; }
                 const ordemArray = ordemInput.split(',').map(s => s.trim().toUpperCase());
-                
                 sortedList.sort((a, b) => {
                     let indexA = ordemArray.indexOf((a.categoria || '').toUpperCase());
                     let indexB = ordemArray.indexOf((b.categoria || '').toUpperCase());
-                    if (indexA === -1) indexA = 999;
-                    if (indexB === -1) indexB = 999;
+                    if (indexA === -1) indexA = 999; if (indexB === -1) indexB = 999;
                     return indexA - indexB;
                 });
             }
 
-            let batIndex = 0;
-            let currentCountInBat = 0;
-            let countUpdated = 0;
-
+            let batIndex = 0, currentCountInBat = 0, countUpdated = 0;
             for (let i = 0; i < sortedList.length; i++) {
-                if (currentCountInBat >= maxPorBateria && batIndex < batteries.length - 1) {
-                    batIndex++;
-                    currentCountInBat = 0;
-                }
+                if (currentCountInBat >= maxPorBateria && batIndex < batteries.length - 1) { batIndex++; currentCountInBat = 0; }
                 let targetBattery = batteries[batIndex % batteries.length];
                 let rec = sortedList[i];
                 if (rec.id) {
@@ -775,29 +679,21 @@
                 }
                 currentCountInBat++;
             }
-
             await fetchRecords();
-            showModal('Sucesso!', `${countUpdated} atletas distribuídos nas baterias (Modo: ${criterio.toUpperCase()})!`, 'success');
+            showModal('Sucesso!', `${countUpdated} atletas distribuídos nas baterias!`, 'success');
         }
 
         function renderAdminBatteriesList() {
             const container = document.getElementById('batteries-list-container');
-            if (!container) return;
-            container.innerHTML = '';
+            if (!container) return; container.innerHTML = '';
             batteries.forEach(b => {
-                container.innerHTML += `
-                    <div class="inline-flex items-center space-x-2 bg-slate-950 border border-slate-800 px-3.5 py-2 rounded-xl text-sm">
-                        <span class="text-white font-semibold">${b}</span>
-                        <button onclick="removeBattery('${b}')" class="text-red-400 hover:text-red-300 ml-2"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                `;
+                container.innerHTML += `<div class="inline-flex items-center space-x-2 bg-yellow-50 border border-yellow-300 px-3.5 py-2 rounded-xl text-sm"><span class="text-slate-900 font-semibold">${b}</span><button onclick="removeBattery('${b}')" class="text-red-500 hover:text-red-700 ml-2"><i class="fa-solid fa-xmark"></i></button></div>`;
             });
         }
 
         function renderManualBateriaSelect() {
             const select = document.getElementById('manual-bateria');
-            if (!select) return;
-            select.innerHTML = '';
+            if (!select) return; select.innerHTML = '';
             batteries.forEach(b => { select.innerHTML += `<option value="${b}">${b}</option>`; });
         }
 
@@ -805,21 +701,12 @@
             const pin = document.getElementById('admin-pin-input').value;
             const errorEl = document.getElementById('login-error');
             if (pin === 'Virtu@lBr09' || pin === 'JJ2026FOZ') {
-                isAdminLoggedIn = true;
-                errorEl.classList.add('hidden');
-                document.getElementById('admin-login-screen').classList.add('hidden');
-                document.getElementById('admin-panel-content').classList.remove('hidden');
-                updateUIState();
-            } else {
-                errorEl.classList.remove('hidden');
-            }
+                isAdminLoggedIn = true; errorEl.classList.add('hidden'); document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('admin-panel-content').classList.remove('hidden'); updateUIState();
+            } else { errorEl.classList.remove('hidden'); }
         }
 
         function handleAdminLogout() {
-            isAdminLoggedIn = false;
-            document.getElementById('admin-pin-input').value = '';
-            document.getElementById('admin-panel-content').classList.add('hidden');
-            document.getElementById('admin-login-screen').classList.remove('hidden');
+            isAdminLoggedIn = false; document.getElementById('admin-pin-input').value = ''; document.getElementById('admin-panel-content').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden');
         }
 
         function formatExtractedTime(timeStr) {
@@ -829,85 +716,46 @@
             return timeStr;
         }
 
-        // --- SISTEMA OCR ATUALIZADO --- //
         async function processOCRUpload() {
-            const fileInput = document.getElementById('ocr-file-input');
-            const file = fileInput.files[0];
+            const fileInput = document.getElementById('ocr-file-input'); const file = fileInput.files[0];
             if (!file) { showModal('Atenção', 'Selecione uma imagem para escanear.', 'error'); return; }
-
-            const statusContainer = document.getElementById('ocr-status-container');
-            const statusText = document.getElementById('ocr-status');
-            statusContainer.classList.remove('hidden');
-            statusText.innerText = "Analisando imagem... (0%)";
+            const statusContainer = document.getElementById('ocr-status-container'); const statusText = document.getElementById('ocr-status');
+            statusContainer.classList.remove('hidden'); statusText.innerText = "Analisando imagem... (0%)";
 
             try {
-                const result = await Tesseract.recognize(file, 'eng', {
-                    logger: m => {
-                        if (m.status === 'recognizing text') {
-                            statusText.innerText = `Analisando imagem... (${Math.round(m.progress * 100)}%)`;
-                        }
-                    }
-                });
-
+                const result = await Tesseract.recognize(file, 'eng', { logger: m => { if (m.status === 'recognizing text') statusText.innerText = `Analisando imagem... (${Math.round(m.progress * 100)}%)`; } });
                 const lines = result.data.lines.map(l => l.text);
                 let countUpdated = 0;
-
                 for (let record of records) {
                     if (!record.username || record.modalidade !== activeModality) continue;
-                    
                     const targetUser = record.username.toUpperCase().replace(/\s+/g, '');
-
                     const matchedLine = lines.find(line => {
                         const cleanLine = line.toUpperCase().replace(/\s+/g, '');
-                        
                         if (cleanLine.includes(targetUser)) return true;
-
                         const matchTruncated = cleanLine.match(/([A-Z0-9-]{7,})\.+/);
-                        if (matchTruncated) {
-                            const extractedName = matchTruncated[1]; 
-                            if (targetUser.startsWith(extractedName)) return true;
-                        }
-
+                        if (matchTruncated && targetUser.startsWith(matchTruncated[1])) return true;
                         for (let i = targetUser.length; i >= 7; i--) {
                             const prefix = targetUser.substring(0, i);
                             if (cleanLine.includes(prefix)) {
-                                const idx = cleanLine.indexOf(prefix);
-                                const nextChar = cleanLine.charAt(idx + prefix.length);
-                                
-                                if (!nextChar || /[\.\+0-9]/.test(nextChar)) {
-                                    return true;
-                                }
+                                const idx = cleanLine.indexOf(prefix); const nextChar = cleanLine.charAt(idx + prefix.length);
+                                if (!nextChar || /[\.\+0-9]/.test(nextChar)) return true;
                             }
                         }
                         return false;
                     });
-                    
                     if (matchedLine) {
-                        const timeRegex = /\b(?:\d{1,2}:)?\d{1,2}:\d{2}\b/g;
-                        const timeMatches = matchedLine.match(timeRegex);
-                        
+                        const timeMatches = matchedLine.match(/\b(?:\d{1,2}:)?\d{1,2}:\d{2}\b/g);
                         if (timeMatches && timeMatches.length > 0) {
-                            const lastTimeMatch = timeMatches[timeMatches.length - 1]; 
-                            const tempoOficial = formatExtractedTime(lastTimeMatch);
-                            
+                            const tempoOficial = formatExtractedTime(timeMatches[timeMatches.length - 1]);
                             await _supabase.from('resultados').update({ tempo: tempoOficial }).eq('id', record.id);
                             countUpdated++;
                         }
                     }
                 }
-
-                if (countUpdated > 0) {
-                    showModal('Sucesso OCR!', `${countUpdated} tempo(s) capturado(s) com sucesso.`, 'success');
-                    await fetchRecords();
-                } else {
-                    showModal('Aviso OCR', 'Nenhum username correspondente ou tempo legível foi encontrado na imagem.', 'error');
-                }
-            } catch (err) {
-                console.error(err);
-                showModal('Erro', 'Falha ao processar a leitura via OCR. Verifique a qualidade da imagem.', 'error');
-            }
-            statusContainer.classList.add('hidden');
-            fileInput.value = '';
+                if (countUpdated > 0) { showModal('Sucesso OCR!', `${countUpdated} tempo(s) capturado(s).`, 'success'); await fetchRecords(); }
+                else { showModal('Aviso OCR', 'Nenhum tempo capturado.', 'error'); }
+            } catch (err) { showModal('Erro', 'Falha ao processar OCR.', 'error'); }
+            statusContainer.classList.add('hidden'); fileInput.value = '';
         }
 
         async function addManualRecord() {
@@ -919,145 +767,58 @@
             const equipe = document.getElementById('manual-equipe').value.trim().toUpperCase();
             const bateria = document.getElementById('manual-bateria').value;
             const tempo = document.getElementById('manual-tempo').value.trim() || '00:00:00';
-
-            if (!atleta) { showModal('Atenção', 'O nome do atleta é obrigatório.', 'error'); return; }
+            if (!atleta) { showModal('Atenção', 'Nome do atleta obrigatório.', 'error'); return; }
 
             const modalidade = activeModality; 
             const existingRecord = records.find(r => (r.username && r.username.toUpperCase() === username.toUpperCase()) || (r.atleta === atleta && r.modalidade === modalidade));
-
             try {
-                const payload = { 
-                    atleta, 
-                    username, 
-                    naipe, 
-                    categoria, 
-                    estado, 
-                    equipe, 
-                    modalidade, 
-                    bateria, 
-                    tempo 
-                };
-                
-                let res;
-                if (existingRecord && existingRecord.id) {
-                    res = await _supabase.from('resultados').update(payload).eq('id', existingRecord.id);
-                } else {
-                    res = await _supabase.from('resultados').insert([payload]);
-                }
-
-                if (res.error) {
-                    console.error("Erro Supabase:", res.error);
-                    showModal('Erro Supabase', res.error.message, 'error');
-                    return;
-                }
-
-                document.getElementById('manual-username').value = '';
-                document.getElementById('manual-atleta').value = '';
-                document.getElementById('manual-categoria').value = '';
-                document.getElementById('manual-estado').value = '';
-                document.getElementById('manual-equipe').value = '';
-                document.getElementById('manual-tempo').value = '';
-
-                await fetchRecords();
-                showModal('Sucesso', 'Registro salvo com sucesso!', 'success');
-            } catch (err) {
-                console.error("Erro inesperado:", err);
-                showModal('Erro', 'Erro inesperado ao salvar.', 'error');
-            }
+                const payload = { atleta, username, naipe, categoria, estado, equipe, modalidade, bateria, tempo };
+                let res = existingRecord && existingRecord.id ? await _supabase.from('resultados').update(payload).eq('id', existingRecord.id) : await _supabase.from('resultados').insert([payload]);
+                if (res.error) { showModal('Erro', res.error.message, 'error'); return; }
+                ['username', 'atleta', 'categoria', 'estado', 'equipe', 'tempo'].forEach(id => document.getElementById(`manual-${id}`).value = '');
+                await fetchRecords(); showModal('Sucesso', 'Registro salvo!', 'success');
+            } catch (err) { showModal('Erro', 'Erro inesperado.', 'error'); }
         }
 
         async function processExcelUpload() {
             const fileInput = document.getElementById('excel-file-input');
-            if (!fileInput.files || fileInput.files.length === 0) { showModal('Atenção', 'Selecione um ficheiro.', 'error'); return; }
-            const file = fileInput.files[0];
+            if (!fileInput.files || fileInput.files.length === 0) { showModal('Atenção', 'Selecione um arquivo.', 'error'); return; }
             const reader = new FileReader();
-
             reader.onload = async function(e) {
                 try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
-
+                    const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                    const jsonRows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: '' });
                     if (jsonRows.length === 0) { showModal('Atenção', 'Planilha vazia.', 'error'); return; }
-
-                    let countProcessed = 0;
-                    let lastErrorMessage = '';
-
+                    let countProcessed = 0, lastErrorMessage = '';
                     for (let row of jsonRows) {
                         const keys = Object.keys(row);
-                        let atletaKey = keys.find(k => /atleta|nome/i.test(k)) || keys[0];
-                        let userKey = keys.find(k => /username|gamer|tag|perfil/i.test(k));
-                        let naipeKey = keys.find(k => /naipe|genero|sexo/i.test(k));
-                        let categoriaKey = keys.find(k => /categoria/i.test(k));
-                        let estadoKey = keys.find(k => /estado|uf/i.test(k));
-                        let equipeKey = keys.find(k => /equipe|clube|escola/i.test(k));
-                        let bateriaKey = keys.find(k => /bateria/i.test(k));
-                        let tempoKey = keys.find(k => /tempo|resultado/i.test(k));
-
-                        const atleta = String(row[atletaKey] || '').trim().toUpperCase();
-                        const username = userKey ? String(row[userKey] || '').trim() : '';
-                        let naipe = naipeKey ? String(row[naipeKey] || '').trim().toUpperCase() : 'MAS';
-                        const categoria = categoriaKey ? String(row[categoriaKey] || '').trim().toUpperCase() : '';
-                        const estado = estadoKey ? String(row[estadoKey] || '').trim().toUpperCase() : '';
-                        const equipe = equipeKey ? String(row[equipeKey] || '').trim().toUpperCase() : '';
-                        const bateria = bateriaKey && String(row[bateriaKey]).trim() !== '' ? String(row[bateriaKey]).trim().toUpperCase() : (batteries[0] || 'BATERIA 1');
-                        const tempo = tempoKey && String(row[tempoKey]).trim() !== '' ? String(row[tempoKey]).trim() : '00:00:00';
-
+                        const atleta = String(row[keys.find(k => /atleta|nome/i.test(k)) || keys[0]] || '').trim().toUpperCase();
+                        const username = String(row[keys.find(k => /username|gamer|tag|perfil/i.test(k))] || '').trim();
+                        const naipe = String(row[keys.find(k => /naipe|genero|sexo/i.test(k))] || 'MAS').trim().toUpperCase();
+                        const categoria = String(row[keys.find(k => /categoria/i.test(k))] || '').trim().toUpperCase();
+                        const estado = String(row[keys.find(k => /estado|uf/i.test(k))] || '').trim().toUpperCase();
+                        const equipe = String(row[keys.find(k => /equipe|clube|escola/i.test(k))] || '').trim().toUpperCase();
+                        const batVal = row[keys.find(k => /bateria/i.test(k))]; const bateria = batVal && String(batVal).trim() ? String(batVal).trim().toUpperCase() : (batteries[0] || 'BATERIA 1');
+                        const tempVal = row[keys.find(k => /tempo|resultado/i.test(k))]; const tempo = tempVal && String(tempVal).trim() ? String(tempVal).trim() : '00:00:00';
                         if (atleta) {
-                            const modalidade = activeModality;
-                            const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
-                            
-                            const payload = { 
-                                atleta, 
-                                username, 
-                                naipe, 
-                                categoria, 
-                                estado, 
-                                equipe, 
-                                modalidade, 
-                                bateria, 
-                                tempo 
-                            };
-
-                            let res;
-                            if (existingRecord && existingRecord.id) {
-                                res = await _supabase.from('resultados').update(payload).eq('id', existingRecord.id);
-                            } else {
-                                res = await _supabase.from('resultados').insert([payload]);
-                            }
-
-                            if (res.error) {
-                                console.error("Erro ao inserir linha:", res.error);
-                                lastErrorMessage = res.error.message;
-                            } else {
-                                countProcessed++;
-                            }
+                            const payload = { atleta, username, naipe, categoria, estado, equipe, modalidade: activeModality, bateria, tempo };
+                            const exist = records.find(r => r.atleta === atleta && r.modalidade === activeModality);
+                            let res = exist && exist.id ? await _supabase.from('resultados').update(payload).eq('id', exist.id) : await _supabase.from('resultados').insert([payload]);
+                            if (res.error) lastErrorMessage = res.error.message; else countProcessed++;
                         }
                     }
-                    fileInput.value = '';
-                    await fetchRecords();
-
-                    if (lastErrorMessage) {
-                        showModal('Atenção', `Alguns registros falharam. Erro do Supabase: ${lastErrorMessage}`, 'error');
-                    } else {
-                        showModal('Sucesso', `${countProcessed} inscritos/registros importados com sucesso para o banco!`, 'success');
-                    }
-                } catch (err) {
-                    console.error("Erro:", err);
-                    showModal('Erro', 'Erro ao processar planilha.', 'error');
-                }
+                    fileInput.value = ''; await fetchRecords();
+                    if (lastErrorMessage) showModal('Atenção', `Erros no Supabase: ${lastErrorMessage}`, 'error');
+                    else showModal('Sucesso', `${countProcessed} importados com sucesso!`, 'success');
+                } catch (err) { showModal('Erro', 'Erro ao processar.', 'error'); }
             };
-            reader.readAsArrayBuffer(file);
+            reader.readAsArrayBuffer(fileInput.files[0]);
         }
 
         async function fixModalitiesToActive() {
             if (records.length === 0) { showModal('Atenção', 'Sem registros.', 'error'); return; }
-            for (let r of records) {
-                if(r.id) await _supabase.from('resultados').update({ modalidade: activeModality }).eq('id', r.id);
-            }
-            await fetchRecords();
-            showModal('Sucesso', 'Registros migrados para a modalidade ativa!', 'success');
+            for (let r of records) if(r.id) await _supabase.from('resultados').update({ modalidade: activeModality }).eq('id', r.id);
+            await fetchRecords(); showModal('Sucesso', 'Registros migrados!', 'success');
         }
 
         async function deleteRecord(id) {
@@ -1067,30 +828,22 @@
 
         function renderAdminRecords() {
             const tbody = document.getElementById('admin-records-tbody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
-            if (records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="py-6 text-center text-slate-500">Nenhum registro encontrado.</td></tr>`;
-                return;
-            }
+            if (!tbody) return; tbody.innerHTML = '';
+            if (records.length === 0) { tbody.innerHTML = `<tr><td colspan="9" class="py-6 text-center text-slate-500">Nenhum registro.</td></tr>`; return; }
             records.forEach(r => {
-                const isCurrent = r.modalidade === activeModality;
-                const equipeVal = r.equipe || r['equipe / clube / escola'] || '-';
+                const isCurrent = r.modalidade === activeModality; const equipeVal = r.equipe || r['equipe / clube / escola'] || '-';
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-800/35 transition-colors ${isCurrent ? '' : 'opacity-50'}">
-                        <td class="py-3 px-4 font-semibold text-xs text-yellow-400">${r.modalidade || '-'}</td>
-                        <td class="py-3 px-4 font-bold text-white">${r.atleta || '-'}</td>
-                        <td class="py-3 px-4 text-slate-400 font-mono text-xs">${r.username || '-'}</td>
-                        <td class="py-3 px-4 text-slate-300">${r.naipe || '-'}</td>
-                        <td class="py-3 px-4 text-slate-300">${r.categoria || '-'}</td>
-                        <td class="py-3 px-4 text-slate-300">${equipeVal}</td>
-                        <td class="py-3 px-4 text-slate-300">${r.bateria || '-'}</td>
-                        <td class="py-3 px-4 font-mono font-bold text-green-400">${r.tempo || '-'}</td>
-                        <td class="py-3 px-4 text-right">
-                            <button onclick="deleteRecord('${r.id}')" class="text-red-400 hover:text-red-300 p-2"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
+                    <tr class="hover:bg-yellow-50 transition-colors ${isCurrent ? '' : 'opacity-50'}">
+                        <td class="py-3 px-4 font-semibold text-xs text-green-700">${r.modalidade || '-'}</td>
+                        <td class="py-3 px-4 font-bold text-slate-900">${r.atleta || '-'}</td>
+                        <td class="py-3 px-4 text-slate-600 font-mono text-xs">${r.username || '-'}</td>
+                        <td class="py-3 px-4 text-slate-700">${r.naipe || '-'}</td>
+                        <td class="py-3 px-4 text-slate-700">${r.categoria || '-'}</td>
+                        <td class="py-3 px-4 text-slate-700">${equipeVal}</td>
+                        <td class="py-3 px-4 text-slate-700">${r.bateria || '-'}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-green-600">${r.tempo || '-'}</td>
+                        <td class="py-3 px-4 text-right"><button onclick="deleteRecord('${r.id}')" class="text-red-500 hover:text-red-700 p-2"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>`;
             });
         }
 
@@ -1098,9 +851,7 @@
             const modFilter = document.getElementById('filter-modalidade') ? document.getElementById('filter-modalidade').value : activeModality;
             const naipeFilter = document.getElementById('filter-naipe') ? document.getElementById('filter-naipe').value : 'TODOS';
             const batFilter = document.getElementById('filter-bateria') ? document.getElementById('filter-bateria').value : 'GERAL';
-            
-            const container = document.getElementById('leaderboard-container');
-            if (!container) return;
+            const container = document.getElementById('leaderboard-container'); if (!container) return;
 
             if (document.getElementById('tv-mod-title')) document.getElementById('tv-mod-title').innerText = modFilter;
             let tvCat = batFilter === 'GERAL' ? 'RANKING GERAL' : batFilter;
@@ -1108,98 +859,56 @@
             if (document.getElementById('tv-cat-badge')) document.getElementById('tv-cat-badge').innerText = tvCat;
 
             let filtered = records.filter(r => r.modalidade === modFilter);
-            if (naipeFilter !== 'TODOS') {
-                filtered = filtered.filter(r => r.naipe === naipeFilter);
-            }
+            if (naipeFilter !== 'TODOS') filtered = filtered.filter(r => r.naipe === naipeFilter);
             if (batFilter !== 'GERAL') {
-                if (batFilter.includes('|')) {
-                    const [batName, batNaipe] = batFilter.split('|');
-                    filtered = filtered.filter(r => r.bateria === batName && r.naipe === batNaipe);
-                } else {
-                    filtered = filtered.filter(r => r.bateria === batFilter);
-                }
+                if (batFilter.includes('|')) { const [batName, batNaipe] = batFilter.split('|'); filtered = filtered.filter(r => r.bateria === batName && r.naipe === batNaipe); }
+                else filtered = filtered.filter(r => r.bateria === batFilter);
             }
 
             const groups = {};
-            filtered.forEach(r => {
-                const naipe = r.naipe || 'GERAL';
-                const categoria = r.categoria || 'GERAL';
-                const key = `${naipe}___${categoria}`;
-                if (!groups[key]) {
-                    groups[key] = { naipe, categoria, records: [] };
-                }
-                groups[key].records.push(r);
-            });
-
-            container.innerHTML = '';
-            const groupKeys = Object.keys(groups);
-
-            if (groupKeys.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-slate-500 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl">Nenhum resultado registrado para esta seleção.</div>`;
-                return;
-            }
+            filtered.forEach(r => { const key = `${r.naipe || 'GERAL'}___${r.categoria || 'GERAL'}`; if (!groups[key]) groups[key] = { naipe: r.naipe || 'GERAL', categoria: r.categoria || 'GERAL', records: [] }; groups[key].records.push(r); });
+            
+            container.innerHTML = ''; const groupKeys = Object.keys(groups);
+            if (groupKeys.length === 0) { container.innerHTML = `<div class="p-8 text-center text-slate-600 bg-white border border-yellow-300 rounded-2xl shadow-xl">Nenhum resultado.</div>`; return; }
 
             groupKeys.forEach(key => {
-                const g = groups[key];
-                g.records.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
-                const leaderTimeSec = timeToSeconds(g.records[0].tempo);
-
-                let htmlTableRows = '';
+                const g = groups[key]; g.records.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
+                const leaderTimeSec = timeToSeconds(g.records[0].tempo); let htmlTableRows = '';
+                
                 g.records.forEach((r, index) => {
-                    let badgeClass = "text-slate-400 font-bold";
-                    let medalIcon = "";
+                    let badgeClass = "text-slate-500 font-bold", medalIcon = "";
+                    if (index === 0) { badgeClass = "text-yellow-500 font-black bg-yellow-100 px-3 py-1 rounded-full border border-yellow-300"; medalIcon = '<i class="fa-solid fa-medal text-yellow-500 mr-1.5 text-base"></i>'; }
+                    else if (index === 1) { badgeClass = "text-slate-500 font-black bg-slate-100 px-3 py-1 rounded-full border border-slate-300"; medalIcon = '<i class="fa-solid fa-medal text-slate-400 mr-1.5 text-base"></i>'; }
+                    else if (index === 2) { badgeClass = "text-amber-700 font-black bg-amber-100 px-3 py-1 rounded-full border border-amber-300"; medalIcon = '<i class="fa-solid fa-medal text-amber-700 mr-1.5 text-base"></i>'; }
                     
-                    if (index === 0) {
-                        badgeClass = "text-yellow-400 font-black bg-yellow-500/20 px-3 py-1 rounded-full border border-yellow-500/30";
-                        medalIcon = '<i class="fa-solid fa-medal text-yellow-400 mr-1.5 text-base" title="Ouro"></i>';
-                    } else if (index === 1) {
-                        badgeClass = "text-slate-200 font-black bg-slate-400/20 px-3 py-1 rounded-full border border-slate-400/30";
-                        medalIcon = '<i class="fa-solid fa-medal text-slate-300 mr-1.5 text-base" title="Prata"></i>';
-                    } else if (index === 2) {
-                        badgeClass = "text-yellow-600 font-black bg-yellow-700/20 px-3 py-1 rounded-full border border-yellow-700/30";
-                        medalIcon = '<i class="fa-solid fa-medal text-yellow-600 mr-1.5 text-base" title="Bronze"></i>';
-                    }
-
-                    let diffStr = "-";
-                    if (index > 0) {
-                        const currentSec = timeToSeconds(r.tempo);
-                        const diffSec = currentSec - leaderTimeSec;
-                        diffStr = "+" + secondsToTime(diffSec);
-                    } else {
-                        const isFem = (r.naipe || '').toUpperCase() === 'FEM';
-                        diffStr = isFem ? "CAMPEÃ" : "CAMPEÃO";
-                    }
-
-                    const equipeVal = r.equipe || r['equipe / clube / escola'] || '-';
-
+                    let diffStr = index > 0 ? "+" + secondsToTime(timeToSeconds(r.tempo) - leaderTimeSec) : ((r.naipe || '').toUpperCase() === 'FEM' ? "CAMPEÃ" : "CAMPEÃO");
                     htmlTableRows += `
-                        <tr class="hover:bg-slate-800/30 transition-colors">
+                        <tr class="hover:bg-yellow-50 transition-colors">
                             <td class="py-4 px-6 text-center font-black ${badgeClass}">${medalIcon}#${index + 1}</td>
-                            <td class="py-4 px-6 font-bold text-white">${r.atleta || '-'}</td>
-                            <td class="py-4 px-6 text-slate-300">${r.naipe || '-'}</td>
-                            <td class="py-4 px-6 text-slate-300">${r.categoria || '-'}</td>
-                            <td class="py-4 px-6 text-slate-300">${getStateDisplay(r.estado)}</td>
-                            <td class="py-4 px-6 text-slate-300">${equipeVal}</td>
-                            <td class="py-4 px-6 text-slate-400">${r.bateria || '-'}</td>
-                            <td class="py-4 px-6 text-right font-mono font-black text-green-400 text-base">${r.tempo || '-'}</td>
-                            <td class="py-4 px-6 text-right font-mono text-xs text-slate-400">${diffStr}</td>
-                        </tr>
-                    `;
+                            <td class="py-4 px-6 font-bold text-slate-900">${r.atleta || '-'}</td>
+                            <td class="py-4 px-6 text-slate-700">${r.naipe || '-'}</td>
+                            <td class="py-4 px-6 text-slate-700">${r.categoria || '-'}</td>
+                            <td class="py-4 px-6 text-slate-700">${getStateDisplay(r.estado)}</td>
+                            <td class="py-4 px-6 text-slate-700">${r.equipe || r['equipe / clube / escola'] || '-'}</td>
+                            <td class="py-4 px-6 text-slate-600">${r.bateria || '-'}</td>
+                            <td class="py-4 px-6 text-right font-mono font-black text-green-600 text-base">${r.tempo || '-'}</td>
+                            <td class="py-4 px-6 text-right font-mono text-xs text-slate-500">${diffStr}</td>
+                        </tr>`;
                 });
 
                 container.innerHTML += `
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl mb-6">
-                        <div class="bg-slate-800/70 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-                            <h3 class="text-base font-black text-yellow-400 uppercase tracking-wider flex items-center space-x-2">
-                                <i class="fa-solid fa-trophy mr-2 text-yellow-400"></i>
+                    <div class="bg-white border border-yellow-500 rounded-2xl overflow-hidden shadow-xl mb-6">
+                        <div class="bg-yellow-100 px-6 py-4 border-b border-yellow-300 flex items-center justify-between">
+                            <h3 class="text-base font-black text-green-700 uppercase tracking-wider flex items-center space-x-2">
+                                <i class="fa-solid fa-trophy mr-2 text-yellow-500"></i>
                                 <span>Naipe: ${g.naipe} &bull; Categoria: ${g.categoria}</span>
                             </h3>
-                            <span class="text-xs font-bold text-slate-400 bg-slate-950 px-3 py-1 rounded-xl border border-slate-800">${g.records.length} Atleta(s)</span>
+                            <span class="text-xs font-bold text-slate-700 bg-white px-3 py-1 rounded-xl border border-yellow-300">${g.records.length} Atleta(s)</span>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left border-collapse">
                                 <thead>
-                                    <tr class="bg-slate-800/30 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                                    <tr class="bg-yellow-50 border-b border-yellow-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
                                         <th class="py-3 px-6 text-center w-24">Pos</th>
                                         <th class="py-3 px-6">Atleta</th>
                                         <th class="py-3 px-6">Naipe</th>
@@ -1211,34 +920,22 @@
                                         <th class="py-3 px-6 text-right">Dif. p/ Líder</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-800 text-sm text-slate-200">
-                                    ${htmlTableRows}
-                                </tbody>
+                                <tbody class="divide-y divide-yellow-200 text-sm text-slate-800">${htmlTableRows}</tbody>
                             </table>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
         }
 
         function startTVMode() {
             document.body.classList.add('tv-mode');
-            tvCycleSteps = [
-                { b: 'GERAL', n: 'MAS' },
-                { b: 'GERAL', n: 'FEM' }
-            ];
-            batteries.forEach(bat => {
-                tvCycleSteps.push({ b: bat, n: 'MAS' });
-                tvCycleSteps.push({ b: bat, n: 'FEM' });
-            });
-            tvModeCurrentIndex = 0;
-            applyTVStep();
-            tvModeInterval = setInterval(applyTVStep, 20000);
+            tvCycleSteps = [{ b: 'GERAL', n: 'MAS' }, { b: 'GERAL', n: 'FEM' }];
+            batteries.forEach(bat => { tvCycleSteps.push({ b: bat, n: 'MAS' }); tvCycleSteps.push({ b: bat, n: 'FEM' }); });
+            tvModeCurrentIndex = 0; applyTVStep(); tvModeInterval = setInterval(applyTVStep, 20000);
         }
 
         function stopTVMode() {
-            document.body.classList.remove('tv-mode');
-            clearInterval(tvModeInterval);
+            document.body.classList.remove('tv-mode'); clearInterval(tvModeInterval);
             if(document.getElementById('filter-bateria')) document.getElementById('filter-bateria').value = 'GERAL';
             if(document.getElementById('filter-naipe')) document.getElementById('filter-naipe').value = 'TODOS';
             renderLeaderboard();
@@ -1247,58 +944,33 @@
         function applyTVStep() {
             if (tvCycleSteps.length === 0) return;
             const step = tvCycleSteps[tvModeCurrentIndex];
-            const batSelect = document.getElementById('filter-bateria');
-            const naipeSelect = document.getElementById('filter-naipe');
-            if(batSelect) batSelect.value = step.b;
-            if(naipeSelect) naipeSelect.value = step.n;
-            renderLeaderboard();
-            tvModeCurrentIndex = (tvModeCurrentIndex + 1) % tvCycleSteps.length;
+            if(document.getElementById('filter-bateria')) document.getElementById('filter-bateria').value = step.b;
+            if(document.getElementById('filter-naipe')) document.getElementById('filter-naipe').value = step.n;
+            renderLeaderboard(); tvModeCurrentIndex = (tvModeCurrentIndex + 1) % tvCycleSteps.length;
         }
 
         function timeToSeconds(timeStr) {
-            if (!timeStr) return 0;
-            const parts = String(timeStr).split(':').map(Number);
+            if (!timeStr) return 0; const parts = String(timeStr).split(':').map(Number);
             if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
-            if (parts.length === 2) return parts[0] * 60 + parts[1];
-            return 0;
+            if (parts.length === 2) return parts[0] * 60 + parts[1]; return 0;
         }
-
         function secondsToTime(totalSec) {
-            const h = Math.floor(totalSec / 3600);
-            const m = Math.floor((totalSec % 3600) / 60);
-            const s = totalSec % 60;
-            if (h > 0) return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-            return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            const h = Math.floor(totalSec / 3600), m = Math.floor((totalSec % 3600) / 60), s = totalSec % 60;
+            return h > 0 ? `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}` : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
         }
 
         function showModal(title, message, type = 'success') {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-message').innerText = message;
+            document.getElementById('modal-title').innerText = title; document.getElementById('modal-message').innerText = message;
             const icon = document.getElementById('modal-icon');
-            if (type === 'success') {
-                icon.className = "w-14 h-14 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mx-auto text-2xl border border-green-500/30";
-                icon.innerHTML = '<i class="fa-solid fa-check"></i>';
-            } else {
-                icon.className = "w-14 h-14 rounded-full bg-red-500/20 text-red-400 flex items-center justify-center mx-auto text-2xl border border-red-500/30";
-                icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
-            }
+            if (type === 'success') { icon.className = "w-14 h-14 rounded-full bg-green-100 text-green-600 flex items-center justify-center mx-auto text-2xl border border-green-300"; icon.innerHTML = '<i class="fa-solid fa-check"></i>'; }
+            else { icon.className = "w-14 h-14 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto text-2xl border border-red-300"; icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>'; }
             document.getElementById('custom-modal').classList.remove('hidden');
         }
-
-        function closeModal() {
-            document.getElementById('custom-modal').classList.add('hidden');
-        }
+        function closeModal() { document.getElementById('custom-modal').classList.add('hidden'); }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            updateUIState();
-            await fetchRecords();
-            try {
-                _supabase.channel('public:resultados')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'resultados' }, () => { fetchRecords(); })
-                    .subscribe();
-            } catch (e) {
-                console.log("Realtime desativado.");
-            }
+            updateUIState(); await fetchRecords();
+            try { _supabase.channel('public:resultados').on('postgres_changes', { event: '*', schema: 'public', table: 'resultados' }, () => { fetchRecords(); }).subscribe(); } catch (e) {}
         });
     </script>
 </body>
