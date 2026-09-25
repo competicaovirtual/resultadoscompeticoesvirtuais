@@ -137,7 +137,7 @@
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl tv-hidden">
                 <div>
                     <h2 class="text-2xl font-black text-white">Ranking Oficial</h2>
-                    <p class="text-sm text-slate-400">Consulte os resultados homologados separados por naipe e categoria[cite: 16].</p>
+                    <p class="text-sm text-slate-400">Consulte os resultados homologados separados por naipe e categoria.</p>
                 </div>
                 
                 <div class="flex flex-wrap gap-3 items-center">
@@ -210,8 +210,6 @@
                         </button>
                     </div>
                 </div>
-
-                <!-- ORDEM REQUISITADA DAS FUNCIONALIDADES DO PAINEL ADMIN -->
 
                 <!-- 1 - Upload de Inscritos / Resultados (Excel / CSV) -->
                 <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-4">
@@ -324,7 +322,7 @@
                         <i class="fa-solid fa-camera text-cyan-400"></i>
                         <span>4. Captura de Tempos via Imagem (OCR)</span>
                     </h4>
-                    <p class="text-xs text-slate-400">Faça o upload do print do app. O sistema escaneará o <strong>USERNAME</strong> para extrair os tempos.</p>
+                    <p class="text-xs text-slate-400">Faça o upload do print do app. O sistema detectará automaticamente nomes cortados com <strong>"..."</strong>.</p>
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
                         <input type="file" id="ocr-file-input" accept="image/*" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-cyan-400 file:text-slate-950 cursor-pointer">
                         <button onclick="processOCRUpload()" class="w-full sm:w-auto px-8 py-3 bg-cyan-400 hover:opacity-90 text-slate-950 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
@@ -574,7 +572,6 @@
             updateUIState();
         }
 
-        // AUTO-PREENCHIMENTO COMPLETO: INCLUINDO NAIPE E BATERIA AUTOMATICAMENTE
         function handleUsernameAutofill() {
             const usernameInput = document.getElementById('manual-username').value.trim().toUpperCase();
             if (!usernameInput) return;
@@ -591,7 +588,6 @@
             }
         }
 
-        // EXPORTAÇÃO DE RESULTADOS EM EXCEL (.XLSX)
         function exportResultsExcel() {
             const mode = document.getElementById('export-mode').value;
             let filtered = records.filter(r => r.modalidade === activeModality);
@@ -667,7 +663,6 @@
             showModal('Sucesso!', 'Planilha Excel gerada e baixada com sucesso!', 'success');
         }
 
-        // EXPORTAÇÃO DE RESULTADOS EM PDF
         function exportResultsPDF() {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
@@ -817,6 +812,7 @@
             return timeStr;
         }
 
+        // --- SISTEMA OCR ATUALIZADO: DETECÇÃO INTELIGENTE DE TRUNCAMENTO --- //
         async function processOCRUpload() {
             const fileInput = document.getElementById('ocr-file-input');
             const file = fileInput.files[0];
@@ -841,14 +837,57 @@
 
                 for (let record of records) {
                     if (!record.username || record.modalidade !== activeModality) continue;
+                    
+                    // Limpa o nome do alvo (apenas letras, números e hífen)
                     const targetUser = record.username.toUpperCase().replace(/\s+/g, '');
-                    const matchedLine = lines.find(line => line.toUpperCase().replace(/\s+/g, '').includes(targetUser));
+
+                    const matchedLine = lines.find(line => {
+                        const cleanLine = line.toUpperCase().replace(/\s+/g, '');
+                        
+                        // 1. MATCH EXATO: Se o nome completo e sem cortes for encontrado.
+                        if (cleanLine.includes(targetUser)) return true;
+
+                        // 2. MATCH TRUNCADO PADRÃO (Rouvy com Reticências):
+                        // O Rouvy adiciona pontos no fim do nome cortado. Ex: "ANGELOSILVA..."
+                        // A Regex extrai strings longas com letras que terminam em '.'
+                        const matchTruncated = cleanLine.match(/([A-Z0-9-]{7,})\.+/);
+                        if (matchTruncated) {
+                            const extractedName = matchTruncated[1]; // Ex: "ANGELOSILVA"
+                            // Valida se o username longo inicia exatamente com essa string capturada
+                            if (targetUser.startsWith(extractedName)) return true;
+                        }
+
+                        // 3. MATCH DINÂMICO REGRESSIVO (Fallback):
+                        // Caso a resolução da foto não tenha capturado os pontos (...) perfeitamente
+                        // O sistema busca prefixos começando pelo tamanho total e reduzindo até 7 caracteres.
+                        for (let i = targetUser.length; i >= 7; i--) {
+                            const prefix = targetUser.substring(0, i);
+                            if (cleanLine.includes(prefix)) {
+                                // Verifica o que vem logo após o prefixo encontrado.
+                                const idx = cleanLine.indexOf(prefix);
+                                const nextChar = cleanLine.charAt(idx + prefix.length);
+                                
+                                // Se o corte aconteceu logo antes do tempo (+00:00) ou marcador, consideramos válido.
+                                // Ex: Se logo depois vier um '+', um número ou um '.' é garantia de ser o atleta correto.
+                                if (!nextChar || /[\.\+0-9]/.test(nextChar)) {
+                                    return true;
+                                }
+                            }
+                        }
+                        return false;
+                    });
                     
                     if (matchedLine) {
-                        const timeRegex = /\b(?:\d{1,2}:)?\d{1,2}:\d{2}\b/;
-                        const match = matchedLine.match(timeRegex);
-                        if (match) {
-                            const tempoOficial = formatExtractedTime(match[0]);
+                        // BÔNUS (Correção Crítica):
+                        // O Rouvy mostra a Diferença (Gap, ex: +00:00:19.6) E o Tempo Final (00:15:47.3).
+                        // Esta lógica garante que sempre iremos capturar o ÚLTIMO TEMPO da linha, que é o correto Oficial.
+                        const timeRegex = /\b(?:\d{1,2}:)?\d{1,2}:\d{2}\b/g;
+                        const timeMatches = matchedLine.match(timeRegex);
+                        
+                        if (timeMatches && timeMatches.length > 0) {
+                            const lastTimeMatch = timeMatches[timeMatches.length - 1]; // Pega a cronometragem mais à direita
+                            const tempoOficial = formatExtractedTime(lastTimeMatch);
+                            
                             await _supabase.from('resultados').update({ tempo: tempoOficial }).eq('id', record.id);
                             countUpdated++;
                         }
@@ -859,11 +898,11 @@
                     showModal('Sucesso OCR!', `${countUpdated} tempo(s) capturado(s) com sucesso.`, 'success');
                     await fetchRecords();
                 } else {
-                    showModal('Aviso OCR', 'Nenhum username correspondente encontrado na imagem.', 'error');
+                    showModal('Aviso OCR', 'Nenhum username correspondente ou tempo legível foi encontrado na imagem.', 'error');
                 }
             } catch (err) {
                 console.error(err);
-                showModal('Erro', 'Falha ao processar OCR.', 'error');
+                showModal('Erro', 'Falha ao processar a leitura via OCR. Verifique a qualidade da imagem.', 'error');
             }
             statusContainer.classList.add('hidden');
             fileInput.value = '';
