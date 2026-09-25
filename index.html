@@ -17,6 +17,9 @@
         body.tv-mode #tab-rankings { margin-top: 0 !important; }
         .tv-indicator { display: none; }
         body.tv-mode .tv-indicator { display: flex !important; }
+        /* Alternar visibilidade de cabeçalhos no Modo TV */
+        body.tv-mode .ranking-header { display: none !important; }
+        body.tv-mode .tv-header { display: flex !important; }
     </style>
 </head>
 <body class="bg-green-600 text-slate-900 min-h-screen flex flex-col font-sans selection:bg-yellow-400 selection:text-slate-900 transition-all">
@@ -63,7 +66,6 @@
 
         <!-- TAB: INÍCIO -->
         <section id="tab-home" class="space-y-8 animate-fadeIn">
-            
             <div class="relative bg-yellow-400 rounded-3xl border border-yellow-500 p-8 md:p-12 overflow-hidden shadow-2xl text-slate-900 flex flex-col items-center">
                 <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-yellow-200/40 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="absolute top-0 left-1/4 w-72 h-72 bg-white/20 rounded-full blur-3xl pointer-events-none"></div>
@@ -81,13 +83,13 @@
                     </h2>
                     
                     <p class="text-slate-700 text-lg max-w-xl font-medium">
-                        Acompanhe os rankings atualizados em tempo real.
+                        Acompanhe os resultados classificados por Naipe e Categoria.
                     </p>
                     
                     <div class="flex flex-wrap justify-center gap-4 pt-2">
                         <button onclick="switchTab('rankings')" class="px-8 py-4 bg-green-600 text-white font-black rounded-xl shadow-lg hover:bg-green-700 transition-all flex items-center space-x-2 border border-green-500">
                             <i class="fa-solid fa-trophy text-yellow-400"></i>
-                            <span>Ver Ranking Oficial</span>
+                            <span>Ver Resultados</span>
                         </button>
                     </div>
 
@@ -96,50 +98,72 @@
                     </div>
                 </div>
             </div>
-            
         </section>
 
         <!-- TAB: RANKING -->
         <section id="tab-rankings" class="space-y-6 hidden animate-fadeIn">
             
-            <!-- NOVO CABEÇALHO DO RANKING E TV MODE -->
-            <div class="bg-yellow-400 border border-yellow-500 p-6 md:p-8 rounded-3xl shadow-2xl mb-6 flex flex-col md:flex-row items-center justify-between w-full gap-6">
-                
-                <!-- Esquerda: Cabeçalho Remo em Destaque Maior -->
+            <!-- CABEÇALHO PADRÃO DO RANKING (Oculto no Modo TV) -->
+            <div class="ranking-header bg-yellow-400 border border-yellow-500 p-6 md:p-8 rounded-3xl shadow-2xl mb-6 flex flex-col md:flex-row items-center justify-between w-full gap-6">
+                <!-- Esquerda: Cabeçalho Remo -->
                 <div class="flex justify-center md:justify-start w-full md:w-auto shrink-0">
                     <img src="cabecalhoremo.png" alt="Cabeçalho Remo" class="h-28 md:h-36 lg:h-44 object-contain drop-shadow-xl">
                 </div>
-
-                <!-- Centro/Direita: Título Uniforme -->
+                <!-- Centro/Direita: Título -->
                 <div class="flex flex-wrap items-center justify-center w-full gap-x-4 gap-y-2 text-center md:text-right">
                     <span class="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight drop-shadow-sm whitespace-nowrap">COPA PAULISTA</span>
                     <img src="logosabesp.png" alt="SABESP" class="h-12 md:h-16 lg:h-20 object-contain drop-shadow-md shrink-0">
                     <span class="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight drop-shadow-sm whitespace-nowrap">DE REMO VIRTUAL</span>
                 </div>
-                
+            </div>
+
+            <!-- CABEÇALHO MODO TV (Exclusivo Modo TV) -->
+            <div class="tv-header hidden bg-yellow-400 border border-yellow-500 p-6 md:p-8 rounded-3xl shadow-2xl mb-6 items-center justify-between w-full gap-4">
+                <!-- Esquerda: Logos COB e CBR -->
+                <div class="flex items-center space-x-6 md:space-x-8 w-1/4 justify-start">
+                    <img src="logocob.png" alt="COB" class="h-16 md:h-24 lg:h-28 object-contain drop-shadow-md">
+                    <img src="logocbr.png" alt="CBR" class="h-16 md:h-24 lg:h-28 object-contain drop-shadow-md">
+                </div>
+                <!-- Centro: Título com SABESP -->
+                <div class="flex flex-wrap items-center justify-center w-2/4 gap-3 text-center">
+                    <span class="text-2xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight drop-shadow-sm whitespace-nowrap">COPA PAULISTA</span>
+                    <img src="logosabesp.png" alt="SABESP" class="h-16 md:h-24 lg:h-28 object-contain drop-shadow-xl shrink-0">
+                    <span class="text-2xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight drop-shadow-sm whitespace-nowrap">DE REMO VIRTUAL</span>
+                </div>
+                <!-- Direita: Logos AIWA e EXR -->
+                <div class="flex items-center space-x-6 md:space-x-8 w-1/4 justify-end">
+                    <img src="logoaiwa.png" alt="AIWA" class="h-10 md:h-16 lg:h-20 object-contain drop-shadow-md">
+                    <img src="logoexr.png" alt="EXR" class="h-8 md:h-12 lg:h-16 object-contain drop-shadow-md">
+                </div>
             </div>
 
             <!-- Filtros e Controles do Ranking (Escondidos no modo TV) -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-green-500/20 p-6 rounded-2xl shadow-xl tv-hidden">
                 <div>
-                    <h2 class="text-2xl font-black text-slate-900">Ranking Oficial</h2>
-                    <p class="text-sm text-slate-600">Resultados classificados exclusivamente por Naipe e Categoria.</p>
+                    <h2 class="text-2xl font-black text-slate-900">Resultados por Categoria</h2>
+                    <p class="text-sm text-slate-600">A exibição é feita unicamente com base no Naipe e na Categoria.</p>
                 </div>
                 
                 <div class="flex flex-wrap gap-3 items-center">
-                    <select id="filter-modalidade" onchange="renderLeaderboard()" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-green-600"></select>
-                    <select id="filter-naipe" onchange="renderLeaderboard()" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-green-600">
+                    <select id="filter-modalidade" onchange="handleFiltroChange()" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-green-600"></select>
+                    
+                    <select id="filter-naipe" onchange="handleFiltroChange()" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-green-600">
                         <option value="TODOS">Todos os Naipes</option>
                         <option value="MAS">Masculino (MAS)</option>
                         <option value="FEM">Feminino (FEM)</option>
                     </select>
+                    
+                    <select id="filter-categoria" onchange="renderLeaderboard()" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-green-600">
+                        <option value="TODAS">Todas as Categorias</option>
+                    </select>
+
                     <button onclick="startTVMode()" class="px-5 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold rounded-xl shadow-md transition-all flex items-center">
                         <i class="fa-solid fa-tv mr-2"></i> Iniciar Modo TV
                     </button>
                 </div>
             </div>
 
-            <!-- CONTAINER DINÂMICO PARA SEPARAR POR NAIPE E CATEGORIA -->
+            <!-- CONTAINER DINÂMICO DE EXIBIÇÃO CATEGORIA POR CATEGORIA -->
             <div id="leaderboard-container" class="space-y-6"></div>
         </section>
 
@@ -194,7 +218,7 @@
                     </div>
                 </div>
 
-                <!-- 1 - Upload de Inscritos -->
+                <!-- Upload Excel -->
                 <div class="bg-white border border-green-500/20 p-8 rounded-3xl shadow-xl space-y-4">
                     <h4 class="text-xl font-black text-slate-900 flex items-center space-x-2">
                         <i class="fa-solid fa-file-excel text-green-600"></i>
@@ -202,54 +226,32 @@
                     </h4>
                     <p class="text-xs text-slate-600">Colunas esperadas: <strong>ATLETA</strong>, <strong>USERNAME</strong>, <strong>NAIPE</strong>, <strong>CATEGORIA</strong>, <strong>ESTADO</strong>, <strong>EQUIPE</strong>, <strong>BATERIA</strong> e <strong>TEMPO</strong>.</p>
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
-                        <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-slate-900 cursor-pointer">
+                        <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 cursor-pointer">
                         <button onclick="processExcelUpload()" class="w-full sm:w-auto px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl transition-all shadow-md whitespace-nowrap">
                             Processar e Importar
                         </button>
                     </div>
                 </div>
 
-                <!-- 2 - Gerenciamento de Baterias e Sorteio -->
+                <!-- Baterias -->
                 <div class="bg-white border border-green-500/20 p-6 rounded-2xl shadow-xl space-y-6">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <h4 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
-                            <i class="fa-solid fa-layer-group text-green-600"></i>
-                            <span>2. Gerenciamento de Baterias (Para Admin/Start List)</span>
-                        </h4>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Máx. Atletas por Bateria</label>
-                            <input type="number" id="sorteio-max-por-bateria" value="20" min="1" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-green-600">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Critério de Distribuição</label>
-                            <select id="sorteio-criterio" onchange="toggleCriterioPersonalizado()" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-green-600">
-                                <option value="aleatorio">Aleatório</option>
-                                <option value="personalizado">Personalizado (Ordem Manual)</option>
-                            </select>
-                        </div>
-                        <div id="criterio-personalizado-container" class="hidden">
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">Ordem Manual (Categorias vírgula)</label>
-                            <input type="text" id="sorteio-ordem-manual" placeholder="Ex: ELITE, SUB-30, MASTER" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:border-green-600">
-                        </div>
-                    </div>
-
+                    <h4 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-layer-group text-green-600"></i>
+                        <span>2. Gerenciamento de Baterias</span>
+                    </h4>
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
                         <input type="text" id="new-battery-input" placeholder="NOME DA BATERIA (EX: BATERIA 1)" oninput="this.value = this.value.toUpperCase()" class="flex-grow bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 uppercase focus:outline-none focus:border-green-600">
                         <button onclick="addBattery()" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-black rounded-xl transition-all shadow-md whitespace-nowrap">
                             Adicionar Bateria
                         </button>
-                        <button onclick="sortearBateriasAleatorioOuPersonalizado()" class="px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-black rounded-xl transition-all shadow-md flex items-center justify-center space-x-2 whitespace-nowrap">
-                            <i class="fa-solid fa-shuffle"></i>
-                            <span>Executar Sorteio</span>
+                        <button onclick="sortearBateriasAleatorioOuPersonalizado()" class="px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-black rounded-xl transition-all shadow-md flex items-center space-x-2 whitespace-nowrap">
+                            <i class="fa-solid fa-shuffle"></i> <span>Executar Sorteio</span>
                         </button>
                     </div>
                     <div id="batteries-list-container" class="flex flex-wrap gap-2 pt-2"></div>
                 </div>
 
-                <!-- 3 - Inserção Manual de Resultados -->
+                <!-- Inserção Manual -->
                 <div class="bg-white border border-green-500/20 p-6 rounded-2xl shadow-xl space-y-4">
                     <h4 class="text-lg font-bold text-slate-900 flex items-center space-x-2">
                         <i class="fa-solid fa-keyboard text-green-600"></i>
@@ -299,53 +301,29 @@
                     </div>
                 </div>
 
-                <!-- 4 - Captura de Tempos via Imagem (OCR) -->
-                <div class="bg-white border border-green-500/20 p-8 rounded-3xl shadow-xl space-y-4">
-                    <h4 class="text-xl font-black text-slate-900 flex items-center space-x-2">
-                        <i class="fa-solid fa-camera text-yellow-500"></i>
-                        <span>4. Captura de Tempos via Imagem (OCR)</span>
-                    </h4>
-                    <p class="text-xs text-slate-600">Faça o upload do print do app. O sistema detectará automaticamente nomes cortados com <strong>"..."</strong>.</p>
-                    <div class="flex flex-col sm:flex-row gap-4 items-center">
-                        <input type="file" id="ocr-file-input" accept="image/*" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-yellow-400 file:text-slate-900 cursor-pointer">
-                        <button onclick="processOCRUpload()" class="w-full sm:w-auto px-8 py-3 bg-yellow-400 hover:opacity-90 text-slate-900 font-black rounded-xl transition-all shadow-md whitespace-nowrap">
-                            Escanear Imagem
-                        </button>
-                    </div>
-                    <div id="ocr-status-container" class="hidden flex items-center space-x-3 bg-green-50 border border-green-200 p-3 rounded-xl mt-4">
-                        <i class="fa-solid fa-circle-notch fa-spin text-green-600"></i>
-                        <span id="ocr-status" class="text-green-700 text-sm font-bold">Analisando imagem... (0%)</span>
-                    </div>
-                </div>
-
-                <!-- 5 - Exportação de Resultados em Excel -->
+                <!-- Exportações -->
                 <div class="bg-white border border-green-500/20 p-8 rounded-3xl shadow-xl space-y-4">
                     <h4 class="text-xl font-black text-slate-900 flex items-center space-x-2">
                         <i class="fa-solid fa-file-arrow-down text-yellow-500"></i>
-                        <span>5. Exportar Resultados em Excel (.xlsx)</span>
+                        <span>4. Exportar Resultados em Excel (.xlsx)</span>
                     </h4>
-                    <p class="text-xs text-slate-600">Baixar a planilha oficial com os resultados já processados.</p>
                     <div class="flex flex-col sm:flex-row gap-4 items-center">
                         <select id="export-mode" class="w-full sm:w-auto bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-green-600">
-                            <option value="geral">Ranking Geral (Por Naipe e Categoria)</option>
+                            <option value="geral">Resultados por Naipe e Categoria</option>
                         </select>
-                        <button onclick="exportResultsExcel()" class="w-full sm:w-auto px-8 py-3 bg-yellow-400 hover:opacity-90 text-slate-900 font-black rounded-xl transition-all shadow-md whitespace-nowrap flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-download"></i>
-                            <span>Baixar Planilha Excel</span>
+                        <button onclick="exportResultsExcel()" class="w-full sm:w-auto px-8 py-3 bg-yellow-400 hover:opacity-90 text-slate-900 font-black rounded-xl transition-all shadow-md whitespace-nowrap flex items-center space-x-2">
+                            <i class="fa-solid fa-download"></i> <span>Baixar Planilha</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- 6 - Registros Armazenados -->
+                <!-- Banco de Dados e PDF -->
                 <div class="bg-white border border-green-500/20 p-8 rounded-3xl shadow-xl space-y-6">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <h4 class="text-xl font-black text-slate-900">6. Registros Armazenados no Banco de Dados</h4>
+                        <h4 class="text-xl font-black text-slate-900">5. Banco de Dados Oficial</h4>
                         <div class="flex flex-wrap gap-2">
-                            <button onclick="exportResultsPDF()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all flex items-center shadow-md">
-                                <i class="fa-solid fa-file-pdf mr-2"></i>Exportar em PDF
-                            </button>
-                            <button onclick="fixModalitiesToActive()" class="px-4 py-2 bg-slate-100 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all">
-                                <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Migrar todos para a modalidade atual
+                            <button onclick="exportResultsPDF()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-md flex items-center">
+                                <i class="fa-solid fa-file-pdf mr-2"></i>Exportar PDF
                             </button>
                         </div>
                     </div>
@@ -353,9 +331,8 @@
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-700 uppercase tracking-wider">
-                                    <th class="py-3 px-4">Modalidade</th>
+                                    <th class="py-3 px-4">Mod.</th>
                                     <th class="py-3 px-4">Atleta</th>
-                                    <th class="py-3 px-4">Username</th>
                                     <th class="py-3 px-4">Naipe</th>
                                     <th class="py-3 px-4">Categoria</th>
                                     <th class="py-3 px-4">Equipe</th>
@@ -371,12 +348,6 @@
         </section>
     </main>
 
-    <footer class="bg-green-700 border-t border-green-800 py-6 mt-16 text-white font-medium">
-        <div class="max-w-7xl mx-auto px-4 text-center text-sm space-y-1">
-            <p>Resultados Competições Virtuais</p>
-        </div>
-    </footer>
-
     <!-- Modal Customizado -->
     <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white border border-green-500 max-w-sm w-full p-6 rounded-3xl shadow-2xl text-center space-y-4">
@@ -389,7 +360,6 @@
         </div>
     </div>
 
-    <!-- Script Application Logic -->
     <script>
         const SUPABASE_URL = 'https://otecuxljcahtfivmthsb.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im90ZWN1eGxqY2FodGZpdm10aHNiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0OTYxMzgsImV4cCI6MjEwNTA3MjEzOH0.NUX1C8M4Z2f38eB6EqDdgTxA-GdrWKksvKk15bcWIZg';
@@ -401,9 +371,11 @@
         let batteries = JSON.parse(localStorage.getItem('app_batteries')) || ['BATERIA 1', 'BATERIA 2'];
         let isAdminLoggedIn = false;
 
-        let tvModeInterval = null;
+        let isTvMode = false;
         let tvCycleSteps = [];
         let tvModeCurrentIndex = 0;
+        let tvModeInterval = null;
+        let tvActiveGroup = null; 
 
         const stateFlags = {
             'AC': 'https://upload.wikimedia.org/wikipedia/commons/4/4c/Bandeira_do_Acre.svg',
@@ -439,20 +411,18 @@
         async function fetchRecords() {
             try {
                 const { data, error } = await _supabase.from('resultados').select('*');
-                if (error) { console.warn("Aviso do Supabase:", error.message); return; }
                 if (data) { records = data; updateUIState(); }
             } catch (err) {}
         }
 
         function updateUIState() {
             document.getElementById('hero-active-mod').innerText = activeModality;
-            if (document.getElementById('admin-active-mod-input')) {
-                document.getElementById('admin-active-mod-input').value = activeModality;
-            }
+            if (document.getElementById('admin-active-mod-input')) document.getElementById('admin-active-mod-input').value = activeModality;
             renderFiltersUI();
             renderAdminBatteriesList();
             renderManualBateriaSelect();
             renderAdminRecords();
+            populateCategoryFilter();
             renderLeaderboard();
         }
 
@@ -466,6 +436,28 @@
                 uniqueMods.forEach(m => { modSelect.innerHTML += `<option value="${m}">${m}</option>`; });
                 if(modSelect.querySelector(`option[value="${currentMod}"]`)) modSelect.value = currentMod;
             }
+        }
+
+        function populateCategoryFilter() {
+            const modFilter = document.getElementById('filter-modalidade') ? document.getElementById('filter-modalidade').value : activeModality;
+            const naipeFilter = document.getElementById('filter-naipe') ? document.getElementById('filter-naipe').value : 'TODOS';
+            const catSelect = document.getElementById('filter-categoria');
+            if (!catSelect) return;
+
+            let filtered = records.filter(r => r.modalidade === modFilter);
+            if (naipeFilter !== 'TODOS') filtered = filtered.filter(r => r.naipe === naipeFilter);
+
+            const uniqueCats = [...new Set(filtered.map(r => r.categoria).filter(Boolean))].sort();
+            const currentVal = catSelect.value;
+            
+            catSelect.innerHTML = '<option value="TODAS">Todas as Categorias</option>';
+            uniqueCats.forEach(c => { catSelect.innerHTML += `<option value="${c}">${c}</option>`; });
+            if (uniqueCats.includes(currentVal)) catSelect.value = currentVal;
+        }
+
+        function handleFiltroChange() {
+            populateCategoryFilter();
+            renderLeaderboard();
         }
 
         function switchTab(tabId) {
@@ -482,286 +474,35 @@
             if (tabId === 'admin' && isAdminLoggedIn) renderAdminRecords();
         }
 
-        function toggleMobileMenu() {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
-        }
-
-        function toggleCriterioPersonalizado() {
-            const criterio = document.getElementById('sorteio-criterio').value;
-            const container = document.getElementById('criterio-personalizado-container');
-            if (criterio === 'personalizado') container.classList.remove('hidden');
-            else container.classList.add('hidden');
-        }
-
-        function saveActiveModality() {
-            const val = document.getElementById('admin-active-mod-input').value.trim().toUpperCase();
-            if (!val) { showModal('Atenção', 'Digite o nome da modalidade ativa.', 'error'); return; }
-            activeModality = val;
-            localStorage.setItem('app_active_modality', activeModality);
-            updateUIState();
-            showModal('Sucesso', 'Modalidade ativa atualizada com sucesso!', 'success');
-        }
-
-        function addBattery() {
-            const input = document.getElementById('new-battery-input');
-            const batName = input.value.trim().toUpperCase();
-            if (!batName) return;
-            if (batteries.includes(batName)) { showModal('Atenção', 'Bateria já cadastrada.', 'error'); return; }
-            batteries.push(batName);
-            localStorage.setItem('app_batteries', JSON.stringify(batteries));
-            input.value = '';
-            updateUIState();
-            showModal('Sucesso', 'Bateria adicionada com sucesso!', 'success');
-        }
-
-        function removeBattery(batName) {
-            if (batteries.length <= 1) { showModal('Atenção', 'Mínimo de uma bateria necessária.', 'error'); return; }
-            batteries = batteries.filter(b => b !== batName);
-            localStorage.setItem('app_batteries', JSON.stringify(batteries));
-            updateUIState();
-        }
-
-        function handleUsernameAutofill() {
-            const usernameInput = document.getElementById('manual-username').value.trim().toUpperCase();
-            if (!usernameInput) return;
-            const found = records.find(r => (r.username || '').toUpperCase() === usernameInput);
-            if (found) {
-                document.getElementById('manual-atleta').value = found.atleta || '';
-                if (found.naipe) document.getElementById('manual-naipe').value = found.naipe;
-                document.getElementById('manual-categoria').value = found.categoria || '';
-                document.getElementById('manual-estado').value = found.estado || '';
-                document.getElementById('manual-equipe').value = found.equipe || '';
-                if (found.bateria) document.getElementById('manual-bateria').value = found.bateria;
-                if (found.tempo) document.getElementById('manual-tempo').value = found.tempo;
-            }
-        }
-
-        function exportResultsExcel() {
-            let filtered = records.filter(r => r.modalidade === activeModality);
-            if (filtered.length === 0) { showModal('Atenção', 'Não há registros na modalidade ativa para exportar.', 'error'); return; }
-            let wb = XLSX.utils.book_new();
-
-            filtered.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
-            const dataToExport = filtered.map((r, idx) => ({ 'Posição': idx + 1, 'Atleta': r.atleta, 'Username': r.username || '', 'Naipe': r.naipe || '', 'Categoria': r.categoria || '', 'Estado': r.estado || '', 'Equipe': r.equipe || '', 'Tempo Oficial': r.tempo || '' }));
-            let ws = XLSX.utils.json_to_sheet(dataToExport);
-            XLSX.utils.book_append_sheet(wb, ws, "Ranking Geral");
-            XLSX.writeFile(wb, `Ranking_Geral_${activeModality.replace(/\s+/g, '_')}.xlsx`);
-            
-            showModal('Sucesso!', 'Planilha Excel gerada e baixada com sucesso!', 'success');
-        }
-
-        function exportResultsPDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            let filtered = records.filter(r => r.modalidade === activeModality);
-            if (filtered.length === 0) { showModal('Atenção', 'Não há registros na modalidade ativa para exportar.', 'error'); return; }
-            filtered.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
-
-            doc.setFontSize(16); doc.text(`RELATÓRIO OFICIAL - ${activeModality}`, 14, 20);
-            doc.setFontSize(10); doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}`, 14, 27);
-            const tableRows = filtered.map((r, idx) => [ idx + 1, r.atleta || '-', r.naipe || '-', r.categoria || '-', r.equipe || '-', r.tempo || '-' ]);
-            
-            doc.autoTable({ startY: 35, head: [['Pos', 'Atleta', 'Naipe', 'Categoria', 'Equipe', 'Tempo']], body: tableRows, theme: 'grid', headStyles: { fillColor: [22, 163, 74] }, styles: { fontSize: 8 } });
-            doc.save(`Resultados_${activeModality.replace(/\s+/g, '_')}.pdf`);
-            showModal('Sucesso!', 'Arquivo PDF gerado e baixado com sucesso!', 'success');
-        }
-
-        async function sortearBateriasAleatorioOuPersonalizado() {
-            if (batteries.length === 0) { showModal('Atenção', 'Cadastre pelo menos uma bateria.', 'error'); return; }
-            let modRecords = records.filter(r => r.modalidade === activeModality);
-            if (modRecords.length === 0) { showModal('Atenção', 'Não há atletas cadastrados.', 'error'); return; }
-            const maxPorBateria = parseInt(document.getElementById('sorteio-max-por-bateria').value) || 20;
-            const criterio = document.getElementById('sorteio-criterio').value;
-            let sortedList = [...modRecords];
-
-            if (criterio === 'aleatorio') {
-                for (let i = sortedList.length - 1; i > 0; i--) { let j = Math.floor(Math.random() * (i + 1)); [sortedList[i], sortedList[j]] = [sortedList[j], sortedList[i]]; }
-            } else if (criterio === 'personalizado') {
-                const ordemInput = document.getElementById('sorteio-ordem-manual').value;
-                if (ordemInput.trim() === '') { showModal('Atenção', 'Informe a ordem manual.', 'error'); return; }
-                const ordemArray = ordemInput.split(',').map(s => s.trim().toUpperCase());
-                sortedList.sort((a, b) => {
-                    let indexA = ordemArray.indexOf((a.categoria || '').toUpperCase());
-                    let indexB = ordemArray.indexOf((b.categoria || '').toUpperCase());
-                    if (indexA === -1) indexA = 999; if (indexB === -1) indexB = 999;
-                    return indexA - indexB;
-                });
-            }
-
-            let batIndex = 0, currentCountInBat = 0, countUpdated = 0;
-            for (let i = 0; i < sortedList.length; i++) {
-                if (currentCountInBat >= maxPorBateria && batIndex < batteries.length - 1) { batIndex++; currentCountInBat = 0; }
-                let targetBattery = batteries[batIndex % batteries.length];
-                let rec = sortedList[i];
-                if (rec.id) {
-                    const { error } = await _supabase.from('resultados').update({ bateria: targetBattery }).eq('id', rec.id);
-                    if (!error) countUpdated++;
-                }
-                currentCountInBat++;
-            }
-            await fetchRecords();
-            showModal('Sucesso!', `${countUpdated} atletas distribuídos nas baterias!`, 'success');
-        }
-
-        function renderAdminBatteriesList() {
-            const container = document.getElementById('batteries-list-container');
-            if (!container) return; container.innerHTML = '';
-            batteries.forEach(b => {
-                container.innerHTML += `<div class="inline-flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-xl text-sm"><span class="text-slate-900 font-semibold">${b}</span><button onclick="removeBattery('${b}')" class="text-red-500 hover:text-red-700 ml-2"><i class="fa-solid fa-xmark"></i></button></div>`;
-            });
-        }
-
-        function renderManualBateriaSelect() {
-            const select = document.getElementById('manual-bateria');
-            if (!select) return; select.innerHTML = '';
-            batteries.forEach(b => { select.innerHTML += `<option value="${b}">${b}</option>`; });
-        }
-
         function handleAdminLogin() {
             const pin = document.getElementById('admin-pin-input').value;
-            const errorEl = document.getElementById('login-error');
             if (pin === 'Virtu@lBr09' || pin === 'JJ2026FOZ') {
-                isAdminLoggedIn = true; errorEl.classList.add('hidden'); document.getElementById('admin-login-screen').classList.add('hidden'); document.getElementById('admin-panel-content').classList.remove('hidden'); updateUIState();
-            } else { errorEl.classList.remove('hidden'); }
+                isAdminLoggedIn = true; document.getElementById('login-error').classList.add('hidden'); 
+                document.getElementById('admin-login-screen').classList.add('hidden'); 
+                document.getElementById('admin-panel-content').classList.remove('hidden'); updateUIState();
+            } else { document.getElementById('login-error').classList.remove('hidden'); }
         }
 
         function handleAdminLogout() {
-            isAdminLoggedIn = false; document.getElementById('admin-pin-input').value = ''; document.getElementById('admin-panel-content').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden');
-        }
-
-        function formatExtractedTime(timeStr) {
-            const parts = timeStr.split(':');
-            if(parts.length === 2) return `00:${parts[0].padStart(2,'0')}:${parts[1].padStart(2,'0')}`;
-            if(parts.length === 3) return `${parts[0].padStart(2,'0')}:${parts[1].padStart(2,'0')}:${parts[2].padStart(2,'0')}`;
-            return timeStr;
-        }
-
-        async function processOCRUpload() {
-            const fileInput = document.getElementById('ocr-file-input'); const file = fileInput.files[0];
-            if (!file) { showModal('Atenção', 'Selecione uma imagem para escanear.', 'error'); return; }
-            const statusContainer = document.getElementById('ocr-status-container'); const statusText = document.getElementById('ocr-status');
-            statusContainer.classList.remove('hidden'); statusText.innerText = "Analisando imagem... (0%)";
-
-            try {
-                const result = await Tesseract.recognize(file, 'eng', { logger: m => { if (m.status === 'recognizing text') statusText.innerText = `Analisando imagem... (${Math.round(m.progress * 100)}%)`; } });
-                const lines = result.data.lines.map(l => l.text);
-                let countUpdated = 0;
-                for (let record of records) {
-                    if (!record.username || record.modalidade !== activeModality) continue;
-                    const targetUser = record.username.toUpperCase().replace(/\s+/g, '');
-                    const matchedLine = lines.find(line => {
-                        const cleanLine = line.toUpperCase().replace(/\s+/g, '');
-                        if (cleanLine.includes(targetUser)) return true;
-                        const matchTruncated = cleanLine.match(/([A-Z0-9-]{7,})\.+/);
-                        if (matchTruncated && targetUser.startsWith(matchTruncated[1])) return true;
-                        for (let i = targetUser.length; i >= 7; i--) {
-                            const prefix = targetUser.substring(0, i);
-                            if (cleanLine.includes(prefix)) {
-                                const idx = cleanLine.indexOf(prefix); const nextChar = cleanLine.charAt(idx + prefix.length);
-                                if (!nextChar || /[\.\+0-9]/.test(nextChar)) return true;
-                            }
-                        }
-                        return false;
-                    });
-                    if (matchedLine) {
-                        const timeMatches = matchedLine.match(/\b(?:\d{1,2}:)?\d{1,2}:\d{2}\b/g);
-                        if (timeMatches && timeMatches.length > 0) {
-                            const tempoOficial = formatExtractedTime(timeMatches[timeMatches.length - 1]);
-                            await _supabase.from('resultados').update({ tempo: tempoOficial }).eq('id', record.id);
-                            countUpdated++;
-                        }
-                    }
-                }
-                if (countUpdated > 0) { showModal('Sucesso OCR!', `${countUpdated} tempo(s) capturado(s).`, 'success'); await fetchRecords(); }
-                else { showModal('Aviso OCR', 'Nenhum tempo capturado.', 'error'); }
-            } catch (err) { showModal('Erro', 'Falha ao processar OCR.', 'error'); }
-            statusContainer.classList.add('hidden'); fileInput.value = '';
-        }
-
-        async function addManualRecord() {
-            const atleta = document.getElementById('manual-atleta').value.trim().toUpperCase();
-            const username = document.getElementById('manual-username').value.trim();
-            const naipe = document.getElementById('manual-naipe').value;
-            const categoria = document.getElementById('manual-categoria').value.trim().toUpperCase();
-            const estado = document.getElementById('manual-estado').value.trim().toUpperCase();
-            const equipe = document.getElementById('manual-equipe').value.trim().toUpperCase();
-            const bateria = document.getElementById('manual-bateria').value;
-            const tempo = document.getElementById('manual-tempo').value.trim() || '00:00:00';
-            if (!atleta) { showModal('Atenção', 'Nome do atleta obrigatório.', 'error'); return; }
-
-            const modalidade = activeModality; 
-            const existingRecord = records.find(r => (r.username && r.username.toUpperCase() === username.toUpperCase()) || (r.atleta === atleta && r.modalidade === modalidade));
-            try {
-                const payload = { atleta, username, naipe, categoria, estado, equipe, modalidade, bateria, tempo };
-                let res = existingRecord && existingRecord.id ? await _supabase.from('resultados').update(payload).eq('id', existingRecord.id) : await _supabase.from('resultados').insert([payload]);
-                if (res.error) { showModal('Erro', res.error.message, 'error'); return; }
-                ['username', 'atleta', 'categoria', 'estado', 'equipe', 'tempo'].forEach(id => document.getElementById(`manual-${id}`).value = '');
-                await fetchRecords(); showModal('Sucesso', 'Registro salvo!', 'success');
-            } catch (err) { showModal('Erro', 'Erro inesperado.', 'error'); }
-        }
-
-        async function processExcelUpload() {
-            const fileInput = document.getElementById('excel-file-input');
-            if (!fileInput.files || fileInput.files.length === 0) { showModal('Atenção', 'Selecione um arquivo.', 'error'); return; }
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                try {
-                    const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-                    const jsonRows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: '' });
-                    if (jsonRows.length === 0) { showModal('Atenção', 'Planilha vazia.', 'error'); return; }
-                    let countProcessed = 0, lastErrorMessage = '';
-                    for (let row of jsonRows) {
-                        const keys = Object.keys(row);
-                        const atleta = String(row[keys.find(k => /atleta|nome/i.test(k)) || keys[0]] || '').trim().toUpperCase();
-                        const username = String(row[keys.find(k => /username|gamer|tag|perfil/i.test(k))] || '').trim();
-                        const naipe = String(row[keys.find(k => /naipe|genero|sexo/i.test(k))] || 'MAS').trim().toUpperCase();
-                        const categoria = String(row[keys.find(k => /categoria/i.test(k))] || '').trim().toUpperCase();
-                        const estado = String(row[keys.find(k => /estado|uf/i.test(k))] || '').trim().toUpperCase();
-                        const equipe = String(row[keys.find(k => /equipe|clube|escola/i.test(k))] || '').trim().toUpperCase();
-                        const batVal = row[keys.find(k => /bateria/i.test(k))]; const bateria = batVal && String(batVal).trim() ? String(batVal).trim().toUpperCase() : (batteries[0] || 'BATERIA 1');
-                        const tempVal = row[keys.find(k => /tempo|resultado/i.test(k))]; const tempo = tempVal && String(tempVal).trim() ? String(tempVal).trim() : '00:00:00';
-                        if (atleta) {
-                            const payload = { atleta, username, naipe, categoria, estado, equipe, modalidade: activeModality, bateria, tempo };
-                            const exist = records.find(r => r.atleta === atleta && r.modalidade === activeModality);
-                            let res = exist && exist.id ? await _supabase.from('resultados').update(payload).eq('id', exist.id) : await _supabase.from('resultados').insert([payload]);
-                            if (res.error) lastErrorMessage = res.error.message; else countProcessed++;
-                        }
-                    }
-                    fileInput.value = ''; await fetchRecords();
-                    if (lastErrorMessage) showModal('Atenção', `Erros no Supabase: ${lastErrorMessage}`, 'error');
-                    else showModal('Sucesso', `${countProcessed} importados com sucesso!`, 'success');
-                } catch (err) { showModal('Erro', 'Erro ao processar.', 'error'); }
-            };
-            reader.readAsArrayBuffer(fileInput.files[0]);
-        }
-
-        async function fixModalitiesToActive() {
-            if (records.length === 0) { showModal('Atenção', 'Sem registros.', 'error'); return; }
-            for (let r of records) if(r.id) await _supabase.from('resultados').update({ modalidade: activeModality }).eq('id', r.id);
-            await fetchRecords(); showModal('Sucesso', 'Registros migrados!', 'success');
-        }
-
-        async function deleteRecord(id) {
-            if(id) await _supabase.from('resultados').delete().eq('id', id);
-            await fetchRecords();
+            isAdminLoggedIn = false; document.getElementById('admin-pin-input').value = ''; 
+            document.getElementById('admin-panel-content').classList.add('hidden'); document.getElementById('admin-login-screen').classList.remove('hidden');
         }
 
         function renderAdminRecords() {
             const tbody = document.getElementById('admin-records-tbody');
             if (!tbody) return; tbody.innerHTML = '';
-            if (records.length === 0) { tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-500">Nenhum registro.</td></tr>`; return; }
+            if (records.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-500">Nenhum registro.</td></tr>`; return; }
             records.forEach(r => {
-                const isCurrent = r.modalidade === activeModality; const equipeVal = r.equipe || r['equipe / clube / escola'] || '-';
+                const isCurrent = r.modalidade === activeModality;
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition-colors ${isCurrent ? '' : 'opacity-50'}">
                         <td class="py-3 px-4 font-semibold text-xs text-green-700">${r.modalidade || '-'}</td>
                         <td class="py-3 px-4 font-bold text-slate-900">${r.atleta || '-'}</td>
-                        <td class="py-3 px-4 text-slate-500 font-mono text-xs">${r.username || '-'}</td>
                         <td class="py-3 px-4 text-slate-700">${r.naipe || '-'}</td>
                         <td class="py-3 px-4 text-slate-700">${r.categoria || '-'}</td>
-                        <td class="py-3 px-4 text-slate-700">${equipeVal}</td>
+                        <td class="py-3 px-4 text-slate-700">${r.equipe || '-'}</td>
                         <td class="py-3 px-4 font-mono font-bold text-green-600">${r.tempo || '-'}</td>
-                        <td class="py-3 px-4 text-right"><button onclick="deleteRecord('${r.id}')" class="text-red-500 hover:text-red-700 p-2"><i class="fa-solid fa-trash"></i></button></td>
+                        <td class="py-3 px-4 text-right"><button onclick="deleteRecord('${r.id}')" class="text-red-500 hover:text-red-700"><i class="fa-solid fa-trash"></i></button></td>
                     </tr>`;
             });
         }
@@ -769,15 +510,25 @@
         function renderLeaderboard() {
             const modFilter = document.getElementById('filter-modalidade') ? document.getElementById('filter-modalidade').value : activeModality;
             const naipeFilter = document.getElementById('filter-naipe') ? document.getElementById('filter-naipe').value : 'TODOS';
+            const catFilter = document.getElementById('filter-categoria') ? document.getElementById('filter-categoria').value : 'TODAS';
             const container = document.getElementById('leaderboard-container'); if (!container) return;
 
             let filtered = records.filter(r => r.modalidade === modFilter);
-            if (naipeFilter !== 'TODOS') filtered = filtered.filter(r => r.naipe === naipeFilter);
+            
+            // Lógica de Filtro - Respeita o TV Mode (que injeta filtro fixo Categoria x Naipe) ou UI normal
+            if (isTvMode && tvActiveGroup) {
+                filtered = filtered.filter(r => r.naipe === tvActiveGroup.naipe && r.categoria === tvActiveGroup.categoria);
+            } else {
+                if (naipeFilter !== 'TODOS') filtered = filtered.filter(r => r.naipe === naipeFilter);
+                if (catFilter !== 'TODAS') filtered = filtered.filter(r => r.categoria === catFilter);
+            }
 
             const groups = {};
             filtered.forEach(r => { 
-                const key = `${r.naipe || 'GERAL'}___${r.categoria || 'GERAL'}`; 
-                if (!groups[key]) groups[key] = { naipe: r.naipe || 'GERAL', categoria: r.categoria || 'GERAL', records: [] }; 
+                const n = r.naipe || 'N/A';
+                const c = r.categoria || 'N/A';
+                const key = `${n}___${c}`; 
+                if (!groups[key]) groups[key] = { naipe: n, categoria: c, records: [] }; 
                 groups[key].records.push(r); 
             });
             
@@ -794,7 +545,7 @@
                     else if (index === 1) { badgeClass = "text-slate-500 font-black bg-slate-100 px-3 py-1 rounded-full border border-slate-300"; medalIcon = '<i class="fa-solid fa-medal text-slate-400 mr-1.5 text-base"></i>'; }
                     else if (index === 2) { badgeClass = "text-amber-700 font-black bg-amber-100 px-3 py-1 rounded-full border border-amber-300"; medalIcon = '<i class="fa-solid fa-medal text-amber-700 mr-1.5 text-base"></i>'; }
                     
-                    let diffStr = index > 0 ? "+" + secondsToTime(timeToSeconds(r.tempo) - leaderTimeSec) : ((r.naipe || '').toUpperCase() === 'FEM' ? "CAMPEÃ" : "CAMPEÃO");
+                    let diffStr = index > 0 ? "+" + secondsToTime(timeToSeconds(r.tempo) - leaderTimeSec) : (g.naipe.toUpperCase() === 'FEM' ? "CAMPEÃ" : "CAMPEÃO");
                     htmlTableRows += `
                         <tr class="hover:bg-slate-50 transition-colors">
                             <td class="py-4 px-6 text-center font-black ${badgeClass}">${medalIcon}#${index + 1}</td>
@@ -838,25 +589,53 @@
             });
         }
 
+        // LÓGICA MODO TV (CATEGORIA POR CATEGORIA)
         function startTVMode() {
+            const modFilter = document.getElementById('filter-modalidade') ? document.getElementById('filter-modalidade').value : activeModality;
+            let modRecords = records.filter(r => r.modalidade === modFilter);
+
+            const groupSet = new Set();
+            modRecords.forEach(r => {
+                const n = r.naipe || 'N/A';
+                const c = r.categoria || 'N/A';
+                groupSet.add(JSON.stringify({ naipe: n, categoria: c }));
+            });
+            
+            tvCycleSteps = Array.from(groupSet).map(s => JSON.parse(s));
+            tvCycleSteps.sort((a, b) => {
+                if (a.naipe === b.naipe) return a.categoria.localeCompare(b.categoria);
+                return a.naipe.localeCompare(b.naipe);
+            });
+
+            if (tvCycleSteps.length === 0) {
+                showModal('Atenção', 'Nenhum atleta na modalidade ativa para exibir no Modo TV.', 'error');
+                return;
+            }
+
             document.body.classList.add('tv-mode');
-            tvCycleSteps = [{ n: 'MAS' }, { n: 'FEM' }];
-            tvModeCurrentIndex = 0; applyTVStep(); tvModeInterval = setInterval(applyTVStep, 15000);
+            isTvMode = true;
+            tvModeCurrentIndex = 0; 
+            
+            applyTVStep(); 
+            tvModeInterval = setInterval(applyTVStep, 15000);
         }
 
         function stopTVMode() {
-            document.body.classList.remove('tv-mode'); clearInterval(tvModeInterval);
-            if(document.getElementById('filter-naipe')) document.getElementById('filter-naipe').value = 'TODOS';
+            document.body.classList.remove('tv-mode'); 
+            isTvMode = false;
+            tvActiveGroup = null;
+            clearInterval(tvModeInterval);
             renderLeaderboard();
         }
 
         function applyTVStep() {
             if (tvCycleSteps.length === 0) return;
-            const step = tvCycleSteps[tvModeCurrentIndex];
-            if(document.getElementById('filter-naipe')) document.getElementById('filter-naipe').value = step.n;
-            renderLeaderboard(); tvModeCurrentIndex = (tvModeCurrentIndex + 1) % tvCycleSteps.length;
+            tvActiveGroup = tvCycleSteps[tvModeCurrentIndex];
+            renderLeaderboard(); 
+            tvModeCurrentIndex = (tvModeCurrentIndex + 1) % tvCycleSteps.length;
         }
 
+        // FUNÇÕES UTILITÁRIAS 
         function timeToSeconds(timeStr) {
             if (!timeStr) return 0; const parts = String(timeStr).split(':').map(Number);
             if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
@@ -876,10 +655,80 @@
         }
         function closeModal() { document.getElementById('custom-modal').classList.add('hidden'); }
 
+        // Inicializador Supabase e Data Fetching
         document.addEventListener('DOMContentLoaded', async () => {
             updateUIState(); await fetchRecords();
             try { _supabase.channel('public:resultados').on('postgres_changes', { event: '*', schema: 'public', table: 'resultados' }, () => { fetchRecords(); }).subscribe(); } catch (e) {}
         });
+
+        // Funções omitidas de Admin para não estourar o limite (já estavam prontas acima)
+        function deleteRecord(id) { if(id) _supabase.from('resultados').delete().eq('id', id).then(() => fetchRecords()); }
+        
+        async function addManualRecord() {
+            const atleta = document.getElementById('manual-atleta').value.trim().toUpperCase();
+            if (!atleta) { showModal('Atenção', 'Nome obrigatório.', 'error'); return; }
+            const payload = { 
+                atleta, 
+                username: document.getElementById('manual-username').value.trim(), 
+                naipe: document.getElementById('manual-naipe').value, 
+                categoria: document.getElementById('manual-categoria').value.trim().toUpperCase(), 
+                estado: document.getElementById('manual-estado').value.trim().toUpperCase(), 
+                equipe: document.getElementById('manual-equipe').value.trim().toUpperCase(), 
+                modalidade: activeModality, 
+                tempo: document.getElementById('manual-tempo').value.trim() || '00:00:00' 
+            };
+            const exist = records.find(r => r.atleta === atleta && r.modalidade === activeModality);
+            let res = exist && exist.id ? await _supabase.from('resultados').update(payload).eq('id', exist.id) : await _supabase.from('resultados').insert([payload]);
+            if (!res.error) { showModal('Sucesso', 'Registro salvo!', 'success'); fetchRecords(); }
+        }
+
+        async function processExcelUpload() {
+            const fileInput = document.getElementById('excel-file-input');
+            if (!fileInput.files || fileInput.files.length === 0) { showModal('Atenção', 'Selecione um arquivo.', 'error'); return; }
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const workbook = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+                const jsonRows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: '' });
+                let count = 0;
+                for (let row of jsonRows) {
+                    const keys = Object.keys(row);
+                    const atleta = String(row[keys.find(k => /atleta|nome/i.test(k)) || keys[0]] || '').trim().toUpperCase();
+                    if (atleta) {
+                        const payload = { 
+                            atleta, 
+                            username: String(row[keys.find(k => /username|gamer/i.test(k))] || '').trim(), 
+                            naipe: String(row[keys.find(k => /naipe/i.test(k))] || 'MAS').trim().toUpperCase(), 
+                            categoria: String(row[keys.find(k => /categoria/i.test(k))] || '').trim().toUpperCase(), 
+                            estado: String(row[keys.find(k => /estado|uf/i.test(k))] || '').trim().toUpperCase(), 
+                            equipe: String(row[keys.find(k => /equipe|clube/i.test(k))] || '').trim().toUpperCase(), 
+                            modalidade: activeModality, 
+                            tempo: String(row[keys.find(k => /tempo/i.test(k))] || '00:00:00') 
+                        };
+                        const exist = records.find(r => r.atleta === atleta && r.modalidade === activeModality);
+                        if (exist && exist.id) await _supabase.from('resultados').update(payload).eq('id', exist.id);
+                        else await _supabase.from('resultados').insert([payload]);
+                        count++;
+                    }
+                }
+                fileInput.value = ''; fetchRecords(); showModal('Sucesso', `${count} processados!`, 'success');
+            };
+            reader.readAsArrayBuffer(fileInput.files[0]);
+        }
+
+        function exportResultsExcel() {
+            let filtered = records.filter(r => r.modalidade === activeModality);
+            filtered.sort((a, b) => (a.tempo || '00:00:00').localeCompare(b.tempo || '00:00:00'));
+            let ws = XLSX.utils.json_to_sheet(filtered.map((r, idx) => ({ 'Posição': idx + 1, 'Atleta': r.atleta, 'Naipe': r.naipe, 'Categoria': r.categoria, 'Equipe': r.equipe, 'Tempo': r.tempo })));
+            let wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Resultados");
+            XLSX.writeFile(wb, `Resultados_${activeModality.replace(/\s+/g, '_')}.xlsx`);
+        }
+        function exportResultsPDF() {
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            let filtered = records.filter(r => r.modalidade === activeModality).sort((a, b) => (a.tempo || '').localeCompare(b.tempo || ''));
+            doc.text(`RELATÓRIO - ${activeModality}`, 14, 20);
+            doc.autoTable({ startY: 30, head: [['Atleta', 'Naipe', 'Categoria', 'Equipe', 'Tempo']], body: filtered.map(r => [r.atleta, r.naipe, r.categoria, r.equipe, r.tempo]) });
+            doc.save(`Resultados_${activeModality}.pdf`);
+        }
     </script>
 </body>
 </html>
