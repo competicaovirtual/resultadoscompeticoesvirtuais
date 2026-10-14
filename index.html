@@ -132,7 +132,7 @@
                     </div>
                     <div class="w-2/4 text-center px-4 flex flex-col justify-center items-center">
                         <span class="text-white/90 font-black tracking-[0.3em] text-sm md:text-lg lg:text-xl uppercase block mb-2 drop-shadow-sm">DESAFIO DE CICLISMO VIRTUAL</span>
-                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-black tracking-widest uppercase drop-shadow-md leading-tight" id="tv-title-text">RANKING OFICIAL</h2>
+                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-black tracking-widest uppercase drop-shadow-md leading-tight transition-all duration-300" id="tv-title-text">RANKING OFICIAL</h2>
                     </div>
                     <div class="w-1/4 flex justify-end items-center">
                         <img src="logosupley.png" alt="Logo Supley" class="h-24 md:h-36 lg:h-44 w-auto object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.4)] brightness-0 invert" onerror="this.style.display='none'">
@@ -147,6 +147,13 @@
                 </div>
                 
                 <div class="flex flex-wrap items-center gap-3">
+                    <!-- Filtro por Naipe -->
+                    <select id="ranking-naipe-filter" onchange="renderLeaderboard()" class="px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:border-supley-orange cursor-pointer shadow-sm">
+                        <option value="ALL">Geral (Todos os Naipes)</option>
+                        <option value="MAS">Masculino</option>
+                        <option value="FEM">Feminino</option>
+                    </select>
+
                     <button onclick="toggleTVMode()" class="px-5 py-2.5 bg-supley-dark hover:bg-supley-orange text-white font-bold rounded-xl shadow-md transition-all flex items-center">
                         <i class="fa-solid fa-tv mr-2"></i>Modo TV
                     </button>
@@ -527,11 +534,32 @@
             });
         }
 
-        function renderLeaderboard() {
+        function renderLeaderboard(forceNaipe = null) {
             const tbody = document.getElementById('leaderboard-tbody');
+            const filterSelect = document.getElementById('ranking-naipe-filter');
             
-            // Cria uma cópia e ordena os resultados (apenas Ciclismo Virtual)
+            // Determina qual naipe usar (se o modo TV forçou um naipe, usa ele. Senão, usa o select do usuário)
+            const targetNaipe = forceNaipe || (filterSelect ? filterSelect.value : 'ALL');
+            
+            // Atualiza o Título do Modo TV se estiver ativo
+            if (tvModeActive) {
+                const tvTitleText = document.getElementById('tv-title-text');
+                if (targetNaipe === 'MAS') {
+                    tvTitleText.innerText = 'RANKING OFICIAL - MASCULINO';
+                } else if (targetNaipe === 'FEM') {
+                    tvTitleText.innerText = 'RANKING OFICIAL - FEMININO';
+                } else {
+                    tvTitleText.innerText = 'RANKING OFICIAL';
+                }
+            }
+            
             let filtered = records.filter(r => r.modalidade === 'Ciclismo Virtual');
+            
+            // Aplica o filtro de Naipe se não for "ALL"
+            if (targetNaipe !== 'ALL') {
+                filtered = filtered.filter(r => r.naipe === targetNaipe);
+            }
+
             filtered.sort((a, b) => a.tempo.localeCompare(b.tempo));
 
             tbody.classList.remove('animate-fadeIn');
@@ -540,7 +568,7 @@
             tbody.innerHTML = '';
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-slate-400">Nenhum resultado registado.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-slate-400">Nenhum resultado registado para esta categoria.</td></tr>`;
                 return;
             }
 
@@ -565,6 +593,8 @@
 
         // --- LÓGICA DO MODO TV ---
         let tvModeActive = false;
+        let tvInterval = null;
+        let currentTvNaipe = 'MAS'; // Inicia mostrando os dados masculinos
         
         function toggleTVMode() {
             const header = document.getElementById('main-header');
@@ -575,7 +605,10 @@
             const tvTitle = document.getElementById('tv-title-display');
 
             if (tvModeActive) {
+                // Desligar o modo TV
                 tvModeActive = false;
+                clearInterval(tvInterval); // Para a troca automática
+                
                 if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
                 
                 header.classList.remove('hidden');
@@ -588,9 +621,14 @@
                 main.classList.remove('max-w-full', 'px-2', 'py-2');
                 main.classList.add('max-w-7xl', 'px-4', 'sm:px-6', 'lg:px-8', 'py-8');
                 
+                // Volta o título para o original
+                document.getElementById('tv-title-text').innerText = 'RANKING OFICIAL';
+                
+                // Renderiza a lista voltando a seguir o select que o utilizador escolheu
                 renderLeaderboard();
                 
             } else {
+                // Ativar o modo TV
                 tvModeActive = true;
                 document.documentElement.requestFullscreen().catch(()=>{});
                 
@@ -604,7 +642,15 @@
                 main.classList.remove('max-w-7xl', 'px-4', 'sm:px-6', 'lg:px-8', 'py-8');
                 main.classList.add('max-w-full', 'px-2', 'py-2');
 
-                renderLeaderboard();
+                // Inicia o estado e renderiza logo o Masculino
+                currentTvNaipe = 'MAS';
+                renderLeaderboard(currentTvNaipe);
+                
+                // Cria o intervalo de 7 segundos para alternar entre MAS e FEM
+                tvInterval = setInterval(() => {
+                    currentTvNaipe = currentTvNaipe === 'MAS' ? 'FEM' : 'MAS';
+                    renderLeaderboard(currentTvNaipe);
+                }, 7000);
             }
         }
 
