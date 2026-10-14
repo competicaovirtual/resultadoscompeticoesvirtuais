@@ -12,12 +12,13 @@
                 extend: {
                     colors: {
                         supley: {
-                            dark: '#111111',     // Preto/Cinza muito escuro corporativo
-                            DEFAULT: '#E3000F',  // Vermelho Supley
-                            red: '#E3000F',      // Vermelho Supley
-                            accent: '#2A2A2A',   // Cinza escuro
-                            surface: '#FFFFFF',  // Branco
-                            light: '#F8F9FA'     // Fundo principal (quase branco)
+                            dark: '#111111',     
+                            orange: '#F26522',   // Laranja do cabeçalho
+                            gradStart: '#E83238', // Início do gradiente do rodapé
+                            gradEnd: '#F47920',   // Fim do gradiente do rodapé
+                            accent: '#2A2A2A',   
+                            surface: '#FFFFFF',  
+                            light: '#F8F9FA'     
                         }
                     },
                     animation: {
@@ -35,32 +36,34 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans selection:bg-supley-red selection:text-white">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans selection:bg-supley-orange selection:text-white">
 
     <!-- Header / Navbar -->
-    <header id="main-header" class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <header id="main-header" class="bg-supley-orange sticky top-0 z-50 shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
             
             <!-- Logo -->
             <div class="flex items-center h-full py-2">
-                <img src="logosupley.png" alt="Logo Supley" class="h-16 w-auto object-contain" onerror="this.onerror=null; this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
-                <div id="logo-fallback" style="display:none;" class="h-14 w-auto px-4 rounded-xl bg-gradient-to-tr from-supley-dark to-supley-accent items-center justify-center text-white font-black text-xl shadow-sm">SUPLEY</div>
+                <img src="logosupley.png" alt="Logo Supley" class="h-12 w-auto object-contain drop-shadow-md brightness-0 invert" onerror="this.onerror=null; this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';">
+                <div id="logo-fallback" style="display:none;" class="h-14 w-auto px-4 rounded-xl bg-white items-center justify-center text-supley-orange font-black text-xl shadow-sm">SUPLEY</div>
             </div>
             
-            <nav class="hidden md:flex items-center space-x-2">
-                <button onclick="switchTab('home')" id="nav-home" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-supley-dark text-white shadow-md">
-                    <i class="fa-solid fa-house mr-2"></i>Início
+            <nav class="hidden md:flex items-center space-x-4">
+                <button onclick="switchTab('home')" id="nav-home" class="text-sm font-semibold transition-all text-white border-b-2 border-white pb-1">
+                    INÍCIO
                 </button>
-                <button onclick="switchTab('rankings')" id="nav-rankings" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-supley-red hover:bg-slate-100">
-                    <i class="fa-solid fa-trophy mr-2"></i>RANKING
+                <span class="text-white/50">|</span>
+                <button onclick="switchTab('rankings')" id="nav-rankings" class="text-sm font-semibold transition-all text-white/90 hover:text-white hover:border-b-2 hover:border-white/50 pb-1">
+                    RANKING
                 </button>
-                <button onclick="switchTab('admin')" id="nav-admin" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-supley-red hover:bg-slate-100">
-                    <i class="fa-solid fa-shield-halved mr-2"></i>Painel Técnico (Admin)
+                <span class="text-white/50">|</span>
+                <button onclick="switchTab('admin')" id="nav-admin" class="text-sm font-semibold transition-all text-white/90 hover:text-white hover:border-b-2 hover:border-white/50 pb-1">
+                    PAINEL TÉCNICO
                 </button>
             </nav>
 
             <div class="md:hidden flex items-center">
-                <button onclick="toggleMobileMenu()" class="text-slate-700 hover:text-black p-2">
+                <button onclick="toggleMobileMenu()" class="text-white hover:text-slate-200 p-2">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
             </div>
@@ -68,9 +71,9 @@
 
         <!-- Menu Mobile -->
         <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-4 space-y-2 shadow-lg">
-            <button onclick="switchTab('home'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold bg-supley-dark text-white">Início</button>
+            <button onclick="switchTab('home'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-supley-orange bg-orange-50">Início</button>
             <button onclick="switchTab('rankings'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">RANKING</button>
-            <button onclick="switchTab('admin'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">Painel Técnico (Admin)</button>
+            <button onclick="switchTab('admin'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-100">Painel Técnico</button>
         </div>
     </header>
 
@@ -79,19 +82,21 @@
 
         <!-- TAB: INÍCIO -->
         <section id="tab-home" class="space-y-8 animate-fadeIn">
+            <!-- Imagem Centralizada -->
+            <div class="flex justify-center mb-8">
+                <img src="gruposupley.png" alt="Grupo Supley" class="max-w-md w-full h-auto object-contain drop-shadow-md">
+            </div>
+
             <!-- Hero Banner -->
-            <div class="relative bg-gradient-to-br from-supley-dark via-[#1a1a1a] to-[#2a2a2a] rounded-3xl border border-slate-800 p-8 md:p-12 overflow-hidden shadow-xl text-white">
-                <div class="absolute -right-10 -bottom-10 w-96 h-96 bg-supley-red/20 rounded-full blur-3xl pointer-events-none"></div>
-                <div class="absolute top-0 left-1/4 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
-                
+            <div class="relative bg-white rounded-3xl border border-slate-200 p-8 md:p-12 overflow-hidden shadow-xl text-slate-800">
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
                     <div class="md:col-span-7 space-y-6">
-                        <h2 class="text-4xl sm:text-5xl font-black tracking-tight leading-tight">
-                            DESAFIO <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-supley-red via-red-500 to-orange-500">SUPLEY</span>
+                        <h2 class="text-4xl sm:text-5xl font-black tracking-tight leading-tight text-supley-dark">
+                            DESAFIO DE <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-supley-orange to-supley-gradStart">CICLISMO VIRTUAL</span>
                         </h2>
                         <div class="flex flex-wrap gap-4 pt-2">
-                            <button onclick="switchTab('rankings')" class="px-6 py-3.5 bg-white text-supley-dark hover:bg-slate-100 font-bold rounded-xl shadow-lg transition-all flex items-center space-x-2">
-                                <i class="fa-solid fa-trophy text-supley-red"></i>
+                            <button onclick="switchTab('rankings')" class="px-6 py-3.5 bg-supley-orange text-white hover:bg-orange-600 font-bold rounded-xl shadow-lg transition-all flex items-center space-x-2">
+                                <i class="fa-solid fa-trophy"></i>
                                 <span>Ver Rankings Oficiais</span>
                             </button>
                         </div>
@@ -99,33 +104,16 @@
 
                     <!-- Bloco da Logo Supley -->
                     <div class="md:col-span-5 flex justify-center">
-                        <div class="relative w-full max-w-xs h-72 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex flex-col items-center justify-center p-6 shadow-2xl overflow-hidden group">
-                            <img src="logosupley.png" alt="Logo Supley" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)] group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.style.display='none'; document.getElementById('mascote-fallback').style.display='flex';">
+                        <div class="relative w-full max-w-xs h-72 rounded-2xl bg-gradient-to-br from-supley-orange to-supley-gradEnd backdrop-blur-md flex flex-col items-center justify-center p-6 shadow-2xl overflow-hidden group">
+                            <img src="logosupley.png" alt="Logo Supley" class="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.3)] brightness-0 invert group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.style.display='none'; document.getElementById('mascote-fallback').style.display='flex';">
                             
                             <div id="mascote-fallback" style="display:none;" class="flex-col items-center justify-center text-center space-y-3">
-                                <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-yellow-400 to-amber-600 flex items-center justify-center shadow-lg text-slate-950 text-3xl font-black">
+                                <div class="w-20 h-20 rounded-2xl bg-white flex items-center justify-center shadow-lg text-supley-orange text-3xl font-black">
                                     <i class="fa-solid fa-medal"></i>
                                 </div>
                                 <span class="text-sm font-bold text-white tracking-wide">Desafio Supley</span>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Cards de Modalidades (Restrito apenas a Ciclismo) -->
-            <div class="space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-1 gap-6 max-w-sm">
-                    <!-- Ciclismo -->
-                    <div onclick="switchTab('rankings')" class="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 shadow-md hover:border-supley-red hover:shadow-xl hover:scale-[1.02] cursor-pointer transition-all group">
-                        <div class="w-12 h-12 rounded-xl bg-red-50 text-supley-red flex items-center justify-center overflow-hidden border border-red-100 group-hover:scale-110 transition-transform">
-                            <img src="ciclismovirtual.png" alt="Ciclismo Virtual" class="w-full h-full object-contain p-1" onerror="this.onerror=null; this.style.display='none'; document.getElementById('ciclismo-fallback').style.display='flex';">
-                            <div id="ciclismo-fallback" style="display:none;" class="w-full h-full items-center justify-center text-supley-red"><i class="fa-solid fa-bicycle"></i></div>
-                        </div>
-                        <h4 class="text-xl font-bold text-slate-900 flex items-center justify-between">
-                            <span>CICLISMO VIRTUAL 2KM</span>
-                            <i class="fa-solid fa-arrow-right text-xs text-supley-red group-hover:translate-x-1 transition-transform"></i>
-                        </h4>
                     </div>
                 </div>
             </div>
@@ -135,18 +123,17 @@
         <section id="tab-rankings" class="space-y-6 hidden animate-fadeIn">
             
             <!-- Letreiro do Modo TV -->
-            <div id="tv-title-display" class="hidden bg-supley-dark text-white p-6 md:p-8 rounded-3xl shadow-xl border-b-4 border-supley-red overflow-hidden">
+            <div id="tv-title-display" class="hidden bg-supley-dark text-white p-6 md:p-8 rounded-3xl shadow-xl border-b-4 border-supley-orange overflow-hidden">
                 <div class="flex items-center justify-between w-full min-h-[140px]">
                     <div class="w-1/4 flex justify-start items-center">
-                        <img src="logosupley.png" alt="Logo Supley" class="h-28 md:h-40 lg:h-48 w-auto object-contain drop-shadow-2xl transform origin-left hover:scale-105 transition-transform" onerror="this.style.display='none'">
+                        <img src="logosupley.png" alt="Logo Supley" class="h-28 md:h-40 lg:h-48 w-auto object-contain drop-shadow-2xl brightness-0 invert transform origin-left hover:scale-105 transition-transform" onerror="this.style.display='none'">
                     </div>
                     <div class="w-2/4 text-center px-4 flex flex-col justify-center items-center">
-                        <span class="text-supley-red font-black tracking-[0.3em] text-sm md:text-lg lg:text-xl uppercase block mb-2 drop-shadow-sm">DESAFIO SUPLEY</span>
-                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-black tracking-widest uppercase drop-shadow-md leading-tight" id="tv-title-text">CICLISMO VIRTUAL 2KM</h2>
-                        <p class="text-yellow-500 font-bold mt-2 text-sm md:text-lg tracking-widest drop-shadow-sm">RANKING OFICIAL ATUALIZADO</p>
+                        <span class="text-supley-orange font-black tracking-[0.3em] text-sm md:text-lg lg:text-xl uppercase block mb-2 drop-shadow-sm">DESAFIO DE CICLISMO VIRTUAL</span>
+                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-black tracking-widest uppercase drop-shadow-md leading-tight" id="tv-title-text">RANKING OFICIAL</h2>
                     </div>
                     <div class="w-1/4 flex justify-end items-center">
-                        <img src="logosupley.png" alt="Logo Supley" class="h-24 md:h-36 lg:h-44 w-auto object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.4)]" onerror="this.style.display='none'">
+                        <img src="logosupley.png" alt="Logo Supley" class="h-24 md:h-36 lg:h-44 w-auto object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.4)] brightness-0 invert" onerror="this.style.display='none'">
                     </div>
                 </div>
             </div>
@@ -155,11 +142,10 @@
             <div id="ranking-header" class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-md">
                 <div>
                     <h2 class="text-2xl font-black text-slate-900">Ranking Oficial</h2>
-                    <p class="text-sm text-slate-500">Consulte os tempos homologados pela equipe técnica.</p>
                 </div>
                 
                 <div class="flex flex-wrap items-center gap-3">
-                    <button onclick="toggleTVMode()" class="px-5 py-2.5 bg-supley-dark hover:bg-supley-red text-white font-bold rounded-xl shadow-md transition-all flex items-center">
+                    <button onclick="toggleTVMode()" class="px-5 py-2.5 bg-supley-dark hover:bg-supley-orange text-white font-bold rounded-xl shadow-md transition-all flex items-center">
                         <i class="fa-solid fa-tv mr-2"></i>Modo TV
                     </button>
                 </div>
@@ -173,11 +159,12 @@
                             <tr class="bg-slate-100 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
                                 <th class="py-4 px-6 text-center w-16">Pos</th>
                                 <th class="py-4 px-6">Nome Completo</th>
-                                <th id="th-resultado" class="py-4 px-6 text-right">Tempo Oficial</th>
+                                <th class="py-4 px-6">Naipe</th>
+                                <th class="py-4 px-6 text-right">Tempo Oficial</th>
                             </tr>
                         </thead>
                         <tbody id="leaderboard-tbody" class="divide-y divide-slate-100 text-sm">
-                            <!-- Preenchido via Supabase -->
+                            <!-- Preenchido via JS -->
                         </tbody>
                     </table>
                 </div>
@@ -189,7 +176,7 @@
             <!-- Tela de Login PIN -->
             <div id="admin-login-screen" class="max-w-md mx-auto bg-white border border-slate-200 p-8 rounded-3xl shadow-xl space-y-6">
                 <div class="text-center space-y-2">
-                    <div class="w-16 h-16 bg-slate-100 text-supley-dark rounded-2xl mx-auto flex items-center justify-center text-2xl border border-slate-200">
+                    <div class="w-16 h-16 bg-orange-50 text-supley-orange rounded-2xl mx-auto flex items-center justify-center text-2xl border border-orange-100">
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <h3 class="text-2xl font-black text-slate-900">Acesso Restrito</h3>
@@ -199,9 +186,9 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Palavra-passe do Painel</label>
-                        <input type="password" id="admin-pin-input" placeholder="Digite a palavra-passe" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-supley-red">
+                        <input type="password" id="admin-pin-input" placeholder="Digite a palavra-passe" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-supley-orange">
                     </div>
-                    <button onclick="handleAdminLogin()" class="w-full py-3 bg-supley-dark hover:bg-supley-red text-white font-bold rounded-xl shadow-md transition-all">
+                    <button onclick="handleAdminLogin()" class="w-full py-3 bg-supley-orange hover:bg-orange-600 text-white font-bold rounded-xl shadow-md transition-all">
                         Entrar no Painel
                     </button>
                     <p id="login-error" class="text-red-600 text-xs text-center hidden">Palavra-passe incorreta. Tente novamente.</p>
@@ -212,12 +199,11 @@
             <div id="admin-panel-content" class="space-y-8 hidden">
                 <div class="flex items-center justify-between bg-white border border-slate-200 p-6 rounded-2xl shadow-md">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-xl bg-slate-100 text-supley-dark flex items-center justify-center border border-slate-200">
+                        <div class="w-10 h-10 rounded-xl bg-orange-50 text-supley-orange flex items-center justify-center border border-orange-100">
                             <i class="fa-solid fa-user-gear"></i>
                         </div>
                         <div>
                             <h3 class="text-lg font-bold text-slate-900">Painel da Equipe Técnica</h3>
-                            <p class="text-xs text-slate-500">Gestão de tempos e resultados oficiais.</p>
                         </div>
                     </div>
                     <button onclick="handleAdminLogout()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-all border border-slate-200">
@@ -225,18 +211,32 @@
                     </button>
                 </div>
 
-                <!-- Formulário de Lançamento de Tempos Simplificado -->
+                <!-- Formulário de Lançamento de Tempos -->
                 <div class="bg-white border border-slate-200 p-8 rounded-3xl shadow-md space-y-6">
                     <h4 class="text-xl font-black text-slate-900 flex items-center space-x-2">
-                        <i class="fa-solid fa-stopwatch text-supley-red"></i>
+                        <i class="fa-solid fa-stopwatch text-supley-orange"></i>
                         <span>Registrar Resultado Oficial do Atleta</span>
                     </h4>
 
-                    <form id="time-entry-form" onsubmit="submitTimeRecord(event)" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <form id="time-entry-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         
                         <div>
                             <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Nome Completo</label>
-                            <input type="text" id="admin-atleta" required placeholder="NOME DO PARTICIPANTE" oninput="this.value = this.value.toUpperCase()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 uppercase focus:outline-none focus:border-supley-red">
+                            <input type="text" id="admin-atleta" required placeholder="NOME DO PARTICIPANTE" oninput="this.value = this.value.toUpperCase()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 uppercase focus:outline-none focus:border-supley-orange">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Naipe</label>
+                            <select id="admin-naipe" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-supley-orange">
+                                <option value="">Selecione...</option>
+                                <option value="MAS">Masculino</option>
+                                <option value="FEM">Feminino</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-2">E-mail</label>
+                            <input type="email" id="admin-email" required placeholder="email@exemplo.com" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 focus:outline-none focus:border-supley-orange">
                         </div>
 
                         <div>
@@ -246,11 +246,11 @@
 
                         <div>
                             <label id="label-tempo-pontos" class="block text-xs font-bold uppercase text-slate-600 mb-2">Tempo (HH:MM:SS)</label>
-                            <input type="text" id="admin-tempo" required placeholder="00:00:00" oninput="formatTimeInput(this)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 font-mono text-lg focus:outline-none focus:border-supley-red">
+                            <input type="text" id="admin-tempo" required placeholder="00:00:00" oninput="formatTimeInput(this)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 font-mono text-lg focus:outline-none focus:border-supley-orange">
                         </div>
 
-                        <div class="lg:col-span-3 flex items-end justify-end">
-                            <button type="submit" class="px-8 py-3.5 bg-supley-dark hover:bg-supley-red text-white font-bold rounded-xl shadow-md transition-all flex items-center space-x-2">
+                        <div class="lg:col-span-4 flex items-end justify-end pt-4">
+                            <button type="button" onclick="handleTimeSubmit()" class="px-8 py-3.5 bg-supley-orange hover:bg-orange-600 text-white font-bold rounded-xl shadow-md transition-all flex items-center space-x-2">
                                 <i class="fa-solid fa-floppy-disk"></i>
                                 <span>Salvar Registro Oficial</span>
                             </button>
@@ -266,12 +266,14 @@
                             <thead>
                                 <tr class="bg-slate-100 border-b border-slate-200 text-xs font-bold text-slate-600 uppercase tracking-wider">
                                     <th class="py-3 px-4">Nome Completo</th>
+                                    <th class="py-3 px-4">Naipe</th>
+                                    <th class="py-3 px-4">E-mail</th>
                                     <th class="py-3 px-4">Tempo</th>
                                     <th class="py-3 px-4 text-right">Ação</th>
                                 </tr>
                             </thead>
                             <tbody id="admin-records-tbody" class="divide-y divide-slate-100 text-sm">
-                                <!-- Preenchido via Supabase -->
+                                <!-- Preenchido via JS -->
                             </tbody>
                         </table>
                     </div>
@@ -282,26 +284,34 @@
     </main>
 
     <!-- Footer -->
-    <footer id="main-footer" class="bg-white border-t border-slate-200 py-8 mt-16 text-slate-600">
-        <div class="max-w-7xl mx-auto px-4 text-center text-sm space-y-2">
-            <p class="text-xs text-slate-400">Sistema oficial de cronometragem e apuração técnica.</p>
+    <footer id="main-footer" class="bg-gradient-to-r from-supley-gradStart to-supley-gradEnd border-t border-slate-200 py-10 mt-16 text-white/90">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 items-center gap-6">
+            <div class="flex items-center space-x-4">
+                <img src="logosupley.png" alt="Logo Supley" class="h-16 w-auto object-contain brightness-0 invert opacity-80" onerror="this.style.display='none'">
+            </div>
+            <div class="text-sm text-right space-y-1">
+                <p>Sistema oficial de cronometragem e apuração técnica.</p>
+                <p class="text-xs opacity-75">Via Augusto Bambozzi, 1890 - Setor Industrial - Matão/SP</p>
+            </div>
         </div>
     </footer>
 
     <!-- Botão Flutuante de Saída do Modo TV -->
-    <button id="btn-exit-tv" onclick="toggleTVMode()" class="hidden fixed bottom-6 right-6 z-[9999] bg-supley-dark hover:bg-supley-red border border-slate-700 text-white px-6 py-3 rounded-full shadow-2xl font-bold transition-all items-center">
+    <button id="btn-exit-tv" onclick="toggleTVMode()" class="hidden fixed bottom-6 right-6 z-[9999] bg-supley-dark hover:bg-supley-orange border border-slate-700 text-white px-6 py-3 rounded-full shadow-2xl font-bold transition-all items-center">
         <i class="fa-solid fa-xmark mr-2"></i>Sair do Modo TV
     </button>
 
     <!-- Modal Customizado Info -->
-    <div id="custom-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white border border-slate-200 max-w-sm w-full p-6 rounded-3xl shadow-2xl text-center space-y-4">
-            <div id="modal-icon" class="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-2xl border border-emerald-100">
+            <div id="modal-icon" class="w-14 h-14 rounded-full bg-orange-50 text-supley-orange flex items-center justify-center mx-auto text-2xl border border-orange-100">
                 <i class="fa-solid fa-check"></i>
             </div>
             <h4 id="modal-title" class="text-lg font-bold text-slate-900">Sucesso</h4>
             <p id="modal-message" class="text-sm text-slate-600">Mensagem aqui</p>
-            <button onclick="closeModal()" class="w-full py-2.5 bg-supley-dark hover:bg-supley-red text-white font-bold rounded-xl text-sm transition-all">Entendido</button>
+            <div id="modal-actions" class="w-full flex gap-3 mt-2">
+                <button onclick="closeModal()" class="w-full py-2.5 bg-supley-dark hover:bg-supley-orange text-white font-bold rounded-xl text-sm transition-all">Entendido</button>
+            </div>
         </div>
     </div>
 
@@ -313,6 +323,7 @@
 
         let records = [];
         let isAdminLoggedIn = false;
+        let pendingRecordData = null;
         
         async function fetchRecords() {
             const { data, error } = await _supabase.from('records').select('*');
@@ -328,14 +339,16 @@
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 const navBtn = document.getElementById(`nav-${t}`);
                 if (navBtn) {
-                    navBtn.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all text-slate-600 hover:text-supley-red hover:bg-slate-100";
+                    if(tabId === t) {
+                        navBtn.classList.remove('text-white/90', 'hover:border-white/50');
+                        navBtn.classList.add('border-white');
+                    } else {
+                        navBtn.classList.remove('border-white');
+                        navBtn.classList.add('text-white/90', 'hover:border-white/50');
+                    }
                 }
             });
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            const activeNav = document.getElementById(`nav-${tabId}`);
-            if (activeNav) {
-                activeNav.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-supley-dark text-white shadow-md";
-            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
             if (tabId === 'rankings') renderLeaderboard();
             if (tabId === 'admin' && isAdminLoggedIn) {
@@ -382,18 +395,82 @@
             document.getElementById('admin-login-screen').classList.remove('hidden');
         }
 
-        async function submitTimeRecord(e) {
-            e.preventDefault();
-            const atleta = document.getElementById('admin-atleta').value.toUpperCase();
+        // Função para calcular similaridade básica (se um nome contém parte significativa do outro)
+        function isNameSimilar(name1, name2) {
+            if (name1 === name2) return false; // Match exato não é similar, é igual
+            
+            const words1 = name1.split(' ').filter(w => w.length > 2);
+            const words2 = name2.split(' ').filter(w => w.length > 2);
+            
+            let matches = 0;
+            words1.forEach(w1 => {
+                if (words2.includes(w1)) matches++;
+            });
+            
+            // Se tiver 2 ou mais palavras iguais em nomes diferentes, considera similar
+            return matches >= 2;
+        }
+
+        function handleTimeSubmit() {
+            const atleta = document.getElementById('admin-atleta').value.trim().toUpperCase();
+            const naipe = document.getElementById('admin-naipe').value;
+            const email = document.getElementById('admin-email').value.trim();
             const modalidade = 'Ciclismo Virtual';
             const tempo = document.getElementById('admin-tempo').value;
 
-            const existingRecord = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
+            if (!atleta || !naipe || !email || !tempo) {
+                showModal('Erro', 'Preencha todos os campos corretamente.', 'error');
+                return;
+            }
 
-            if (existingRecord) {
+            // Verifica se o nome já existe exatamente igual
+            const exactMatch = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
+            
+            if (exactMatch) {
+                executeRecordSave(atleta, naipe, email, tempo, modalidade, exactMatch.id);
+                return;
+            }
+
+            // Verifica nomes similares
+            const similarName = records.find(r => isNameSimilar(r.atleta, atleta));
+            
+            if (similarName) {
+                pendingRecordData = { atleta, naipe, email, tempo, modalidade };
+                showSimilarWarning(atleta, similarName.atleta);
+            } else {
+                executeRecordSave(atleta, naipe, email, tempo, modalidade);
+            }
+        }
+
+        function showSimilarWarning(newName, oldName) {
+            document.getElementById('modal-title').innerText = 'Atenção: Nome Similar';
+            document.getElementById('modal-message').innerHTML = `O banco de dados já possui um registro para <strong>${oldName}</strong>. <br><br>Você está tentando registrar <strong>${newName}</strong>. <br>Isso pode gerar divergência no banco de dados. Deseja prosseguir com o novo nome?`;
+            
+            const icon = document.getElementById('modal-icon');
+            icon.className = "w-14 h-14 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center mx-auto text-2xl border border-yellow-100";
+            icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+
+            document.getElementById('modal-actions').innerHTML = `
+                <button onclick="closeModal(); pendingRecordData = null;" class="w-full py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl text-sm transition-all">Cancelar</button>
+                <button onclick="confirmPendingRecord()" class="w-full py-2.5 bg-supley-orange hover:bg-orange-600 text-white font-bold rounded-xl text-sm transition-all">Continuar</button>
+            `;
+
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function confirmPendingRecord() {
+            if (pendingRecordData) {
+                const { atleta, naipe, email, tempo, modalidade } = pendingRecordData;
+                executeRecordSave(atleta, naipe, email, tempo, modalidade);
+                pendingRecordData = null;
+            }
+        }
+
+        async function executeRecordSave(atleta, naipe, email, tempo, modalidade, updateId = null) {
+            if (updateId) {
                 const { error } = await _supabase.from('records')
-                    .update({ tempo: tempo, atleta: atleta })
-                    .eq('id', existingRecord.id);
+                    .update({ tempo: tempo, naipe: naipe, email: email })
+                    .eq('id', updateId);
 
                 if (!error) {
                     document.getElementById('time-entry-form').reset();
@@ -404,7 +481,7 @@
                 }
             } else {
                 const { error } = await _supabase.from('records')
-                    .insert([{ atleta, modalidade, tempo }]);
+                    .insert([{ atleta, naipe, email, modalidade, tempo }]);
                 
                 if (!error) {
                     document.getElementById('time-entry-form').reset();
@@ -417,9 +494,11 @@
         }
 
         async function deleteRecord(id) {
-            const { error } = await _supabase.from('records').delete().eq('id', id);
-            if (!error) {
-                await fetchRecords();
+            if(confirm("Tem certeza que deseja apagar este registro?")) {
+                const { error } = await _supabase.from('records').delete().eq('id', id);
+                if (!error) {
+                    await fetchRecords();
+                }
             }
         }
 
@@ -427,14 +506,17 @@
             const tbody = document.getElementById('admin-records-tbody');
             tbody.innerHTML = '';
             if (records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="py-6 text-center text-slate-400">Nenhum registro cadastrado.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">Nenhum registro cadastrado.</td></tr>`;
                 return;
             }
             records.forEach(r => {
+                const naipeLabel = r.naipe === 'MAS' ? 'Masculino' : (r.naipe === 'FEM' ? 'Feminino' : '-');
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="py-3 px-4 font-bold text-slate-900">${r.atleta}</td>
-                        <td class="py-3 px-4 font-mono font-bold text-emerald-600">${r.tempo}</td>
+                        <td class="py-3 px-4 text-slate-600">${naipeLabel}</td>
+                        <td class="py-3 px-4 text-slate-600">${r.email || '-'}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-supley-orange">${r.tempo}</td>
                         <td class="py-3 px-4 text-right">
                             <button onclick="deleteRecord('${r.id}')" class="text-red-500 hover:text-red-700 p-2"><i class="fa-solid fa-trash"></i></button>
                         </td>
@@ -455,21 +537,24 @@
             tbody.innerHTML = '';
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="py-8 text-center text-slate-400">Nenhum resultado registrado.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-slate-400">Nenhum resultado registrado.</td></tr>`;
                 return;
             }
 
             filtered.forEach((r, index) => {
                 let badgeClass = "text-slate-500 font-bold";
-                if (index === 0) badgeClass = "text-amber-700 font-black bg-amber-100 px-3 py-1 rounded-full border border-amber-200";
-                if (index === 1) badgeClass = "text-slate-700 font-black bg-slate-200 px-3 py-1 rounded-full border border-slate-300";
-                if (index === 2) badgeClass = "text-amber-800 font-black bg-amber-50 px-3 py-1 rounded-full border border-amber-200";
+                if (index === 0) badgeClass = "text-yellow-600 font-black bg-yellow-100 px-3 py-1 rounded-full border border-yellow-200";
+                if (index === 1) badgeClass = "text-slate-600 font-black bg-slate-200 px-3 py-1 rounded-full border border-slate-300";
+                if (index === 2) badgeClass = "text-orange-700 font-black bg-orange-100 px-3 py-1 rounded-full border border-orange-200";
+
+                const naipeLabel = r.naipe === 'MAS' ? 'Masculino' : (r.naipe === 'FEM' ? 'Feminino' : '-');
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="py-4 px-6 text-center font-black ${badgeClass}">#${index + 1}</td>
                         <td class="py-4 px-6 font-bold text-slate-900">${r.atleta}</td>
-                        <td class="py-4 px-6 text-right font-mono font-black text-emerald-600 text-base">${r.tempo}</td>
+                        <td class="py-4 px-6 text-slate-600">${naipeLabel}</td>
+                        <td class="py-4 px-6 text-right font-mono font-black text-supley-orange text-base">${r.tempo}</td>
                     </tr>
                 `;
             });
@@ -524,6 +609,7 @@
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-message').innerText = message;
             const icon = document.getElementById('modal-icon');
+            
             if (type === 'success') {
                 icon.className = "w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-2xl border border-emerald-100";
                 icon.innerHTML = '<i class="fa-solid fa-check"></i>';
@@ -531,6 +617,11 @@
                 icon.className = "w-14 h-14 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto text-2xl border border-red-100";
                 icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
             }
+
+            document.getElementById('modal-actions').innerHTML = `
+                <button onclick="closeModal()" class="w-full py-2.5 bg-supley-dark hover:bg-supley-orange text-white font-bold rounded-xl text-sm transition-all">Entendido</button>
+            `;
+
             document.getElementById('custom-modal').classList.remove('hidden');
         }
 
