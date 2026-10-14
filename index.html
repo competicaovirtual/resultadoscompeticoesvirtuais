@@ -81,12 +81,8 @@
     <main id="main-container" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-all duration-300">
 
         <!-- TAB: INÍCIO -->
-        <section id="tab-home" class="space-y-8 animate-fadeIn">
-            <!-- Imagem Centralizada -->
-            <div class="flex justify-center mb-8">
-                <img src="gruposupley.png" alt="Grupo Supley" class="max-w-md w-full h-auto object-contain drop-shadow-md">
-            </div>
-
+        <section id="tab-home" class="space-y-12 animate-fadeIn">
+            
             <!-- Hero Banner -->
             <div class="relative bg-white rounded-3xl border border-slate-200 p-8 md:p-12 overflow-hidden shadow-xl text-slate-800">
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
@@ -117,19 +113,25 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Imagem Centralizada Ampliada -->
+            <div class="flex justify-center mt-12 mb-8">
+                <img src="gruposupley.png" alt="Grupo Supley" class="max-w-4xl w-full h-auto object-contain drop-shadow-md">
+            </div>
+            
         </section>
 
         <!-- TAB: RANKING -->
         <section id="tab-rankings" class="space-y-6 hidden animate-fadeIn">
             
             <!-- Letreiro do Modo TV -->
-            <div id="tv-title-display" class="hidden bg-supley-dark text-white p-6 md:p-8 rounded-3xl shadow-xl border-b-4 border-supley-orange overflow-hidden">
+            <div id="tv-title-display" class="hidden bg-supley-orange text-white p-6 md:p-8 rounded-3xl shadow-xl overflow-hidden border border-orange-600">
                 <div class="flex items-center justify-between w-full min-h-[140px]">
                     <div class="w-1/4 flex justify-start items-center">
                         <img src="logosupley.png" alt="Logo Supley" class="h-28 md:h-40 lg:h-48 w-auto object-contain drop-shadow-2xl brightness-0 invert transform origin-left hover:scale-105 transition-transform" onerror="this.style.display='none'">
                     </div>
                     <div class="w-2/4 text-center px-4 flex flex-col justify-center items-center">
-                        <span class="text-supley-orange font-black tracking-[0.3em] text-sm md:text-lg lg:text-xl uppercase block mb-2 drop-shadow-sm">DESAFIO DE CICLISMO VIRTUAL</span>
+                        <span class="text-white/90 font-black tracking-[0.3em] text-sm md:text-lg lg:text-xl uppercase block mb-2 drop-shadow-sm">DESAFIO DE CICLISMO VIRTUAL</span>
                         <h2 class="text-3xl md:text-4xl lg:text-5xl font-black tracking-widest uppercase drop-shadow-md leading-tight" id="tv-title-text">RANKING OFICIAL</h2>
                     </div>
                     <div class="w-1/4 flex justify-end items-center">
@@ -317,8 +319,8 @@
 
     <!-- JavaScript Application Logic -->
     <script>
-        const SUPABASE_URL = 'https://vmdvunvvphkglnoeknjj.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_WB_Reg-TuFE8KD8QvwBHiw_1EOotbdq';
+        const SUPABASE_URL = 'https://otecuxljcahtfivmthsb.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_0SG41jvxnZnaw0lP1ODmjA_Ig75sACZ';
         const _supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let records = [];
