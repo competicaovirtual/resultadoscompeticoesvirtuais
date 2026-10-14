@@ -13,9 +13,9 @@
                     colors: {
                         supley: {
                             dark: '#111111',     
-                            orange: '#F26522',   // Laranja do cabeçalho
-                            gradStart: '#E83238', // Início do gradiente do rodapé
-                            gradEnd: '#F47920',   // Fim do gradiente do rodapé
+                            orange: '#F26522',   
+                            gradStart: '#E83238', 
+                            gradEnd: '#F47920',   
                             accent: '#2A2A2A',   
                             surface: '#FFFFFF',  
                             light: '#F8F9FA'     
@@ -182,7 +182,7 @@
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <h3 class="text-2xl font-black text-slate-900">Acesso Restrito</h3>
-                    <p class="text-sm text-slate-500">Insira a palavra-passe técnica para gerir os registros.</p>
+                    <p class="text-sm text-slate-500">Insira a palavra-passe técnica para gerir os registos.</p>
                 </div>
 
                 <div class="space-y-4">
@@ -205,7 +205,7 @@
                             <i class="fa-solid fa-user-gear"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-slate-900">Painel da Equipe Técnica</h3>
+                            <h3 class="text-lg font-bold text-slate-900">Painel da Equipa Técnica</h3>
                         </div>
                     </div>
                     <button onclick="handleAdminLogout()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-all border border-slate-200">
@@ -217,7 +217,7 @@
                 <div class="bg-white border border-slate-200 p-8 rounded-3xl shadow-md space-y-6">
                     <h4 class="text-xl font-black text-slate-900 flex items-center space-x-2">
                         <i class="fa-solid fa-stopwatch text-supley-orange"></i>
-                        <span>Registrar Resultado Oficial do Atleta</span>
+                        <span>Registar Resultado Oficial do Atleta</span>
                     </h4>
 
                     <form id="time-entry-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -242,11 +242,6 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Modalidade</label>
-                            <input type="text" id="admin-modalidade" value="Ciclismo Virtual" readonly class="w-full bg-slate-200 border border-slate-300 rounded-xl px-4 py-3 text-slate-600 font-semibold focus:outline-none cursor-not-allowed">
-                        </div>
-
-                        <div>
                             <label id="label-tempo-pontos" class="block text-xs font-bold uppercase text-slate-600 mb-2">Tempo (HH:MM:SS)</label>
                             <input type="text" id="admin-tempo" required placeholder="00:00:00" oninput="formatTimeInput(this)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-3 text-slate-900 font-mono text-lg focus:outline-none focus:border-supley-orange">
                         </div>
@@ -254,7 +249,7 @@
                         <div class="lg:col-span-4 flex items-end justify-end pt-4">
                             <button type="button" onclick="handleTimeSubmit()" class="px-8 py-3.5 bg-supley-orange hover:bg-orange-600 text-white font-bold rounded-xl shadow-md transition-all flex items-center space-x-2">
                                 <i class="fa-solid fa-floppy-disk"></i>
-                                <span>Salvar Registro Oficial</span>
+                                <span>Guardar Registo Oficial</span>
                             </button>
                         </div>
                     </form>
@@ -262,7 +257,7 @@
 
                 <!-- Lista de Registros Cadastrados -->
                 <div class="bg-white border border-slate-200 p-8 rounded-3xl shadow-md space-y-6">
-                    <h4 class="text-xl font-black text-slate-900">Registros Cadastrados no Sistema</h4>
+                    <h4 class="text-xl font-black text-slate-900">Registos Guardados no Sistema</h4>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
@@ -328,7 +323,7 @@
         let pendingRecordData = null;
         
         async function fetchRecords() {
-            const { data, error } = await _supabase.from('records').select('*');
+            const { data, error } = await _supabase.from('resultados').select('*');
             if (!error && data) {
                 records = data;
                 if (isAdminLoggedIn) renderAdminRecords();
@@ -397,19 +392,14 @@
             document.getElementById('admin-login-screen').classList.remove('hidden');
         }
 
-        // Função para calcular similaridade básica (se um nome contém parte significativa do outro)
         function isNameSimilar(name1, name2) {
-            if (name1 === name2) return false; // Match exato não é similar, é igual
-            
+            if (name1 === name2) return false;
             const words1 = name1.split(' ').filter(w => w.length > 2);
             const words2 = name2.split(' ').filter(w => w.length > 2);
-            
             let matches = 0;
             words1.forEach(w1 => {
                 if (words2.includes(w1)) matches++;
             });
-            
-            // Se tiver 2 ou mais palavras iguais em nomes diferentes, considera similar
             return matches >= 2;
         }
 
@@ -417,36 +407,36 @@
             const atleta = document.getElementById('admin-atleta').value.trim().toUpperCase();
             const naipe = document.getElementById('admin-naipe').value;
             const email = document.getElementById('admin-email').value.trim();
-            const modalidade = 'Ciclismo Virtual';
             const tempo = document.getElementById('admin-tempo').value;
+            const modalidade = 'Ciclismo Virtual';
 
             if (!atleta || !naipe || !email || !tempo) {
                 showModal('Erro', 'Preencha todos os campos corretamente.', 'error');
                 return;
             }
 
-            // Verifica se o nome já existe exatamente igual
-            const exactMatch = records.find(r => r.atleta === atleta && r.modalidade === modalidade);
+            // Verifica nome exato usando a coluna 'nome'
+            const exactMatch = records.find(r => r.nome === atleta);
             
             if (exactMatch) {
-                executeRecordSave(atleta, naipe, email, tempo, modalidade, exactMatch.id);
+                executeRecordSave(atleta, naipe, email, modalidade, tempo, exactMatch.id);
                 return;
             }
 
             // Verifica nomes similares
-            const similarName = records.find(r => isNameSimilar(r.atleta, atleta));
+            const similarName = records.find(r => isNameSimilar(r.nome, atleta));
             
             if (similarName) {
-                pendingRecordData = { atleta, naipe, email, tempo, modalidade };
-                showSimilarWarning(atleta, similarName.atleta);
+                pendingRecordData = { atleta, naipe, email, modalidade, tempo };
+                showSimilarWarning(atleta, similarName.nome);
             } else {
-                executeRecordSave(atleta, naipe, email, tempo, modalidade);
+                executeRecordSave(atleta, naipe, email, modalidade, tempo);
             }
         }
 
         function showSimilarWarning(newName, oldName) {
             document.getElementById('modal-title').innerText = 'Atenção: Nome Similar';
-            document.getElementById('modal-message').innerHTML = `O banco de dados já possui um registro para <strong>${oldName}</strong>. <br><br>Você está tentando registrar <strong>${newName}</strong>. <br>Isso pode gerar divergência no banco de dados. Deseja prosseguir com o novo nome?`;
+            document.getElementById('modal-message').innerHTML = `O banco de dados já possui um registo para <strong>${oldName}</strong>. <br><br>Está a tentar registar <strong>${newName}</strong>. <br>Isto pode gerar divergência no banco de dados. Deseja prosseguir com o novo nome?`;
             
             const icon = document.getElementById('modal-icon');
             icon.className = "w-14 h-14 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center mx-auto text-2xl border border-yellow-100";
@@ -462,16 +452,24 @@
 
         function confirmPendingRecord() {
             if (pendingRecordData) {
-                const { atleta, naipe, email, tempo, modalidade } = pendingRecordData;
-                executeRecordSave(atleta, naipe, email, tempo, modalidade);
+                const { atleta, naipe, email, modalidade, tempo } = pendingRecordData;
+                executeRecordSave(atleta, naipe, email, modalidade, tempo);
                 pendingRecordData = null;
             }
         }
 
-        async function executeRecordSave(atleta, naipe, email, tempo, modalidade, updateId = null) {
+        async function executeRecordSave(atleta, naipe, email, modalidade, tempo, updateId = null) {
+            const payload = {
+                nome: atleta,
+                naipe: naipe,
+                email: email, 
+                modalidade: modalidade,
+                tempo: tempo
+            };
+
             if (updateId) {
-                const { error } = await _supabase.from('records')
-                    .update({ tempo: tempo, naipe: naipe, email: email })
+                const { error } = await _supabase.from('resultados')
+                    .update(payload)
                     .eq('id', updateId);
 
                 if (!error) {
@@ -479,25 +477,27 @@
                     await fetchRecords();
                     showModal('Sucesso', 'O resultado deste participante foi atualizado!', 'success');
                 } else {
-                    showModal('Erro', 'Não foi possível atualizar o registro.', 'error');
+                    console.error(error);
+                    showModal('Erro', 'Não foi possível atualizar o registo.', 'error');
                 }
             } else {
-                const { error } = await _supabase.from('records')
-                    .insert([{ atleta, naipe, email, modalidade, tempo }]);
+                const { error } = await _supabase.from('resultados')
+                    .insert([payload]);
                 
                 if (!error) {
                     document.getElementById('time-entry-form').reset();
                     await fetchRecords();
-                    showModal('Sucesso', 'Resultado oficial cadastrado com sucesso!', 'success');
+                    showModal('Sucesso', 'Resultado oficial guardado com sucesso!', 'success');
                 } else {
-                    showModal('Erro', 'Não foi possível salvar o registro no banco de dados.', 'error');
+                    console.error(error);
+                    showModal('Erro', 'Não foi possível guardar o registo no banco de dados.', 'error');
                 }
             }
         }
 
         async function deleteRecord(id) {
-            if(confirm("Tem certeza que deseja apagar este registro?")) {
-                const { error } = await _supabase.from('records').delete().eq('id', id);
+            if(confirm("Tem certeza que deseja apagar este registo?")) {
+                const { error } = await _supabase.from('resultados').delete().eq('id', id);
                 if (!error) {
                     await fetchRecords();
                 }
@@ -508,14 +508,14 @@
             const tbody = document.getElementById('admin-records-tbody');
             tbody.innerHTML = '';
             if (records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">Nenhum registro cadastrado.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400">Nenhum registo guardado.</td></tr>`;
                 return;
             }
             records.forEach(r => {
                 const naipeLabel = r.naipe === 'MAS' ? 'Masculino' : (r.naipe === 'FEM' ? 'Feminino' : '-');
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="py-3 px-4 font-bold text-slate-900">${r.atleta}</td>
+                        <td class="py-3 px-4 font-bold text-slate-900">${r.nome}</td>
                         <td class="py-3 px-4 text-slate-600">${naipeLabel}</td>
                         <td class="py-3 px-4 text-slate-600">${r.email || '-'}</td>
                         <td class="py-3 px-4 font-mono font-bold text-supley-orange">${r.tempo}</td>
@@ -530,6 +530,7 @@
         function renderLeaderboard() {
             const tbody = document.getElementById('leaderboard-tbody');
             
+            // Cria uma cópia e ordena os resultados (apenas Ciclismo Virtual)
             let filtered = records.filter(r => r.modalidade === 'Ciclismo Virtual');
             filtered.sort((a, b) => a.tempo.localeCompare(b.tempo));
 
@@ -539,7 +540,7 @@
             tbody.innerHTML = '';
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-slate-400">Nenhum resultado registrado.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-slate-400">Nenhum resultado registado.</td></tr>`;
                 return;
             }
 
@@ -554,7 +555,7 @@
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="py-4 px-6 text-center font-black ${badgeClass}">#${index + 1}</td>
-                        <td class="py-4 px-6 font-bold text-slate-900">${r.atleta}</td>
+                        <td class="py-4 px-6 font-bold text-slate-900">${r.nome}</td>
                         <td class="py-4 px-6 text-slate-600">${naipeLabel}</td>
                         <td class="py-4 px-6 text-right font-mono font-black text-supley-orange text-base">${r.tempo}</td>
                     </tr>
@@ -635,8 +636,8 @@
             await fetchRecords();
 
             _supabase
-                .channel('public:records')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'records' }, payload => {
+                .channel('public:resultados')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'resultados' }, payload => {
                     fetchRecords();
                 })
                 .subscribe();
