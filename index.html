@@ -68,9 +68,9 @@
     <!-- ================= HEADER ================= -->
     <header class="sticky top-0 z-40 glass-strong tv-hidden">
         <div class="rainbow-bar"></div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-24 md:h-28 flex items-center justify-between">
             <button onclick="switchTab('home')" class="flex items-center h-full py-2" aria-label="ISF Gymnasiade Rio 2026 – Home">
-                <img src="gymnasiadelogo2026.png" alt="ISF Gymnasiade Rio 2026" class="h-14 w-auto object-contain">
+                <img src="gymnasiadelogo2026.png" alt="ISF Gymnasiade Rio 2026" class="h-20 md:h-24 w-auto object-contain">
             </button>
             <nav class="hidden md:flex items-center gap-1">
                 <button onclick="switchTab('home')" data-nav="home" class="tab-btn btn !py-2 text-sm"><i class="fa-solid fa-house"></i>Home</button>
@@ -99,7 +99,6 @@
                 <div class="absolute -left-24 bottom-0 w-80 h-80 rounded-full bg-[var(--cyan)]/20 blur-3xl pointer-events-none"></div>
                 <div class="relative grid md:grid-cols-12 gap-8 items-center">
                     <div class="md:col-span-7 space-y-5">
-                        <img src="gymnasiadelogo2026.png" alt="Rio 2026" class="h-24 w-auto object-contain" onerror="this.style.display='none'">
                         <div>
                             <h1 class="text-5xl sm:text-6xl font-black tracking-tight leading-none">ISF GYMNASIADE</h1>
                             <p class="mt-3 text-sm sm:text-base font-extrabold tracking-[.25em] text-white/90">RIO DE JANEIRO · BRAZIL · 2026</p>
@@ -161,7 +160,7 @@
         <section id="tab-results" class="space-y-6 hidden animate-fadeIn">
             <div class="tv-only glass-strong rounded-2xl p-4 items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <img src="gymnasiadelogo2026.png" alt="" class="h-14 w-auto object-contain" onerror="this.style.display='none'">
+                    <img src="gymnasiadelogo2026.png" alt="ISF Gymnasiade Rio 2026" class="h-24 w-auto object-contain" onerror="this.style.display='none'">
                     <div>
                         <span class="block text-xs font-extrabold tracking-[.2em] text-[var(--yellow)]">ISF GYMNASIADE RIO 2026</span>
                         <span class="block text-2xl font-black" id="tv-title">VIRTUAL CYCLING</span>
@@ -236,7 +235,7 @@
                         <i class="fa-solid fa-lock mr-2"></i>Weigh-in submissions are currently closed.
                     </div>
 
-                    <form id="weighin-form" class="space-y-4" onsubmit="event.preventDefault(); submitWeighin();">
+                    <form id="weighin-form" class="space-y-4" novalidate onsubmit="event.preventDefault(); submitWeighin();">
                         <div class="grid sm:grid-cols-2 gap-4">
                             <div><label class="label" for="w-first">First name *</label><input id="w-first" class="field" maxlength="80" required autocomplete="given-name"></div>
                             <div><label class="label" for="w-last">Last name (final surname) *</label><input id="w-last" class="field" maxlength="80" required autocomplete="family-name" placeholder="e.g. SILVA"></div>
@@ -246,15 +245,18 @@
                             <div><label class="label" for="w-weight">Weight (kg) *</label><input id="w-weight" type="number" class="field" min="25" max="160" step="0.1" required placeholder="e.g. 61.4"></div>
                         </div>
                         <div>
-                            <label class="label" for="w-video">Weigh-in video * (max 50 MB · MP4, MOV, WEBM)</label>
-                            <input id="w-video" type="file" accept="video/*" required class="field file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-[var(--yellow)] file:text-[var(--p900)]">
+                            <label class="label" for="w-video">Weigh-in video * (max 45 MB · MP4, MOV, WEBM)</label>
+                            <input id="w-video" type="file" accept="video/*" class="hidden" onchange="updateVideoName()">
+                            <div class="field flex items-center gap-3 !py-2">
+                                <button type="button" onclick="$('w-video').click()" class="btn btn-yellow !py-1.5 !px-3 text-sm"><i class="fa-solid fa-video"></i>Choose video</button>
+                                <span id="w-video-name" class="text-sm text-white/60 truncate">No file selected</span>
+                            </div>
                         </div>
                         <div class="rounded-2xl bg-white/5 border border-white/10 p-4 text-sm text-white/80 space-y-1">
                             <p class="font-extrabold text-white"><i class="fa-solid fa-circle-info text-[var(--yellow)] mr-2"></i>Your video must show, in one continuous take:</p>
                             <ul class="list-disc pl-6 space-y-0.5">
                                 <li>You saying your <strong>first name, last name and country</strong> to the camera.</li>
                                 <li>The scale showing <strong>0.0</strong>, then you stepping on it with the <strong>weight clearly readable</strong>.</li>
-                                <li>Your <strong>height</strong> measured against a tape or wall measure.</li>
                             </ul>
                         </div>
                         <label class="flex items-start gap-3 text-sm text-white/80">
@@ -364,7 +366,7 @@
                             <h4 class="text-lg font-black">Athletes &amp; results · <span class="admin-sport-label"></span> <span id="a-count" class="text-sm text-white/60"></span></h4>
                             <div class="flex flex-wrap gap-2">
                                 <input id="a-filter" class="field !w-56 !py-2 text-sm" placeholder="Search all columns…" oninput="renderAdminTable()">
-                                <button onclick="generateFinalists()" class="btn btn-pink !py-2 text-sm" title="Create FINAL entries for the best qualifying times"><i class="fa-solid fa-ranking-star"></i>Generate finalists</button>
+                                <button id="btn-finalists" onclick="generateFinalists()" class="btn btn-pink !py-2 text-sm" title="Create FINAL entries for the best qualifying times"><i class="fa-solid fa-ranking-star"></i>Generate finalists</button>
                                 <button onclick="exportExcel()" class="btn btn-green !py-2 text-sm"><i class="fa-solid fa-file-excel"></i>Excel</button>
                                 <button onclick="exportPDF()" class="btn btn-red !py-2 text-sm"><i class="fa-solid fa-file-pdf"></i>PDF</button>
                             </div>
@@ -416,6 +418,7 @@
                                 <option value="PENDING">Pending</option><option value="APPROVED">Approved</option><option value="REJECTED">Rejected</option><option value="ALL">All</option>
                             </select>
                             <button onclick="loadWeighins()" class="btn btn-ghost !py-2 text-sm"><i class="fa-solid fa-rotate"></i>Refresh</button>
+                            <button onclick="syncDriveNow()" class="btn btn-ghost !py-2 text-sm" title="Copy pending videos to Google Drive now"><i class="fa-brands fa-google-drive"></i>Sync Drive</button>
                             <button onclick="exportWeighins()" class="btn btn-green !py-2 text-sm"><i class="fa-solid fa-file-excel"></i>Excel</button>
                         </div>
                     </div>
@@ -451,7 +454,8 @@
 
     <footer class="tv-hidden glass-strong mt-16">
         <div class="rainbow-bar"></div>
-        <div class="max-w-7xl mx-auto px-4 py-6 text-center text-sm text-white/70">
+        <div class="max-w-7xl mx-auto px-4 py-6 text-center text-sm text-white/70 space-y-3">
+            <img src="gymnasiadelogo2026.png" alt="ISF Gymnasiade Rio 2026" class="h-16 w-auto object-contain mx-auto" onerror="this.style.display='none'">
             ISF Gymnasiade Rio de Janeiro 2026 · Virtual Cycling &amp; Virtual Rowing · 3–8 December 2026
         </div>
     </footer>
@@ -499,12 +503,12 @@
     const EVENT_START = new Date('2026-12-03T00:00:00-03:00');
     const EVENT_END = new Date('2026-12-08T23:59:59-03:00');
     const VIDEO_BUCKET = 'gym-weighins';
-    const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
+    const MAX_VIDEO_BYTES = 45 * 1024 * 1024;
     const COLS = 'id,sport,first_name,last_name,username,country,gender,category,heat,time_ms,status';
     const FIELDS = ['sport', 'first_name', 'last_name', 'username', 'country', 'gender', 'category', 'heat', 'time_ms', 'status'];
     const SPORT_LABEL = { CYCLING: 'Virtual Cycling', ROWING: 'Virtual Rowing' };
     const GENDER_LABEL = { BOYS: 'Boys', GIRLS: 'Girls' };
-    const TV_INTERVAL_MS = 20000;
+    const TV_INTERVAL_MS = 7000;
     const FINAL_HEAT = 'FINAL';
     const FINALISTS = 5;
 
@@ -929,33 +933,50 @@
     }
 
     // ---------- TV mode ----------
+    // TV order: Virtual Rowing heat by heat (in schedule order), and once the finals have results only the finals;
+    // then Virtual Cycling by gender and category. Steps without any result are skipped.
+    function buildTVSteps() {
+        const steps = [];
+        const rowFinals = finalEntries('ROWING');
+        if (rowFinals.some(e => e.time_ms || e.status !== 'OK')) {
+            ['GIRLS', 'BOYS'].forEach(gender => steps.push({ sport: 'ROWING', gender, cat: 'ALL', heat: FINAL_HEAT }));
+        } else {
+            const evs = schedule.filter(e => e.sport === 'ROWING' && !isFinal(e));
+            const order = evs.length ? evs.map(e => ({ heat: e.heat, gender: e.gender }))
+                : allHeats('ROWING').filter(h => up(h) !== FINAL_HEAT).flatMap(h => ['BOYS', 'GIRLS'].map(gender => ({ heat: h, gender })));
+            order.forEach(o => steps.push({ sport: 'ROWING', gender: o.gender, cat: 'ALL', heat: o.heat }));
+        }
+        ['GIRLS', 'BOYS'].forEach(gender => allCategories(qualifyingEntries('CYCLING')).forEach(cat => steps.push({ sport: 'CYCLING', gender, cat, heat: 'ALL' })));
+        return steps;
+    }
+    function tvStepHasResults(s) {
+        return leaderboardGroups(s.sport, s.gender, s.cat, s.heat).some(g => g.list.some(e => (e.status === 'OK' && e.time_ms) || (e.status && e.status !== 'OK')));
+    }
     function startTVMode() {
         if (tvTimer) return;
         if (currentTab !== 'results') switchTab('results');
         document.body.classList.add('tv-mode');
-        tvSteps = [];
-        ['CYCLING', 'ROWING'].forEach(sport => ['BOYS', 'GIRLS'].forEach(gender => {
-            allCategories(sportEntries(sport)).forEach(cat => tvSteps.push({ sport, gender, cat, heat: 'ALL' }));
-            tvSteps.push({ sport, gender, cat: 'OVERALL', heat: 'ALL' });
-            if (finalEntries(sport).length) tvSteps.push({ sport, gender, cat: 'ALL', heat: FINAL_HEAT });
-        }));
+        tvSteps = buildTVSteps();
         tvIndex = 0;
         tvStep();
         tvTimer = setInterval(tvStep, TV_INTERVAL_MS);
     }
+    function showTVStep(s) {
+        resultsSport = s.sport;
+        document.querySelectorAll('[data-sport]').forEach(b => b.classList.toggle('active', b.dataset.sport === s.sport));
+        renderResultFilters();
+        $('f-gender').value = s.gender; $('f-category').value = s.cat; $('f-heat').value = s.heat;
+        renderLeaderboard();
+    }
     function tvStep() {
+        if (tvIndex === 0) tvSteps = buildTVSteps();   // pick up new results every full cycle
         for (let t = 0; t < tvSteps.length; t++) {
             const s = tvSteps[tvIndex];
             tvIndex = (tvIndex + 1) % tvSteps.length;
-            if (leaderboardGroups(s.sport, s.gender, s.cat, s.heat).length || t === tvSteps.length - 1) {
-                resultsSport = s.sport;
-                document.querySelectorAll('[data-sport]').forEach(b => b.classList.toggle('active', b.dataset.sport === s.sport));
-                renderResultFilters();
-                $('f-gender').value = s.gender; $('f-category').value = s.cat; $('f-heat').value = s.heat;
-                break;
-            }
+            if (tvStepHasResults(s)) { showTVStep(s); return; }
         }
-        renderLeaderboard();
+        if (tvSteps.length) showTVStep(tvSteps[0]);
+        else renderLeaderboard();
     }
     function stopTVMode() {
         clearInterval(tvTimer); tvTimer = null;
@@ -992,7 +1013,7 @@
         if (!file) errs.push('Please attach your weigh-in video.');
         const mime = file ? videoMime(file) : null;
         if (file && !mime) errs.push('The file must be a video (MP4, MOV, WEBM…).');
-        if (file && file.size > MAX_VIDEO_BYTES) errs.push(`The video is ${(file.size / 1048576).toFixed(1)} MB. Maximum is 50 MB — record at a lower resolution (720p) or trim it.`);
+        if (file && file.size > MAX_VIDEO_BYTES) errs.push(`The video is ${(file.size / 1048576).toFixed(1)} MB. Maximum is 45 MB — record at a lower resolution (720p) or trim it.`);
         if (!$('w-consent').checked) errs.push('Please confirm the declaration.');
         if (errs.length) { showModal('Please check the form', errs.join('\n'), 'error'); return; }
 
@@ -1020,8 +1041,14 @@
             $('w-submit').disabled = false; $('w-progress').classList.add('hidden');
         }
     }
+    function updateVideoName() {
+        const f = $('w-video').files[0], el = $('w-video-name');
+        el.innerText = f ? `${f.name} · ${(f.size / 1048576).toFixed(1)} MB` : 'No file selected';
+        el.classList.toggle('text-white/60', !f); el.classList.toggle('text-white', !!f);
+        el.classList.toggle('text-red-300', !!f && f.size > MAX_VIDEO_BYTES);
+    }
     function resetWeighinForm() {
-        $('weighin-form').reset();
+        $('weighin-form').reset(); updateVideoName();
         $('weighin-form').classList.remove('hidden');
         $('weighin-success').classList.add('hidden');
     }
@@ -1096,6 +1123,7 @@
         adminSport = sport;
         document.querySelectorAll('[data-admin-sport]').forEach(b => b.classList.toggle('active', b.dataset.adminSport === sport));
         document.querySelectorAll('.admin-sport-label').forEach(el => el.innerText = SPORT_LABEL[sport]);
+        $('btn-finalists').classList.toggle('hidden', sport !== 'ROWING');
         clearManualForm();
         discardOCR();
         pendingImport = null; renderImportMap();
@@ -1298,11 +1326,12 @@
         renderLeaderboard();
     }
 
-    // Finalists = best FINALISTS valid qualifying times per gender and category; a tie on the last place takes everyone tied.
+    // Virtual Rowing only: finalists = best FINALISTS valid qualifying times per gender (all heats together);
+    // a tie on the last place takes everyone tied.
     function pickFinalists(sport) {
         const out = [];
         const groups = {};
-        qualifyingEntries(sport).forEach(e => { (groups[`${e.gender}|${e.category || ''}`] ||= []).push(e); });
+        qualifyingEntries(sport).filter(e => e.gender).forEach(e => { (groups[e.gender] ||= []).push(e); });
         Object.values(groups).forEach(list => {
             const ranked = rankRows(list).filter(r => r._pos);
             if (!ranked.length) return;
@@ -1313,14 +1342,15 @@
     }
     async function generateFinalists() {
         if (!requireAdmin()) return;
+        if (adminSport !== 'ROWING') { showModal('Not available', 'Finals are only used in Virtual Rowing.', 'error'); return; }
         const picks = pickFinalists(adminSport);
         if (!picks.length) { showModal('No finalists yet', 'There are no valid qualifying times in this sport yet.', 'error'); return; }
         const existing = finalEntries(adminSport);
-        const already = r => findAthlete(existing.filter(e => e.gender === r.gender && (e.category || '') === (r.category || '')), r);
+        const already = r => findAthlete(existing.filter(e => e.gender === r.gender), r);
         const toAdd = picks.filter(r => !already(r));
         const stale = existing.filter(e => !findAthlete(picks, e));
-        const lines = picks.map(r => `${GENDER_LABEL[r.gender] || ''} ${r.category || ''} · #${r._pos} ${sortName(r)} (${countryName(r.country)}) ${formatMs(r.time_ms)}${already(r) ? ' – already in final' : ''}`);
-        let msg = `Finalists (${FINALISTS} best times per gender and category, ties included):\n\n${lines.join('\n')}`;
+        const lines = picks.map(r => `${GENDER_LABEL[r.gender] || ''} · #${r._pos} ${sortName(r)} (${countryName(r.country)}) ${formatMs(r.time_ms)}${already(r) ? ' – already in final' : ''}`);
+        let msg = `Finalists (${FINALISTS} best times per gender across all heats, ties included):\n\n${lines.join('\n')}`;
         if (stale.length) msg += `\n\nWarning: ${stale.length} athlete(s) already in the final are no longer in the top ${FINALISTS}: ${stale.map(sortName).join(', ')}. They are NOT removed automatically.`;
         if (!toAdd.length) { showModal('Final is up to date', msg); return; }
         if (!(await confirmDialog(`Add ${toAdd.length} finalist(s)?`, msg))) return;
@@ -1737,7 +1767,8 @@
                     ${sug ? `<button data-wi-suggest="${w.id}" data-entry="${sug.id}" class="mt-1 text-xs text-[var(--yellow)] hover:underline">Suggested: ${esc(sortName(sug))} — link</button>` : ''}
                 </div>
                 <div class="flex flex-wrap gap-2">
-                    <button data-wi-video="${w.id}" class="btn btn-ghost !py-1.5 text-xs"><i class="fa-solid fa-play"></i>Watch video</button>
+                    <button data-wi-video="${w.id}" class="btn btn-ghost !py-1.5 text-xs"><i class="${w.drive_url ? 'fa-brands fa-google-drive' : 'fa-solid fa-play'}"></i>${w.drive_url ? 'Watch in Drive' : 'Watch video'}</button>
+                    <span class="chip ${w.drive_url ? 'bg-[var(--green)]/25 text-white' : w.drive_error ? 'bg-[var(--orange)]/30 text-white' : 'bg-white/10 text-white/70'}" title="${esc(w.drive_error || '')}">${w.drive_url ? '<i class="fa-brands fa-google-drive"></i>In Drive' : w.drive_error ? '<i class="fa-solid fa-triangle-exclamation"></i>Drive copy failed – retrying' : '<i class="fa-solid fa-hourglass-half"></i>Copying to Drive…'}</span>
                     ${w.status !== 'APPROVED' ? `<button data-wi-approve="${w.id}" class="btn btn-green !py-1.5 text-xs"><i class="fa-solid fa-check"></i>Approve</button>` : ''}
                     ${w.status !== 'REJECTED' ? `<button data-wi-reject="${w.id}" class="btn btn-red !py-1.5 text-xs"><i class="fa-solid fa-xmark"></i>Reject</button>` : ''}
                 </div>
@@ -1761,8 +1792,18 @@
         } else if (!(await confirmDialog('Approve weigh-in', `Approve ${titleCase(w.first_name)} ${up(w.last_name)} · ${w.height_cm} cm · ${w.weight_kg} kg?`))) return;
         await updateWeighin(id, { status, review_note: note, reviewed_at: new Date().toISOString() });
     }
+    async function syncDriveNow() {
+        if (!requireAdmin()) return;
+        const { data, error } = await sb.functions.invoke('gym-weighin-drive', { body: {} });
+        if (error) { showModal('Drive sync failed', error.message, 'error'); return; }
+        await loadWeighins();
+        if (data?.skipped) { showModal('Drive sync', 'Google Drive is not connected yet.', 'error'); return; }
+        const done = (data?.processed || []).filter(r => r.ok).length, failed = (data?.processed || []).filter(r => !r.ok);
+        showModal(failed.length ? 'Drive sync finished with errors' : 'Drive sync', `${done} video(s) copied to Google Drive.` + (failed.length ? `\n${failed.length} failed: ${failed[0].error}` : '') + (!done && !failed.length ? '\nNothing pending.' : ''), failed.length ? 'error' : 'success');
+    }
     async function watchVideo(id) {
         const w = weighins.find(x => x.id === id); if (!w) return;
+        if (w.drive_file_id) { window.open(`https://drive.google.com/file/d/${encodeURIComponent(w.drive_file_id)}/view`, '_blank', 'noopener'); return; }
         const { data, error } = await sb.storage.from(VIDEO_BUCKET).createSignedUrl(w.video_path, 3600);
         if (error) { showModal('Video unavailable', error.message, 'error'); return; }
         $('video-title').innerText = `${titleCase(w.first_name)} ${up(w.last_name)} · ${countryName(w.country)} · ${w.height_cm} cm · ${w.weight_kg} kg`;
