@@ -97,7 +97,7 @@
         </div>
     </header>
 
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main id="main" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         <!-- ================= HOME ================= -->
         <section id="tab-home" class="space-y-8 animate-fadeIn">
@@ -373,6 +373,7 @@
                             <h4 class="text-lg font-black">Athletes &amp; results · <span class="admin-sport-label"></span> <span id="a-count" class="text-sm text-white/60"></span></h4>
                             <div class="flex flex-wrap gap-2">
                                 <input id="a-filter" class="field !w-56 !py-2 text-sm" placeholder="Search all columns…" oninput="renderAdminTable()">
+                                <button id="btn-bulk-delete" onclick="deleteSelected()" class="hidden btn btn-red !py-2 text-sm"><i class="fa-solid fa-trash"></i>Delete selected (<span id="sel-count">0</span>)</button>
                                 <button id="btn-finalists" onclick="generateFinalists()" class="btn btn-pink !py-2 text-sm" title="Create FINAL entries for the best qualifying times"><i class="fa-solid fa-ranking-star"></i>Generate finalists</button>
                                 <button onclick="exportExcel()" class="btn btn-green !py-2 text-sm"><i class="fa-solid fa-file-excel"></i>Excel</button>
                                 <button onclick="exportPDF()" class="btn btn-red !py-2 text-sm"><i class="fa-solid fa-file-pdf"></i>PDF</button>
@@ -627,7 +628,7 @@
         SWZ: 'SZ', BIZ: 'BZ', ISV: 'VI', KOS: 'XK', MON: 'MC', FIJ: 'FJ', SAM: 'WS', TGA: 'TO', VAN: 'VU', SOL: 'SB', PLE: 'PS',
         UK: 'GB', ENGLAND: 'GB', UNITEDKINGDOM: 'GB', USA: 'US', UNITEDSTATESOFAMERICA: 'US', BRASIL: 'BR', ESPANA: 'ES',
         TURKEY: 'TR', CZECHREPUBLIC: 'CZ', SOUTHKOREA: 'KR', REPUBLICOFKOREA: 'KR', TAIWAN: 'TW', IVORYCOAST: 'CI', HOLLAND: 'NL',
-        ALEMANHA: 'DE', ESTADOSUNIDOS: 'US', MEXICO: 'MX', PERU: 'PE', ARGENTINA: 'AR', FRANCA: 'FR', ITALIA: 'IT', JAPAO: 'JP'
+        ALEMANHA: 'DE', IRIRAN: 'IR', IRANISLAMICREPUBLICOF: 'IR', ISLAMICREPUBLICOFIRAN: 'IR', ARABIASAUDITA: 'SA', HUNGRIA: 'HU', ARGELIA: 'DZ', IRA: 'IR', ESTADOSUNIDOS: 'US', MEXICO: 'MX', PERU: 'PE', ARGENTINA: 'AR', FRANCA: 'FR', ITALIA: 'IT', JAPAO: 'JP'
     }).forEach(([k, v]) => { COUNTRY_LOOKUP[k] = v; });
     function normalizeCountry(v) {
         const s = nn(v);
@@ -748,6 +749,8 @@
         ['home', 'schedule', 'results', 'weighin', 'admin'].forEach(t => $(`tab-${t}`).classList.toggle('hidden', t !== tab));
         document.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('active', b.dataset.nav === tab));
         $('mobile-menu').classList.add('hidden');
+        $('main').classList.toggle('max-w-7xl', tab !== 'admin');
+        $('main').classList.toggle('max-w-[1920px]', tab === 'admin');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         if (tab === 'results') renderLeaderboard();
         if (tab === 'schedule') renderSchedule();
@@ -1134,6 +1137,7 @@
         clearManualForm();
         discardOCR();
         pendingImport = null; renderImportMap();
+        adminSelected.clear();
         renderAdminSelects(); renderAdminTable(); renderSettings();
     }
     function setAdminTab(tab) {
@@ -1221,6 +1225,33 @@
     }
     let adminFilters = { name: '', user: '', country: 'ALL', gender: 'ALL', category: 'ALL', heat: 'ALL', time: 'ALL' };
     let adminTableDeferred = false;
+    const adminSelected = new Set();
+    function updateSelectionUI() {
+        const visible = [...document.querySelectorAll('#a-tbody [data-sel]')].map(c => Number(c.dataset.sel));
+        const ids = new Set(sportEntries(adminSport).map(e => e.id));
+        [...adminSelected].forEach(id => { if (!ids.has(id)) adminSelected.delete(id); });
+        $('sel-count').innerText = adminSelected.size;
+        $('btn-bulk-delete').classList.toggle('hidden', !adminSelected.size);
+        const all = $('sel-all');
+        if (all) {
+            const n = visible.filter(id => adminSelected.has(id)).length;
+            all.checked = visible.length > 0 && n === visible.length;
+            all.indeterminate = n > 0 && n < visible.length;
+        }
+    }
+    async function deleteSelected() {
+        if (!requireAdmin()) return;
+        const ids = [...adminSelected];
+        if (!ids.length) return;
+        const finals = entries.filter(e => adminSelected.has(e.id) && isFinal(e)).length;
+        if (!(await confirmDialog(`Delete ${ids.length} record(s)?`, `This permanently deletes ${ids.length} record(s) from ${SPORT_LABEL[adminSport]}${finals ? ` (including ${finals} final result(s))` : ''}, with their times. This cannot be undone.`))) return;
+        const errors = [];
+        for (const part of chunk(ids, 200)) { const { error } = await sb.from('gym_entries').delete().in('id', part); if (error) errors.push(error.message); }
+        adminSelected.clear();
+        await loadEntries();
+        updateSelectionUI();
+        if (errors.length) showModal('Error', errors[0], 'error'); else showModal('Deleted', `${ids.length} record(s) deleted.`);
+    }
     function clearAdminFilters() {
         adminFilters = { name: '', user: '', country: 'ALL', gender: 'ALL', category: 'ALL', heat: 'ALL', time: 'ALL' };
         $('a-filter').value = '';
@@ -1236,10 +1267,11 @@
         const sel = (key, options) => `<select data-af="${key}" class="field !py-1 !px-2 text-xs normal-case font-semibold tracking-normal">${options}</select>`;
         th.innerHTML = `
             <tr class="text-[11px] uppercase tracking-wider text-white/60">
-                <th class="pt-2 px-2">Athlete</th><th class="pt-2 px-2">Username</th><th class="pt-2 px-2">Country</th><th class="pt-2 px-2">Gender</th>
+                <th class="pt-2 px-2 w-8"></th><th class="pt-2 px-2 min-w-[13rem]">Athlete</th><th class="pt-2 px-2">Username</th><th class="pt-2 px-2">Country</th><th class="pt-2 px-2">Gender</th>
                 <th class="pt-2 px-2">Category</th><th class="pt-2 px-2">Heat</th><th class="pt-2 px-2">Time · Status</th><th class="pt-2 px-2 text-right">Actions</th>
             </tr>
             <tr class="border-b border-white/10 align-top">
+                <th class="py-2 px-2 text-center"><input type="checkbox" id="sel-all" title="Select all listed athletes" class="w-4 h-4 accent-[var(--yellow)] cursor-pointer"></th>
                 <th class="py-2 px-2"><input data-af="name" class="field !py-1 !px-2 text-xs font-semibold" placeholder="Name…" value="${esc(f.name)}"></th>
                 <th class="py-2 px-2"><input data-af="user" class="field !py-1 !px-2 text-xs font-semibold" placeholder="Username…" value="${esc(f.user)}"></th>
                 <th class="py-2 px-2">${sel('country', opt('ALL', 'All', f.country) + opt('NONE', '(empty)', f.country) + countries.map(c => opt(c, countryName(c), f.country)).join(''))}</th>
@@ -1269,7 +1301,7 @@
         const all = sportEntries(adminSport), list = adminFilteredList();
         $('a-count').innerText = list.length === all.length ? `(${all.length})` : `(${list.length} of ${all.length})`;
         if (!list.length) {
-            tb.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-white/50">${all.length ? 'No athlete matches these filters.' : 'No athletes yet. Add them manually or import a spreadsheet.'}</td></tr>`;
+            tb.innerHTML = `<tr><td colspan="9" class="py-6 text-center text-white/50">${all.length ? 'No athlete matches these filters.' : 'No athletes yet. Add them manually or import a spreadsheet.'}</td></tr>`;
             return;
         }
         const cOpts = countryOptions(true).replace('— select —', '—');
@@ -1278,12 +1310,13 @@
         tb.innerHTML = list.map(e => {
             const extraCountry = e.country && !COUNTRY_BY_ISO2[e.country] ? `<option value="${esc(e.country)}">${esc(e.country)} (?)</option>` : '';
             return `<tr class="hover:bg-white/5 transition-colors" data-row="${e.id}">
-            <td class="py-2 px-2"><span class="font-black">${esc(up(e.last_name))}</span> ${esc(titleCase(e.first_name))}</td>
+            <td class="py-2 px-2 text-center"><input type="checkbox" data-sel="${e.id}" ${adminSelected.has(e.id) ? 'checked' : ''} class="w-4 h-4 accent-[var(--yellow)] cursor-pointer"></td>
+            <td class="py-2 px-2 min-w-[13rem]"><span class="font-black">${esc(up(e.last_name))}</span> ${esc(titleCase(e.first_name))}</td>
             <td class="py-2 px-2 font-mono text-xs text-white/60">${esc(e.username || '—')}</td>
-            <td class="py-2 px-2"><select data-ie="country" data-id="${e.id}" data-v="${esc(e.country || '')}" class="${f} !w-40">${extraCountry}${cOpts}</select></td>
+            <td class="py-2 px-2"><select data-ie="country" data-id="${e.id}" data-v="${esc(e.country || '')}" class="${f} !w-36">${extraCountry}${cOpts}</select></td>
             <td class="py-2 px-2"><select data-ie="gender" data-id="${e.id}" data-v="${esc(e.gender || '')}" class="${f} !w-24"><option value="">—</option><option value="BOYS">Boys</option><option value="GIRLS">Girls</option></select></td>
             <td class="py-2 px-2"><select data-ie="category" data-id="${e.id}" data-v="${esc(e.category || '')}" class="${f} !w-24"><option value="">—</option>${cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select></td>
-            <td class="py-2 px-2"><select data-ie="heat" data-id="${e.id}" data-v="${esc(e.heat || '')}" class="${f} !w-48"><option value="">—</option>${heats.map(h => `<option value="${esc(h)}">${esc(h)}</option>`).join('')}${e.heat && !heats.includes(e.heat) ? `<option value="${esc(e.heat)}">${esc(e.heat)}</option>` : ''}</select></td>
+            <td class="py-2 px-2"><select data-ie="heat" data-id="${e.id}" data-v="${esc(e.heat || '')}" class="${f} !w-44"><option value="">—</option>${heats.map(h => `<option value="${esc(h)}">${esc(h)}</option>`).join('')}${e.heat && !heats.includes(e.heat) ? `<option value="${esc(e.heat)}">${esc(e.heat)}</option>` : ''}</select></td>
             <td class="py-2 px-2"><div class="flex gap-1">
                 <input data-ie="time" data-id="${e.id}" value="${esc(e.time_ms ? formatMs(e.time_ms) : '')}" placeholder="00:00:00.000" class="${f} font-mono !text-sm !w-32 ${e.time_ms && e.status === 'OK' ? 'text-[var(--yellow)] font-bold' : ''}">
                 <select data-ie="status" data-id="${e.id}" data-v="${esc(e.status || 'OK')}" class="${f} !w-20"><option value="OK">OK</option><option value="DNF">DNF</option><option value="DNS">DNS</option><option value="DSQ">DSQ</option></select>
@@ -1295,6 +1328,7 @@
         }).join('');
         tb.querySelectorAll('select[data-ie]').forEach(s => { s.value = s.dataset.v; });
         tb.querySelectorAll('input[data-ie="time"]').forEach(bindTimeInput);
+        updateSelectionUI();
     }
     async function inlineSave(el) {
         if (!requireAdmin()) return;
@@ -1980,6 +2014,16 @@
         if (af) { adminFilters[af.dataset.af] = af.value; renderAdminTable(); }
     });
     document.addEventListener('change', e => {
+        if (e.target.matches?.('#a-tbody [data-sel]')) {
+            const id = Number(e.target.dataset.sel);
+            e.target.checked ? adminSelected.add(id) : adminSelected.delete(id);
+            updateSelectionUI(); return;
+        }
+        if (e.target.id === 'sel-all') {
+            const on = e.target.checked;
+            document.querySelectorAll('#a-tbody [data-sel]').forEach(c => { c.checked = on; on ? adminSelected.add(Number(c.dataset.sel)) : adminSelected.delete(Number(c.dataset.sel)); });
+            updateSelectionUI(); return;
+        }
         const ie = e.target.closest('#a-tbody [data-ie]');
         if (ie) { inlineSave(ie); return; }
         const s = e.target.closest('[data-wi-link]');
