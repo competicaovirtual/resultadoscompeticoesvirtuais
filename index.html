@@ -363,18 +363,16 @@
                         <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
                             <h4 class="text-lg font-black">Athletes &amp; results · <span class="admin-sport-label"></span> <span id="a-count" class="text-sm text-white/60"></span></h4>
                             <div class="flex flex-wrap gap-2">
-                                <input id="a-filter" class="field !w-56 !py-2 text-sm" placeholder="Filter…" oninput="renderAdminTable()">
+                                <input id="a-filter" class="field !w-56 !py-2 text-sm" placeholder="Search all columns…" oninput="renderAdminTable()">
                                 <button onclick="generateFinalists()" class="btn btn-pink !py-2 text-sm" title="Create FINAL entries for the best qualifying times"><i class="fa-solid fa-ranking-star"></i>Generate finalists</button>
                                 <button onclick="exportExcel()" class="btn btn-green !py-2 text-sm"><i class="fa-solid fa-file-excel"></i>Excel</button>
                                 <button onclick="exportPDF()" class="btn btn-red !py-2 text-sm"><i class="fa-solid fa-file-pdf"></i>PDF</button>
                             </div>
                         </div>
+                        <p class="text-xs text-white/55"><i class="fa-solid fa-circle-info mr-1"></i>Use the filters under each title to narrow the list. Country, gender, category, heat, time and status can be edited right in the table: changes are saved as soon as you leave the field. Press <strong>Enter</strong> in a time to jump to the next athlete.</p>
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm">
-                                <thead><tr class="text-[11px] uppercase tracking-wider text-white/60 border-b border-white/10">
-                                    <th class="py-2 px-3">Athlete</th><th class="py-2 px-3">Username</th><th class="py-2 px-3">Country</th><th class="py-2 px-3">Gender</th>
-                                    <th class="py-2 px-3">Category</th><th class="py-2 px-3">Heat</th><th class="py-2 px-3">Time</th><th class="py-2 px-3 text-right">Actions</th>
-                                </tr></thead>
+                                <thead id="a-thead"></thead>
                                 <tbody id="a-tbody" class="divide-y divide-white/5"></tbody>
                             </table>
                         </div>
@@ -403,9 +401,10 @@
                     <p class="text-sm text-white/70">Expected columns: <strong>FIRST NAME</strong>, <strong>LAST NAME</strong> (or a single <strong>NAME</strong> column; the last word is used as last name), <strong>USERNAME</strong>, <strong>COUNTRY</strong> (name, ISO or IOC code), <strong>GENDER</strong> (Boys/Girls, M/F), <strong>CATEGORY</strong>, <strong>HEAT</strong>, <strong>TIME</strong>. Rows are matched to existing athletes by username or full name; empty cells never erase existing data.</p>
                     <div class="flex flex-col sm:flex-row gap-3">
                         <input id="import-file" type="file" accept=".xlsx,.xls,.csv" class="field file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-[var(--green)] file:text-white">
-                        <button onclick="importFile()" class="btn btn-green"><i class="fa-solid fa-upload"></i>Import</button>
+                        <button onclick="importFile()" class="btn btn-green"><i class="fa-solid fa-table-columns"></i>Read file</button>
                     </div>
                     <button onclick="downloadTemplate()" class="btn btn-ghost !py-2 text-sm"><i class="fa-solid fa-download"></i>Download template</button>
+                    <div id="import-map" class="hidden space-y-4"></div>
                 </div>
 
                 <!-- Weigh-ins -->
@@ -1099,6 +1098,7 @@
         document.querySelectorAll('.admin-sport-label').forEach(el => el.innerText = SPORT_LABEL[sport]);
         clearManualForm();
         discardOCR();
+        pendingImport = null; renderImportMap();
         renderAdminSelects(); renderAdminTable(); renderSettings();
     }
     function setAdminTab(tab) {
@@ -1184,26 +1184,120 @@
         if (/gym_entries_sport_username/.test(msg)) return 'This username already has a result in this stage (qualifying or final) of this sport. Edit the existing record instead.';
         return msg;
     }
-    function renderAdminTable() {
-        const q = compact($('a-filter').value);
-        const list = sportEntries(adminSport)
-            .filter(e => !q || compact(`${e.first_name}${e.last_name}${e.username}${e.country}${e.category}${e.heat}`).includes(q))
-            .sort((a, b) => sortName(a).localeCompare(sortName(b)));
-        $('a-count').innerText = `(${list.length})`;
-        $('a-tbody').innerHTML = list.length ? list.map(e => `<tr class="hover:bg-white/5">
-            <td class="py-2 px-3"><span class="font-black">${esc(up(e.last_name))}</span> ${esc(titleCase(e.first_name))}</td>
-            <td class="py-2 px-3 font-mono text-xs text-white/60">${esc(e.username || '—')}</td>
-            <td class="py-2 px-3">${countryDisplay(e.country)}</td>
-            <td class="py-2 px-3">${esc(GENDER_LABEL[e.gender] || '—')}</td>
-            <td class="py-2 px-3">${esc(e.category || '—')}</td>
-            <td class="py-2 px-3">${esc(e.heat || '—')}</td>
-            <td class="py-2 px-3 font-mono font-bold ${e.time_ms && e.status === 'OK' ? 'text-[var(--yellow)]' : 'text-white/40'}">${esc(resultLabel(e))}</td>
-            <td class="py-2 px-3 text-right whitespace-nowrap">
-                <button data-edit="${e.id}" class="btn btn-ghost !py-1 !px-2 text-xs" title="Edit"><i class="fa-solid fa-pen"></i></button>
-                <button data-del="${e.id}" class="btn btn-ghost !py-1 !px-2 text-xs text-red-300" title="Delete"><i class="fa-solid fa-trash"></i></button>
-            </td></tr>`).join('')
-            : `<tr><td colspan="8" class="py-6 text-center text-white/50">No athletes yet. Add them manually or import a spreadsheet.</td></tr>`;
+    let adminFilters = { name: '', user: '', country: 'ALL', gender: 'ALL', category: 'ALL', heat: 'ALL', time: 'ALL' };
+    let adminTableDeferred = false;
+    function clearAdminFilters() {
+        adminFilters = { name: '', user: '', country: 'ALL', gender: 'ALL', category: 'ALL', heat: 'ALL', time: 'ALL' };
+        $('a-filter').value = '';
+        const th = $('a-thead'); if (th.contains(document.activeElement)) document.activeElement.blur();
+        renderAdminTable();
     }
+    function renderAdminHead() {
+        const th = $('a-thead');
+        if (!th || th.contains(document.activeElement)) return;
+        const list = sportEntries(adminSport), f = adminFilters;
+        const countries = [...new Set(list.map(e => e.country).filter(Boolean))].sort((a, b) => countryName(a).localeCompare(countryName(b)));
+        const opt = (v, l, cur) => `<option value="${esc(v)}"${v === cur ? ' selected' : ''}>${esc(l)}</option>`;
+        const sel = (key, options) => `<select data-af="${key}" class="field !py-1 !px-2 text-xs normal-case font-semibold tracking-normal">${options}</select>`;
+        th.innerHTML = `
+            <tr class="text-[11px] uppercase tracking-wider text-white/60">
+                <th class="pt-2 px-2">Athlete</th><th class="pt-2 px-2">Username</th><th class="pt-2 px-2">Country</th><th class="pt-2 px-2">Gender</th>
+                <th class="pt-2 px-2">Category</th><th class="pt-2 px-2">Heat</th><th class="pt-2 px-2">Time · Status</th><th class="pt-2 px-2 text-right">Actions</th>
+            </tr>
+            <tr class="border-b border-white/10 align-top">
+                <th class="py-2 px-2"><input data-af="name" class="field !py-1 !px-2 text-xs font-semibold" placeholder="Name…" value="${esc(f.name)}"></th>
+                <th class="py-2 px-2"><input data-af="user" class="field !py-1 !px-2 text-xs font-semibold" placeholder="Username…" value="${esc(f.user)}"></th>
+                <th class="py-2 px-2">${sel('country', opt('ALL', 'All', f.country) + opt('NONE', '(empty)', f.country) + countries.map(c => opt(c, countryName(c), f.country)).join(''))}</th>
+                <th class="py-2 px-2">${sel('gender', opt('ALL', 'All', f.gender) + opt('BOYS', 'Boys', f.gender) + opt('GIRLS', 'Girls', f.gender) + opt('NONE', '(empty)', f.gender))}</th>
+                <th class="py-2 px-2">${sel('category', opt('ALL', 'All', f.category) + opt('NONE', '(empty)', f.category) + allCategories(list).map(c => opt(c, c, f.category)).join(''))}</th>
+                <th class="py-2 px-2">${sel('heat', opt('ALL', 'All', f.heat) + opt('NONE', '(empty)', f.heat) + allHeats(adminSport).map(h => opt(h, h, f.heat)).join(''))}</th>
+                <th class="py-2 px-2">${sel('time', opt('ALL', 'All', f.time) + opt('WITH', 'With time', f.time) + opt('WITHOUT', 'No time yet', f.time) + opt('DNX', 'DNF / DNS / DSQ', f.time))}</th>
+                <th class="py-2 px-2 text-right"><button onclick="clearAdminFilters()" class="btn btn-ghost !py-1 !px-2 text-xs normal-case tracking-normal"><i class="fa-solid fa-filter-circle-xmark"></i>Clear</button></th>
+            </tr>`;
+    }
+    function adminFilteredList() {
+        const q = compact($('a-filter').value), f = adminFilters;
+        const byField = (e, field, v) => v === 'ALL' || (v === 'NONE' ? !e[field] : e[field] === v);
+        return sportEntries(adminSport).filter(e =>
+            (!q || compact(`${e.first_name}${e.last_name}${e.username}${e.country}${countryName(e.country)}${e.category}${e.heat}`).includes(q)) &&
+            (!f.name || compact(`${e.first_name}${e.last_name}`).includes(compact(f.name)) || compact(`${e.last_name}${e.first_name}`).includes(compact(f.name))) &&
+            (!f.user || compact(e.username).includes(compact(f.user))) &&
+            byField(e, 'country', f.country) && byField(e, 'gender', f.gender) && byField(e, 'category', f.category) && byField(e, 'heat', f.heat) &&
+            (f.time === 'ALL' || (f.time === 'WITH' && e.status === 'OK' && e.time_ms) || (f.time === 'WITHOUT' && e.status === 'OK' && !e.time_ms) || (f.time === 'DNX' && e.status !== 'OK'))
+        ).sort((a, b) => sortName(a).localeCompare(sortName(b)));
+    }
+    function renderAdminTable() {
+        renderAdminHead();
+        const tb = $('a-tbody');
+        if (tb.contains(document.activeElement)) { adminTableDeferred = true; return; }
+        adminTableDeferred = false;
+        const all = sportEntries(adminSport), list = adminFilteredList();
+        $('a-count').innerText = list.length === all.length ? `(${all.length})` : `(${list.length} of ${all.length})`;
+        if (!list.length) {
+            tb.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-white/50">${all.length ? 'No athlete matches these filters.' : 'No athletes yet. Add them manually or import a spreadsheet.'}</td></tr>`;
+            return;
+        }
+        const cOpts = countryOptions(true).replace('— select —', '—');
+        const cats = allCategories(all), heats = allHeats(adminSport);
+        const f = 'field !py-1 !px-2 text-xs';
+        tb.innerHTML = list.map(e => {
+            const extraCountry = e.country && !COUNTRY_BY_ISO2[e.country] ? `<option value="${esc(e.country)}">${esc(e.country)} (?)</option>` : '';
+            return `<tr class="hover:bg-white/5 transition-colors" data-row="${e.id}">
+            <td class="py-2 px-2"><span class="font-black">${esc(up(e.last_name))}</span> ${esc(titleCase(e.first_name))}</td>
+            <td class="py-2 px-2 font-mono text-xs text-white/60">${esc(e.username || '—')}</td>
+            <td class="py-2 px-2"><select data-ie="country" data-id="${e.id}" data-v="${esc(e.country || '')}" class="${f} !w-40">${extraCountry}${cOpts}</select></td>
+            <td class="py-2 px-2"><select data-ie="gender" data-id="${e.id}" data-v="${esc(e.gender || '')}" class="${f} !w-24"><option value="">—</option><option value="BOYS">Boys</option><option value="GIRLS">Girls</option></select></td>
+            <td class="py-2 px-2"><select data-ie="category" data-id="${e.id}" data-v="${esc(e.category || '')}" class="${f} !w-24"><option value="">—</option>${cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select></td>
+            <td class="py-2 px-2"><select data-ie="heat" data-id="${e.id}" data-v="${esc(e.heat || '')}" class="${f} !w-48"><option value="">—</option>${heats.map(h => `<option value="${esc(h)}">${esc(h)}</option>`).join('')}${e.heat && !heats.includes(e.heat) ? `<option value="${esc(e.heat)}">${esc(e.heat)}</option>` : ''}</select></td>
+            <td class="py-2 px-2"><div class="flex gap-1">
+                <input data-ie="time" data-id="${e.id}" value="${esc(e.time_ms ? formatMs(e.time_ms) : '')}" placeholder="00:00:00.000" class="${f} font-mono !text-sm !w-32 ${e.time_ms && e.status === 'OK' ? 'text-[var(--yellow)] font-bold' : ''}">
+                <select data-ie="status" data-id="${e.id}" data-v="${esc(e.status || 'OK')}" class="${f} !w-20"><option value="OK">OK</option><option value="DNF">DNF</option><option value="DNS">DNS</option><option value="DSQ">DSQ</option></select>
+            </div></td>
+            <td class="py-2 px-2 text-right whitespace-nowrap">
+                <button data-edit="${e.id}" class="btn btn-ghost !py-1 !px-2 text-xs" title="Edit all fields"><i class="fa-solid fa-pen"></i></button>
+                <button data-del="${e.id}" class="btn btn-ghost !py-1 !px-2 text-xs text-red-300" title="Delete"><i class="fa-solid fa-trash"></i></button>
+            </td></tr>`;
+        }).join('');
+        tb.querySelectorAll('select[data-ie]').forEach(s => { s.value = s.dataset.v; });
+        tb.querySelectorAll('input[data-ie="time"]').forEach(bindTimeInput);
+    }
+    async function inlineSave(el) {
+        if (!requireAdmin()) return;
+        const e = entries.find(x => String(x.id) === el.dataset.id);
+        if (!e) return;
+        const field = el.dataset.ie, row = { ...e };
+        const tr = el.closest('tr');
+        if (field === 'time') {
+            const raw = el.value.trim(), ms = raw ? parseTimeMs(raw) : null;
+            if (raw && ms === null) { el.classList.add('invalid'); return; }
+            el.classList.remove('invalid');
+            if ((ms || null) === (e.time_ms || null)) return;
+            row.time_ms = ms;
+            if (ms) row.status = 'OK';
+        } else if (field === 'status') {
+            row.status = el.value || 'OK';
+        } else {
+            row[field] = el.value || null;
+            // Picking a country fills an empty heat from the official schedule
+            if (field === 'country' && !row.heat && !isFinal(row)) row.heat = heatByCountry(row.sport, row.country);
+        }
+        const res = await saveEntries([row]);
+        if (res.errors.length) {
+            showModal('Not saved', friendlyDbError(res.errors[0]), 'error');
+            if (field === 'time') el.value = e.time_ms ? formatMs(e.time_ms) : ''; else el.value = el.dataset.v || '';
+            return;
+        }
+        Object.assign(e, row);
+        if (el.tagName === 'SELECT') el.dataset.v = el.value;
+        if (field === 'country' && tr && row.heat !== e._prevHeat) { const hs = tr.querySelector('[data-ie="heat"]'); if (hs && row.heat) { if (![...hs.options].some(o => o.value === row.heat)) hs.add(new Option(row.heat, row.heat)); hs.value = row.heat; hs.dataset.v = row.heat; } }
+        if (field === 'time' && tr) {
+            const st = tr.querySelector('[data-ie="status"]'); if (st) { st.value = row.status; st.dataset.v = row.status; }
+            el.classList.toggle('text-[var(--yellow)]', !!row.time_ms); el.classList.toggle('font-bold', !!row.time_ms);
+        }
+        if (tr) { tr.style.background = 'rgba(61,181,74,.22)'; setTimeout(() => { tr.style.background = ''; }, 900); }
+        renderLeaderboard();
+    }
+
     // Finalists = best FINALISTS valid qualifying times per gender and category; a tie on the last place takes everyone tied.
     function pickFinalists(sport) {
         const out = [];
@@ -1405,7 +1499,7 @@
     // ============================================================
     function pickKey(keys, patterns, used) {
         for (const p of patterns) {
-            const k = keys.find(k => !used.has(k) && p.test(stripAccents(k).trim()));
+            const k = keys.find(k => !used.has(k) && p.test(stripAccents(k).replace(/[\s_]+/g, ' ').trim()));
             if (k) { used.add(k); return k; }
         }
         return null;
@@ -1416,10 +1510,10 @@
         m.first = pickKey(keys, [/^first ?name$/i, /^(given ?name|nome|primeiro nome|name first|forename)$/i, /first/i], used);
         m.last = pickKey(keys, [/^last ?name$/i, /^(surname|family ?name|sobrenome|apellido|ultimo sobrenome)$/i, /last|surname|sobrenome/i], used);
         m.full = (!m.first || !m.last) ? pickKey(keys, [/^(name|athlete|full ?name|atleta|nome completo)$/i, /name|athlete|atleta/i], used) : null;
-        m.country = pickKey(keys, [/^(country|nation|noc|pais|country code)$/i, /country|nation|pais/i], used);
+        m.country = pickKey(keys, [/^(country|nation|nationality|noc|pais|country code|nacionalidade|delegation|delegacao|team|equipe)$/i, /country|nation|pais|noc|deleg|team|equipe/i], used);
         m.gender = pickKey(keys, [/^(gender|sex|genero|sexo|naipe)$/i, /gender|sex/i], used);
-        m.category = pickKey(keys, [/^(category|categoria|age group|class)$/i, /categ/i], used);
-        m.heat = pickKey(keys, [/^(heat|bateria|race|wave)$/i, /heat|bateria/i], used);
+        m.category = pickKey(keys, [/^(category|categoria|cat|age group|age category|division|class|classe)$/i, /categ|age ?group|divis/i], used);
+        m.heat = pickKey(keys, [/^(heat|bateria|race|wave|group|grupo|session|serie)$/i, /heat|bateria|wave|race/i], used);
         m.time = pickKey(keys, [/^(time|tempo|result|final time)$/i, /time|tempo|result/i], used);
         m.sport = pickKey(keys, [/^(sport|modality|modalidade|event)$/i], used);
         return m;
@@ -1431,6 +1525,18 @@
         if (/ROW|REMO/.test(s)) return 'ROWING';
         return null;
     }
+    let pendingImport = null;
+    const IMPORT_FIELDS = [
+        ['first', 'First name'], ['last', 'Last name'], ['full', 'Full name (if no first/last)'], ['username', 'Username'],
+        ['country', 'Country'], ['gender', 'Gender'], ['category', 'Category'], ['heat', 'Heat'], ['time', 'Time'], ['sport', 'Sport']
+    ];
+    function heatByCountry(sport, country) {
+        if (!country) return null;
+        const ev = schedule.find(e => e.sport === sport && e.country === country && !isFinal(e));
+        if (ev) return ev.heat;
+        const heats = (settings.heats[sport] || []).filter(h => up(h) !== FINAL_HEAT);
+        return heats.length === 1 ? heats[0] : null;
+    }
     async function importFile() {
         if (!requireAdmin()) return;
         const file = $('import-file').files[0];
@@ -1439,12 +1545,72 @@
             const wb = XLSX.read(new Uint8Array(await file.arrayBuffer()), { type: 'array' });
             const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '', raw: true });
             if (!rows.length) { showModal('Empty file', 'The first sheet has no rows.', 'error'); return; }
-            const m = mapHeaders([...new Set(rows.flatMap(r => Object.keys(r)))]);
-            if (!(m.first && m.last) && !m.full) { showModal('Missing columns', 'Could not find FIRST NAME + LAST NAME (or NAME) columns.', 'error'); return; }
+            const keys = [...new Set(rows.flatMap(r => Object.keys(r)))].filter(k => !/^__EMPTY/.test(k) || rows.some(r => String(r[k]).trim()));
+            pendingImport = { rows, keys, map: mapHeaders(keys), fileName: file.name };
+            renderImportMap();
+        } catch (err) {
+            console.error(err);
+            showModal('Error', 'Could not read the file: ' + err.message, 'error');
+        }
+    }
+    function renderImportMap() {
+        const box = $('import-map');
+        if (!pendingImport) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+        const { rows, keys, map, fileName } = pendingImport;
+        const sample = k => { const r = rows.find(r => String(r[k] ?? '').trim()); return r ? String(r[k]).slice(0, 40) : ''; };
+        const colOpts = cur => `<option value="">— not in file —</option>` + keys.map(k => `<option value="${esc(k)}"${k === cur ? ' selected' : ''}>${esc(k)}</option>`).join('');
+        const hasCountryHeats = schedule.some(e => e.sport === adminSport && e.country);
+        const heatList = (settings.heats[adminSport] || []).filter(h => up(h) !== FINAL_HEAT);
+        box.classList.remove('hidden');
+        box.innerHTML = `
+            <div class="rounded-2xl border border-white/15 p-4 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h5 class="font-black"><i class="fa-solid fa-table-columns text-[var(--green)] mr-2"></i>${esc(fileName)} · ${rows.length} row(s)</h5>
+                    <span class="text-xs text-white/60">Check which column holds each field, then import.</span>
+                </div>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    ${IMPORT_FIELDS.map(([f, label]) => `<div>
+                        <label class="label">${esc(label)}</label>
+                        <select data-imap="${f}" class="field !py-1.5 text-sm">${colOpts(map[f])}</select>
+                        <span class="block text-[11px] text-white/45 mt-1 truncate" data-imap-sample="${f}">${map[f] ? 'e.g. ' + esc(sample(map[f])) : ''}</span>
+                    </div>`).join('')}
+                </div>
+                <div class="grid sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="label" for="imp-def-cat">Category when empty</label>
+                        <select id="imp-def-cat" class="field !py-1.5 text-sm"><option value="">— leave empty —</option>${settings.categories.map(c => `<option value="${esc(c)}"${settings.categories.length === 1 || c === 'U18' ? ' selected' : ''}>${esc(c)}</option>`).join('')}</select>
+                    </div>
+                    <div>
+                        <label class="label" for="imp-def-heat">Heat when empty</label>
+                        <select id="imp-def-heat" class="field !py-1.5 text-sm">
+                            <option value="">— leave empty —</option>
+                            ${hasCountryHeats || heatList.length === 1 ? `<option value="AUTO" selected>Automatic by country (official schedule)</option>` : ''}
+                            ${heatList.map(h => `<option value="${esc(h)}">${esc(h)}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+                <p class="text-xs text-white/55">Rows are matched to existing athletes by username or full name, so importing the same file again fills in missing country, category and heat. Empty cells never erase existing data.</p>
+                <div class="flex justify-end gap-3">
+                    <button onclick="pendingImport = null; renderImportMap(); $('import-file').value = '';" class="btn btn-ghost">Cancel</button>
+                    <button onclick="runImport()" class="btn btn-green"><i class="fa-solid fa-upload"></i>Import ${rows.length} row(s)</button>
+                </div>
+            </div>`;
+        box.querySelectorAll('[data-imap]').forEach(sel => sel.addEventListener('change', () => {
+            const k = sel.value; pendingImport.map[sel.dataset.imap] = k || null;
+            box.querySelector(`[data-imap-sample="${sel.dataset.imap}"]`).innerText = k ? 'e.g. ' + sample(k) : '';
+        }));
+    }
+    async function runImport() {
+        if (!requireAdmin() || !pendingImport) return;
+        const { rows, map: m } = pendingImport;
+        const defCat = $('imp-def-cat').value || null, defHeat = $('imp-def-heat').value || null;
+        try {
+            if (!(m.first && m.last) && !m.full) { showModal('Missing columns', 'Choose the FIRST NAME and LAST NAME columns (or a FULL NAME column).', 'error'); return; }
             const get = (r, k) => m[k] ? r[m[k]] : '';
             const working = entries.map(e => ({ ...e }));
             const touched = new Map();
             let skipped = 0, badTime = 0, otherSport = 0, badGender = 0;
+            const badCountries = new Set();
             const newHeats = { CYCLING: new Set(), ROWING: new Set() }, newCats = new Set();
 
             for (const r of rows) {
@@ -1463,9 +1629,11 @@
                 const rawGender = String(get(r, 'gender') ?? '').trim();
                 const gender = normalizeGender(rawGender);
                 if (rawGender && !gender) badGender++;
+                const country = normalizeCountry(get(r, 'country'));
+                if (country && !COUNTRY_BY_ISO2[country]) badCountries.add(String(get(r, 'country')).trim());
                 const incoming = {
                     sport, first_name: titleCase(first), last_name: up(last),
-                    username: nn(get(r, 'username')), country: normalizeCountry(get(r, 'country')), gender,
+                    username: nn(get(r, 'username')), country, gender,
                     category: nn(up(get(r, 'category'))), heat: nn(up(get(r, 'heat'))), time_ms
                 };
                 if (incoming.heat && !(settings.heats[sport] || []).includes(incoming.heat)) newHeats[sport].add(incoming.heat);
@@ -1474,6 +1642,8 @@
                 let target = findAthlete(sameStage(working.filter(e => e.sport === sport), incoming.heat), incoming);
                 if (!target) { target = { _tmp: Symbol(), status: 'OK' }; working.push(target); }
                 Object.entries(incoming).forEach(([k, v]) => { if (v !== null && v !== '') target[k] = v; });
+                if (!target.category && defCat) target.category = defCat;
+                if (!target.heat && defHeat) target.heat = defHeat === 'AUTO' ? heatByCountry(sport, target.country) : defHeat;
                 if (incoming.time_ms) target.status = 'OK';
                 touched.set(target.id ?? target._tmp, target);
             }
@@ -1486,20 +1656,25 @@
             ['CYCLING', 'ROWING'].forEach(s => { if (newHeats[s].size) { settings.heats[s] = [...(settings.heats[s] || []), ...newHeats[s]]; changed = true; } });
             if (newCats.size) { settings.categories = [...settings.categories, ...newCats]; changed = true; }
             if (changed) await saveSettings();
+            pendingImport = null; renderImportMap();
             $('import-file').value = '';
             await loadEntries();
 
+            const noCountry = toSave.filter(e => !e.country).length, noHeat = toSave.filter(e => !e.heat).length;
             let msg = `${res.inserted} new and ${res.updated} updated athlete(s).`;
             if (skipped) msg += `\n${skipped} row(s) without name skipped.`;
             if (badTime) msg += `\n${badTime} invalid time(s) left empty.`;
             if (badGender) msg += `\n${badGender} unrecognised gender value(s) left empty.`;
+            if (badCountries.size) msg += `\nUnrecognised country value(s) saved as typed: ${[...badCountries].join(', ')}.`;
+            if (noCountry) msg += `\n${noCountry} athlete(s) still without country.`;
+            if (noHeat) msg += `\n${noHeat} athlete(s) still without heat.`;
             if (newCats.size) msg += `\nNew categories: ${[...newCats].join(', ')}.`;
             const nh = [...newHeats.CYCLING, ...newHeats.ROWING]; if (nh.length) msg += `\nNew heats: ${[...new Set(nh)].join(', ')}.`;
             if (res.errors.length) { showModal('Import finished with errors', msg + '\n\nError: ' + friendlyDbError(res.errors[0]), 'error'); return; }
             showModal('Import complete', msg);
         } catch (err) {
             console.error(err);
-            showModal('Error', 'Could not read the file: ' + err.message, 'error');
+            showModal('Error', 'Import failed: ' + err.message, 'error');
         }
     }
     function downloadTemplate() {
@@ -1752,13 +1927,24 @@
         else if (t.dataset.wiSuggest) updateWeighin(Number(t.dataset.wiSuggest), { entry_id: Number(t.dataset.entry) });
         else if (t.dataset.useCode) { $('status-code').value = t.dataset.useCode; checkWeighinStatus(); }
     });
+    document.addEventListener('input', e => {
+        const af = e.target.closest('[data-af]');
+        if (af) { adminFilters[af.dataset.af] = af.value; renderAdminTable(); }
+    });
     document.addEventListener('change', e => {
+        const ie = e.target.closest('#a-tbody [data-ie]');
+        if (ie) { inlineSave(ie); return; }
         const s = e.target.closest('[data-wi-link]');
         if (s) updateWeighin(Number(s.dataset.wiLink), { entry_id: s.value ? Number(s.value) : null });
     });
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') { if (tvTimer) stopTVMode(); if (!$('video-modal').classList.contains('hidden')) closeVideo(); }
         if (e.key === 'Enter' && document.activeElement === $('m-time')) { $('m-time').blur(); saveManual(); }
+        if (e.key === 'Enter' && e.target.matches?.('#a-tbody [data-ie="time"]')) {
+            e.preventDefault();
+            const all = [...document.querySelectorAll('#a-tbody [data-ie="time"]')], next = all[all.indexOf(e.target) + 1];
+            if (next) { next.focus(); next.select(); } else e.target.blur();
+        }
     });
 
     let reloadTimer = null, settingsTimer = null;
@@ -1766,6 +1952,7 @@
         $('w-country').innerHTML = countryOptions(true);
         $('m-country').innerHTML = countryOptions(true);
         bindTimeInput($('m-time'));
+        $('a-tbody').addEventListener('focusout', () => setTimeout(() => { if (adminTableDeferred && !$('a-tbody').contains(document.activeElement)) renderAdminTable(); }, 120));
         switchTab('home');
         setResultsSport('CYCLING');
         renderCountdown(); setInterval(renderCountdown, 60000);
