@@ -74,6 +74,7 @@
             </button>
             <nav class="hidden md:flex items-center gap-1">
                 <button onclick="switchTab('home')" data-nav="home" class="tab-btn btn !py-2 text-sm"><i class="fa-solid fa-house"></i>Home</button>
+                <button onclick="switchTab('schedule')" data-nav="schedule" class="tab-btn btn !py-2 text-sm"><i class="fa-solid fa-calendar-days"></i>Schedule</button>
                 <button onclick="switchTab('results')" data-nav="results" class="tab-btn btn !py-2 text-sm"><i class="fa-solid fa-trophy"></i>Results</button>
                 <button onclick="switchTab('weighin')" data-nav="weighin" class="tab-btn btn !py-2 text-sm"><i class="fa-solid fa-weight-scale"></i>Cycling Weigh-in</button>
                 <button onclick="switchTab('admin')" data-nav="admin" class="tab-btn btn !py-2 text-sm"><i class="fa-solid fa-shield-halved"></i>Admin</button>
@@ -82,6 +83,7 @@
         </div>
         <div id="mobile-menu" class="hidden md:hidden px-4 pb-4 space-y-2">
             <button onclick="switchTab('home')" data-nav="home" class="tab-btn btn w-full !justify-start">Home</button>
+            <button onclick="switchTab('schedule')" data-nav="schedule" class="tab-btn btn w-full !justify-start">Schedule</button>
             <button onclick="switchTab('results')" data-nav="results" class="tab-btn btn w-full !justify-start">Results</button>
             <button onclick="switchTab('weighin')" data-nav="weighin" class="tab-btn btn w-full !justify-start">Cycling Weigh-in</button>
             <button onclick="switchTab('admin')" data-nav="admin" class="tab-btn btn w-full !justify-start">Admin</button>
@@ -114,6 +116,7 @@
                             </div>
                         </div>
                         <div class="flex flex-wrap gap-3 pt-2">
+                            <button onclick="switchTab('schedule')" class="btn btn-ghost"><i class="fa-solid fa-calendar-days"></i>Schedule</button>
                             <button onclick="openResults('CYCLING')" class="btn btn-yellow"><i class="fa-solid fa-person-biking"></i>Cycling results</button>
                             <button onclick="openResults('ROWING')" class="btn btn-yellow"><i class="fa-solid fa-water"></i>Rowing results</button>
                             <button onclick="switchTab('weighin')" class="btn btn-ghost"><i class="fa-solid fa-weight-scale"></i>Cycling weigh-in</button>
@@ -199,6 +202,24 @@
                 </div>
             </div>
             <div id="leaderboard-container" class="space-y-6"></div>
+        </section>
+
+        <!-- ================= SCHEDULE ================= -->
+        <section id="tab-schedule" class="space-y-6 hidden animate-fadeIn">
+            <div class="glass rounded-3xl p-6 space-y-4">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-3xl font-black">Competition Schedule</h2>
+                        <p class="text-sm text-white/70">Official times in Rio de Janeiro time (UTC−3). <span id="sch-your-tz"></span></p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="setScheduleSport('ALL')" data-sch-sport="ALL" class="sport-btn btn btn-ghost">All</button>
+                        <button onclick="setScheduleSport('ROWING')" data-sch-sport="ROWING" class="sport-btn btn btn-ghost"><i class="fa-solid fa-water"></i>Rowing</button>
+                        <button onclick="setScheduleSport('CYCLING')" data-sch-sport="CYCLING" class="sport-btn btn btn-ghost"><i class="fa-solid fa-person-biking"></i>Cycling</button>
+                    </div>
+                </div>
+            </div>
+            <div id="schedule-container" class="space-y-6"></div>
         </section>
 
         <!-- ================= WEIGH-IN ================= -->
@@ -491,6 +512,9 @@
     let currentTab = 'home';
     let ocrRows = [];
     let tvTimer = null, tvSteps = [], tvIndex = 0;
+    let schedule = [];
+    let scheduleSport = 'ALL';
+    const RIO_TZ = 'America/Sao_Paulo';
 
     // ============================================================
     //  UTILITIES
@@ -652,6 +676,14 @@
         if (error) { showModal('Error', 'Could not save settings: ' + error.message, 'error'); return false; }
         return true;
     }
+    async function loadSchedule() {
+        const { data, error } = await sb.from('config').select('valor').eq('chave', 'gym_schedule').maybeSingle();
+        if (error) { console.warn(error.message); return; }
+        const ev = Array.isArray(data?.valor?.events) ? data.valor.events : [];
+        schedule = ev.filter(e => e.start).map(e => ({ ...e, _start: new Date(e.start), _end: new Date(e.end || e.start) }))
+            .sort((a, b) => a._start - b._start || (a.gender === 'GIRLS' ? -1 : 1));
+        renderSchedule();
+    }
     async function loadEntries() {
         let all = [];
         for (let from = 0; ; from += 1000) {
@@ -691,11 +723,12 @@
     // ============================================================
     function switchTab(tab) {
         currentTab = tab;
-        ['home', 'results', 'weighin', 'admin'].forEach(t => $(`tab-${t}`).classList.toggle('hidden', t !== tab));
+        ['home', 'schedule', 'results', 'weighin', 'admin'].forEach(t => $(`tab-${t}`).classList.toggle('hidden', t !== tab));
         document.querySelectorAll('[data-nav]').forEach(b => b.classList.toggle('active', b.dataset.nav === tab));
         $('mobile-menu').classList.add('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         if (tab === 'results') renderLeaderboard();
+        if (tab === 'schedule') renderSchedule();
         if (tab === 'weighin') renderWeighinPage();
         if (tab === 'admin' && isAdmin && adminTab === 'weighins') loadWeighins();
     }
@@ -723,6 +756,74 @@
     // ============================================================
     //  RESULTS / LEADERBOARD
     // ============================================================
+    // ---------- Schedule ----------
+    function rioTime(d) { return d.toLocaleTimeString('en-GB', { timeZone: RIO_TZ, hour: '2-digit', minute: '2-digit' }); }
+    function rioDayKey(d) { return d.toLocaleDateString('en-CA', { timeZone: RIO_TZ }); }
+    function rioDayLabel(d) { return d.toLocaleDateString('en-GB', { timeZone: RIO_TZ, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
+    function viewerTime(d) { return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); }
+    function viewerInRio() { try { return Intl.DateTimeFormat().resolvedOptions().timeZone === RIO_TZ; } catch { return false; } }
+    function setScheduleSport(sport) { scheduleSport = sport; renderSchedule(); }
+    function openHeat(sport, heat, gender) {
+        setResultsSport(sport);
+        $('f-gender').value = gender || 'ALL';
+        renderResultFilters();
+        $('f-heat').value = [...$('f-heat').options].some(o => o.value === heat) ? heat : 'ALL';
+        switchTab('results');
+    }
+    function renderSchedule() {
+        const box = $('schedule-container');
+        if (!box) return;
+        document.querySelectorAll('[data-sch-sport]').forEach(b => b.classList.toggle('active', b.dataset.schSport === scheduleSport));
+        const showYours = !viewerInRio();
+        let tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch {}
+        $('sch-your-tz').innerText = showYours && tz ? `“Your time” uses your device time zone (${tz}).` : '';
+        const list = schedule.filter(e => scheduleSport === 'ALL' || e.sport === scheduleSport);
+        if (!list.length) {
+            box.innerHTML = `<div class="glass rounded-3xl p-10 text-center text-white/60"><i class="fa-solid fa-calendar-xmark text-3xl mb-3 block"></i>The schedule has not been published yet.</div>`;
+            return;
+        }
+        const now = new Date();
+        const days = {};
+        list.forEach(e => (days[rioDayKey(e._start)] ||= []).push(e));
+        box.innerHTML = Object.keys(days).sort().map(k => {
+            const evs = days[k];
+            const sports = [...new Set(evs.map(e => SPORT_LABEL[e.sport] || e.sport))].join(' · ');
+            const rows = evs.map(e => {
+                const live = now >= e._start && now < e._end, done = now >= e._end;
+                const statusChip = live ? '<span class="chip bg-[var(--pink)] text-white"><i class="fa-solid fa-circle text-[8px] animate-pulse"></i>LIVE</span>'
+                    : done ? '<span class="chip bg-white/10 text-white/60">Finished</span>'
+                    : '<span class="chip bg-white/10 text-white/80">Upcoming</span>';
+                const icon = e.sport === 'CYCLING' ? 'fa-person-biking text-[var(--yellow)]' : 'fa-water text-[var(--cyan)]';
+                const isFinal = /FINAL/i.test(e.heat);
+                const who = e.country ? countryDisplay(e.country) : `<span class="text-white/70 font-bold">${isFinal ? `Top ${e.finalists || 5} times` : 'All countries'}</span>`;
+                const countryTime = e.local ? esc(e.local.replace('-', '–')) : '<span class="text-white/40">—</span>';
+                return `<tr class="${live ? 'bg-[var(--pink)]/15' : done ? 'opacity-60' : ''} hover:bg-white/5">
+                    <td class="py-3 px-4 font-mono font-black text-[var(--yellow)] text-lg whitespace-nowrap">${rioTime(e._start)}<span class="text-white/50 text-sm">–${rioTime(e._end)}</span></td>
+                    <td class="py-3 px-4"><span class="font-black"><i class="fa-solid ${icon} mr-1"></i>${esc(e.heat)}</span>
+                        <span class="block text-xs text-white/60">${esc(SPORT_LABEL[e.sport] || e.sport)} · ${esc(GENDER_LABEL[e.gender] || e.gender || '')} ${esc(e.category || '')}</span></td>
+                    <td class="py-3 px-4">${who}</td>
+                    <td class="py-3 px-4 font-mono text-white/80 whitespace-nowrap">${countryTime}</td>
+                    ${showYours ? `<td class="py-3 px-4 font-mono text-white/80 whitespace-nowrap">${viewerTime(e._start)}–${viewerTime(e._end)}</td>` : ''}
+                    <td class="py-3 px-4">${statusChip}</td>
+                    <td class="py-3 px-4 text-right"><button onclick="openHeat('${esc(e.sport)}','${esc(e.heat)}','${esc(e.gender || 'ALL')}')" class="btn btn-ghost !py-1.5 !px-3 text-xs"><i class="fa-solid fa-trophy"></i>Results</button></td>
+                </tr>`;
+            }).join('');
+            return `<div class="glass rounded-3xl overflow-hidden">
+                <div class="px-6 py-4 flex flex-wrap items-center justify-between gap-2 border-b border-white/10">
+                    <h3 class="text-xl font-black">${esc(rioDayLabel(evs[0]._start))}</h3>
+                    <span class="chip bg-[var(--yellow)] text-[var(--p900)]">${esc(sports)}</span>
+                </div>
+                <div class="overflow-x-auto"><table class="w-full text-sm">
+                    <thead><tr class="text-left text-[11px] uppercase tracking-wider text-white/50">
+                        <th class="py-3 px-4">Rio de Janeiro time</th><th class="py-3 px-4">Heat</th><th class="py-3 px-4">Country</th><th class="py-3 px-4">Country time</th>
+                        ${showYours ? '<th class="py-3 px-4">Your time</th>' : ''}<th class="py-3 px-4">Status</th><th class="py-3 px-4"></th>
+                    </tr></thead>
+                    <tbody class="divide-y divide-white/5">${rows}</tbody>
+                </table></div>
+            </div>`;
+        }).join('');
+    }
+
     function setResultsSport(sport) {
         resultsSport = sport;
         document.querySelectorAll('[data-sport]').forEach(b => b.classList.toggle('active', b.dataset.sport === sport));
@@ -1616,6 +1717,8 @@
         renderCountdown(); setInterval(renderCountdown, 60000);
         await loadSettings();
         await loadEntries();
+        await loadSchedule();
+        setInterval(() => { if (currentTab === 'schedule') renderSchedule(); }, 60000);
         await refreshAdmin();
         sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT') setTimeout(() => { isAdmin = false; $('admin-panel').classList.add('hidden'); $('admin-login').classList.remove('hidden'); }, 0); });
         try {
@@ -1624,6 +1727,7 @@
                 .on('postgres_changes', { event: '*', schema: 'public', table: 'config', filter: 'chave=eq.gym_settings' }, () => {
                     clearTimeout(settingsTimer); settingsTimer = setTimeout(async () => { await loadSettings(); refreshUI(); if (currentTab === 'weighin') renderWeighinPage(); }, 500);
                 })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'config', filter: 'chave=eq.gym_schedule' }, () => { setTimeout(loadSchedule, 500); })
                 .subscribe();
         } catch (e) { console.log('Realtime disabled'); }
     });
