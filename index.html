@@ -814,6 +814,15 @@
         $('f-heat').value = [...$('f-heat').options].some(o => o.value === heat) ? heat : 'ALL';
         switchTab('results');
     }
+    // Time zone of each competing country (Canada = Quebec), used for races where all countries compete together
+    const COUNTRY_TZ = { IR: 'Asia/Tehran', SA: 'Asia/Riyadh', UG: 'Africa/Kampala', HU: 'Europe/Budapest', DZ: 'Africa/Algiers', CA: 'America/Toronto', HT: 'America/Port-au-Prince', BR: 'America/Sao_Paulo' };
+    function tzTime(d, tz) { return d.toLocaleTimeString('en-GB', { timeZone: tz, hour: '2-digit', minute: '2-digit' }); }
+    function allCountryTimes(e) {
+        let codes = [...new Set(schedule.map(x => x.country).filter(c => c && COUNTRY_TZ[c]))];
+        if (!codes.length) codes = Object.keys(COUNTRY_TZ);
+        return `<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-1.5 text-xs">${codes.map(c =>
+            `<span class="inline-flex items-center gap-2 whitespace-nowrap" title="${esc(countryName(c))}${c === 'CA' ? ' (Quebec)' : ''}">${countryDisplay(c)}<span class="font-mono text-white/85">${tzTime(e._start, COUNTRY_TZ[c])}–${tzTime(e._end, COUNTRY_TZ[c])}</span></span>`).join('')}</div>`;
+    }
     function renderSchedule() {
         const box = $('schedule-container');
         if (!box) return;
@@ -844,13 +853,13 @@
                 const icon = `<span class="picto picto-xs picto-${e.sport === 'CYCLING' ? 'cycling' : 'rowing'} mr-2" role="img" aria-label="${esc(SPORT_LABEL[e.sport] || e.sport)}"></span>`;
                 const isFinal = /FINAL/i.test(e.heat);
                 const who = e.country ? countryDisplay(e.country) : `<span class="text-white/70 font-bold">${isFinal ? `Top ${e.finalists || 5} times` : 'All countries'}</span>`;
-                const countryTime = e.local ? esc(e.local.replace('-', '–')) : '<span class="text-white/40">—</span>';
+                const countryTime = e.local ? esc(e.local.replace('-', '–')) : e.country ? '<span class="text-white/40">—</span>' : allCountryTimes(e);
                 return `<tr class="${live ? 'bg-[var(--pink)]/15' : done ? 'opacity-60' : ''} hover:bg-white/5">
                     <td class="py-3 px-4 font-mono font-black text-[var(--yellow)] text-lg whitespace-nowrap">${rioTime(e._start)}<span class="text-white/50 text-sm">–${rioTime(e._end)}</span></td>
                     <td class="py-3 px-4"><span class="font-black inline-flex items-center">${icon}${esc(e.heat)}</span>
                         <span class="block text-xs text-white/60">${esc(SPORT_LABEL[e.sport] || e.sport)} · ${esc(GENDER_LABEL[e.gender] || e.gender || '')} ${esc(e.category || '')}</span></td>
                     <td class="py-3 px-4">${who}</td>
-                    <td class="py-3 px-4 font-mono text-white/80 whitespace-nowrap">${countryTime}</td>
+                    <td class="py-3 px-4 ${e.country ? 'font-mono text-white/80 whitespace-nowrap' : ''}">${countryTime}</td>
                     ${showYours ? `<td class="py-3 px-4 font-mono text-white/80 whitespace-nowrap">${viewerTime(e._start)}–${viewerTime(e._end)}</td>` : ''}
                     <td class="py-3 px-4">${statusChip}</td>
                     <td class="py-3 px-4 text-right"><button onclick="openHeat('${esc(e.sport)}','${esc(e.heat)}','${esc(e.gender || 'ALL')}')" class="btn btn-ghost !py-1.5 !px-3 text-xs"><i class="fa-solid fa-trophy"></i>Results</button></td>
