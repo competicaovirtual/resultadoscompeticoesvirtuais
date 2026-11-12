@@ -589,7 +589,7 @@
     function chunk(a, n) { const o = []; for (let i = 0; i < a.length; i += n) o.push(a.slice(i, i + n)); return o; }
     function titleCase(s) { return String(s ?? '').trim().toLowerCase().replace(/(^|[\s\-'])(\p{L})/gu, (m, a, b) => a + b.toUpperCase()); }
     function fullName(e) { return `${titleCase(e.first_name)} ${up(e.last_name)}`.trim(); }
-    function sortName(e) { return `${up(e.last_name)}, ${titleCase(e.first_name)}`; }
+    function sortName(e) { return `${titleCase(e.first_name)} ${up(e.last_name)}`.trim(); }
 
     // ---------- Time (stored as integer milliseconds) ----------
     function parseTimeMs(v) {
@@ -973,7 +973,7 @@
                 else if (r._has && leader) gap = '+' + formatMs(r.time_ms - leader.time_ms, true);
                 return `<tr class="${r._has ? '' : 'opacity-60'} hover:bg-white/5">
                     <td class="py-3 px-4 text-center w-16">${medal}</td>
-                    <td class="py-3 px-4"><span class="font-black">${esc(up(r.last_name))}</span> <span class="text-white/80">${esc(titleCase(r.first_name))}</span>
+                    <td class="py-3 px-4"><span class="text-white/80">${esc(titleCase(r.first_name))}</span> <span class="font-black">${esc(up(r.last_name))}</span>
                         ${r.username ? `<span class="block text-[11px] font-mono text-white/45">${esc(r.username)}</span>` : ''}</td>
                     <td class="py-3 px-4">${countryDisplay(r.country)}</td>
                     <td class="py-3 px-4 text-white/70">${esc(r.category || '—')}</td>
@@ -1462,7 +1462,7 @@
             const extraCountry = e.country && !COUNTRY_BY_ISO2[e.country] ? `<option value="${esc(e.country)}">${esc(e.country)} (?)</option>` : '';
             return sep + `<tr class="hover:bg-white/5 transition-colors" data-row="${e.id}">
             <td class="py-2 px-2 text-center"><input type="checkbox" data-sel="${e.id}" ${adminSelected.has(e.id) ? 'checked' : ''} class="w-4 h-4 accent-[var(--yellow)] cursor-pointer"></td>
-            <td class="py-2 px-2 min-w-[13rem]">${rankChip}<span class="font-black">${esc(up(e.last_name))}</span> ${esc(titleCase(e.first_name))}${finChip}${qInfo}</td>
+            <td class="py-2 px-2 min-w-[13rem]">${rankChip}${esc(titleCase(e.first_name))} <span class="font-black">${esc(up(e.last_name))}</span>${finChip}${qInfo}</td>
             <td class="py-2 px-2 font-mono text-xs text-white/60">${esc(e.username || '—')}</td>
             <td class="py-2 px-2"><select data-ie="country" data-id="${e.id}" data-v="${esc(e.country || '')}" class="${f} !w-36">${extraCountry}${cOpts}</select></td>
             <td class="py-2 px-2"><select data-ie="gender" data-id="${e.id}" data-v="${esc(e.gender || '')}" class="${f} !w-24"><option value="">—</option><option value="BOYS">Boys</option><option value="GIRLS">Girls</option></select></td>
@@ -1973,7 +1973,7 @@
             return `<div class="rounded-2xl bg-white/5 border border-white/10 p-4 space-y-3">
                 <div class="flex justify-between items-start gap-3">
                     <div>
-                        <p class="font-black text-lg">${esc(up(w.last_name))} <span class="font-semibold text-white/80">${esc(titleCase(w.first_name))}</span></p>
+                        <p class="font-black text-lg"><span class="font-semibold text-white/80">${esc(titleCase(w.first_name))}</span> ${esc(up(w.last_name))}</p>
                         <p class="text-sm">${countryDisplay(w.country)} <span class="text-white/50">· ${esc(countryName(w.country))}</span></p>
                         ${w.username ? `<p class="text-xs font-mono text-white/50">${esc(w.username)}</p>` : ''}
                     </div>
@@ -2041,7 +2041,7 @@
         if (!weighins.length) { showModal('Nothing to export', 'No weigh-ins yet.', 'error'); return; }
         const rows = weighins.map(w => {
             const e = entries.find(x => x.id === w.entry_id);
-            return { 'Status': w.status, 'Last name': up(w.last_name), 'First name': titleCase(w.first_name), 'Country': countryName(w.country), 'Username': w.username || '',
+            return { 'Status': w.status, 'First name': titleCase(w.first_name), 'Last name': up(w.last_name), 'Country': countryName(w.country), 'Username': w.username || '',
                 'Height (cm)': Number(w.height_cm), 'Weight (kg)': Number(w.weight_kg), 'Linked athlete': e ? sortName(e) : '', 'Note': w.review_note || '',
                 'Submitted': new Date(w.submitted_at).toLocaleString('en-GB'), 'Reviewed': w.reviewed_at ? new Date(w.reviewed_at).toLocaleString('en-GB') : '' };
         });
@@ -2102,7 +2102,7 @@
         const ranked = rankRows(list);
         const leader = ranked.find(r => r._pos === 1);
         return ranked.map(r => ({
-            'Rank': r._pos ?? '', 'Last name': up(r.last_name), 'First name': titleCase(r.first_name), 'Username': r.username || '',
+            'Rank': r._pos ?? '', 'First name': titleCase(r.first_name), 'Last name': up(r.last_name), 'Username': r.username || '',
             'Country': countryName(r.country), 'Gender': GENDER_LABEL[r.gender] || '', 'Category': r.category || '', 'Heat': r.heat || '',
             'Time': resultLabel(r), 'Gap': r._has && leader && r._pos !== 1 ? '+' + formatMs(r.time_ms - leader.time_ms, true) : ''
         }));
@@ -2134,7 +2134,7 @@
             doc.setFontSize(11); doc.setTextColor(84, 36, 176);
             doc.text(`${g._final ? 'FINAL · ' : ''}${GENDER_LABEL[g.gender] || 'Other'} · ${g.category}`, 14, y);
             doc.setTextColor(0, 0, 0);
-            const body = exportRows(g.list).map(r => [r['Rank'] || '-', `${r['Last name']} ${r['First name']}`, r['Country'], r['Category'], r['Heat'], r['Time'], r['Gap']]);
+            const body = exportRows(g.list).map(r => [r['Rank'] || '-', `${r['First name']} ${r['Last name']}`, r['Country'], r['Category'], r['Heat'], r['Time'], r['Gap']]);
             doc.autoTable({ startY: y + 3, head, body, theme: 'grid', headStyles: { fillColor: [84, 36, 176] }, styles: { fontSize: 8 }, margin: { top: 30 } });
             y = doc.lastAutoTable.finalY + 10;
         });
