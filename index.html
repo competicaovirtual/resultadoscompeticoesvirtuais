@@ -500,6 +500,32 @@
             </div>
         </div>
     </div>
+    <div id="finalists-modal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass-strong rounded-3xl max-w-md w-full p-6 space-y-5">
+            <div class="text-center space-y-1">
+                <div class="w-14 h-14 mx-auto rounded-full flex items-center justify-center text-2xl bg-[var(--pink)]/25 text-[var(--pink)]"><i class="fa-solid fa-ranking-star"></i></div>
+                <h4 class="text-lg font-black">Final round · number of finalists</h4>
+                <p class="text-sm text-white/70">How many athletes go to the final in each gender? The best qualifying times are taken (ties on the last place included).</p>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div class="glass rounded-2xl p-3 text-center">
+                    <label class="label" for="fin-girls">Girls final</label>
+                    <input id="fin-girls" type="number" min="0" max="50" step="1" class="field text-center text-2xl font-black !py-2">
+                    <span id="fin-girls-avail" class="block text-[11px] text-white/55 mt-1"></span>
+                </div>
+                <div class="glass rounded-2xl p-3 text-center">
+                    <label class="label" for="fin-boys">Boys final</label>
+                    <input id="fin-boys" type="number" min="0" max="50" step="1" class="field text-center text-2xl font-black !py-2">
+                    <span id="fin-boys-avail" class="block text-[11px] text-white/55 mt-1"></span>
+                </div>
+            </div>
+            <p id="fin-error" class="hidden text-sm text-red-300 text-center"></p>
+            <div class="flex gap-3">
+                <button id="fin-cancel" class="btn btn-ghost flex-1">Cancel</button>
+                <button id="fin-ok" class="btn btn-pink flex-1"><i class="fa-solid fa-arrow-right"></i>Continue</button>
+            </div>
+        </div>
+    </div>
     <div id="video-modal" class="fixed inset-0 z-50 hidden bg-black/85 flex items-center justify-center p-4" onclick="if(event.target===this) closeVideo()">
         <div class="max-w-4xl w-full space-y-3">
             <div class="flex justify-between items-center">
@@ -1351,7 +1377,7 @@
         th.innerHTML = `
             <tr class="text-[11px] uppercase tracking-wider text-white/60">
                 <th class="pt-2 px-2 w-8"></th><th class="pt-2 px-2 min-w-[13rem]">Athlete</th><th class="pt-2 px-2">Username</th><th class="pt-2 px-2">Country</th><th class="pt-2 px-2">Gender</th>
-                <th class="pt-2 px-2">Category</th><th class="pt-2 px-2">Heat</th><th class="pt-2 px-2">Time · Status</th><th class="pt-2 px-2 text-right">Actions</th>
+                <th class="pt-2 px-2">Category</th><th class="pt-2 px-2">Heat</th><th class="pt-2 px-2 whitespace-nowrap" title="Heat start time: Rio de Janeiro / athlete's country">Rio de Janeiro / Country</th><th class="pt-2 px-2">Time · Status</th><th class="pt-2 px-2 text-right">Actions</th>
             </tr>
             <tr class="border-b border-white/10 align-top">
                 <th class="py-2 px-2 text-center"><input type="checkbox" id="sel-all" title="Select all listed athletes" class="w-4 h-4 accent-[var(--yellow)] cursor-pointer"></th>
@@ -1361,9 +1387,24 @@
                 <th class="py-2 px-2">${sel('gender', opt('ALL', 'All', f.gender) + opt('BOYS', 'Boys', f.gender) + opt('GIRLS', 'Girls', f.gender) + opt('NONE', '(empty)', f.gender))}</th>
                 <th class="py-2 px-2">${sel('category', opt('ALL', 'All', f.category) + opt('NONE', '(empty)', f.category) + allCategories(list).map(c => opt(c, c, f.category)).join(''))}</th>
                 <th class="py-2 px-2">${sel('heat', opt('ALL', 'All', f.heat) + opt('NONE', '(empty)', f.heat) + allHeats(adminSport).map(h => opt(h, h, f.heat)).join(''))}</th>
+                <th class="py-2 px-2"></th>
                 <th class="py-2 px-2">${sel('time', opt('ALL', 'All', f.time) + opt('WITH', 'With time', f.time) + opt('WITHOUT', 'No time yet', f.time) + opt('DNX', 'DNF / DNS / DSQ', f.time))}</th>
                 <th class="py-2 px-2 text-right"><button onclick="clearAdminFilters()" class="btn btn-ghost !py-1 !px-2 text-xs normal-case tracking-normal"><i class="fa-solid fa-filter-circle-xmark"></i>Clear</button></th>
             </tr>`;
+    }
+    // Start time of the athlete's heat from the official schedule: Rio de Janeiro / athlete's country
+    function heatEvent(e) {
+        if (!e.heat) return null;
+        return schedule.find(x => x.sport === e.sport && up(x.heat) === up(e.heat) && (!x.gender || !e.gender || x.gender === e.gender))
+            || schedule.find(x => x.sport === e.sport && up(x.heat) === up(e.heat)) || null;
+    }
+    function heatTimeCell(e) {
+        const ev = heatEvent(e);
+        if (!ev) return '<span class="text-white/40">—</span>';
+        const tz = COUNTRY_TZ[e.country];
+        const local = tz ? tzTime(ev._start, tz) : (e.country && ev.country === e.country && ev.local ? ev.local.split('-')[0] : null);
+        const day = ev._start.toLocaleDateString('en-GB', { timeZone: RIO_TZ, day: '2-digit', month: 'short' });
+        return `<span class="font-mono text-sm" title="${esc(day)} · Rio de Janeiro ${rioTime(ev._start)}–${rioTime(ev._end)}${local ? ` · ${esc(countryName(e.country))}${e.country === 'CA' ? ' (Quebec)' : ''} ${local}` : ''}"><span class="font-bold text-[var(--yellow)]">${rioTime(ev._start)}</span><span class="text-white/40"> / </span><span class="text-white/85">${local || '—'}</span></span>`;
     }
     function adminFilteredList() {
         const q = compact($('a-filter').value), f = adminFilters;
@@ -1394,7 +1435,7 @@
         const ranked = rowingFinalsExist(), finalView = adminSport === 'ROWING' && adminView === 'FINAL';
         $('a-count').innerText = list.length === all.length ? `(${all.length})` : `(${list.length} of ${all.length})`;
         if (!list.length) {
-            tb.innerHTML = `<tr><td colspan="9" class="py-6 text-center text-white/50">${all.length ? 'No athlete matches these filters.' : 'No athletes yet. Add them manually or import a spreadsheet.'}</td></tr>`;
+            tb.innerHTML = `<tr><td colspan="10" class="py-6 text-center text-white/50">${all.length ? 'No athlete matches these filters.' : 'No athletes yet. Add them manually or import a spreadsheet.'}</td></tr>`;
             return;
         }
         const cOpts = countryOptions(true).replace('— select —', '—');
@@ -1410,12 +1451,12 @@
                     const g = GENDER_LABEL[e.gender] || 'No gender';
                     const title = finalView ? `${g} · Final round` : section === 'FINALISTS' ? `${g} · Finalists (qualifying times)` : `${g} · Other athletes`;
                     const color = section === 'OTHERS' ? 'text-white/60' : 'text-[var(--yellow)]';
-                    sep = `<tr class="bg-white/5"><td colspan="9" class="py-2 px-3 text-xs font-black uppercase tracking-wider ${color}"><i class="fa-solid ${section === 'OTHERS' ? 'fa-list-ol' : 'fa-flag-checkered'} mr-2"></i>${esc(title)}</td></tr>`;
+                    sep = `<tr class="bg-white/5"><td colspan="10" class="py-2 px-3 text-xs font-black uppercase tracking-wider ${color}"><i class="fa-solid ${section === 'OTHERS' ? 'fa-list-ol' : 'fa-flag-checkered'} mr-2"></i>${esc(title)}</td></tr>`;
                     lastGender = e.gender; lastSection = section;
                 }
             }
             const q = finalView ? qualifyingOf(e) : null;
-            const rankChip = ranked && e._rank ? `<span class="chip ${e._rank <= FINALISTS ? 'bg-[var(--yellow)] text-[var(--p900)]' : 'bg-white/10 text-white/80'} mr-2">#${e._rank}</span>` : '';
+            const rankChip = ranked && e._rank ? `<span class="chip ${finalView || finalistOf(e) ? 'bg-[var(--yellow)] text-[var(--p900)]' : 'bg-white/10 text-white/80'} mr-2">#${e._rank}</span>` : '';
             const finChip = ranked && !finalView && finalistOf(e) ? ` <span class="chip bg-[var(--pink)] text-white ml-1">Finalist</span>` : '';
             const qInfo = finalView ? `<span class="block text-[11px] text-white/55 mt-0.5">Qualifying: ${q && q.status === 'OK' && q.time_ms ? `${esc(formatMs(q.time_ms))}${q.heat ? ' · ' + esc(q.heat) : ''}` : '—'}</span>` : '';
             const extraCountry = e.country && !COUNTRY_BY_ISO2[e.country] ? `<option value="${esc(e.country)}">${esc(e.country)} (?)</option>` : '';
@@ -1427,6 +1468,7 @@
             <td class="py-2 px-2"><select data-ie="gender" data-id="${e.id}" data-v="${esc(e.gender || '')}" class="${f} !w-24"><option value="">—</option><option value="BOYS">Boys</option><option value="GIRLS">Girls</option></select></td>
             <td class="py-2 px-2"><select data-ie="category" data-id="${e.id}" data-v="${esc(e.category || '')}" class="${f} !w-24"><option value="">—</option>${cats.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select></td>
             <td class="py-2 px-2"><select data-ie="heat" data-id="${e.id}" data-v="${esc(e.heat || '')}" class="${f} !w-44"><option value="">—</option>${heats.map(h => `<option value="${esc(h)}">${esc(h)}</option>`).join('')}${e.heat && !heats.includes(e.heat) ? `<option value="${esc(e.heat)}">${esc(e.heat)}</option>` : ''}</select></td>
+            <td class="py-2 px-2 whitespace-nowrap">${heatTimeCell(e)}</td>
             <td class="py-2 px-2"><div class="flex gap-1">
                 <input data-ie="time" data-id="${e.id}" value="${esc(e.time_ms ? formatMs(e.time_ms) : '')}" placeholder="00:00:00.000" class="${f} font-mono !text-sm !w-32 ${e.time_ms && e.status === 'OK' ? 'text-[var(--yellow)] font-bold' : ''}">
                 <select data-ie="status" data-id="${e.id}" data-v="${esc(e.status || 'OK')}" class="${f} !w-20"><option value="OK">OK</option><option value="DNF">DNF</option><option value="DNS">DNS</option><option value="DSQ">DSQ</option></select>
@@ -1479,14 +1521,42 @@
 
     // Virtual Rowing only: finalists = best FINALISTS valid qualifying times per gender (all heats together);
     // a tie on the last place takes everyone tied.
-    function pickFinalists(sport) {
+    function finalistDefaults() {
+        let saved = {}; try { saved = JSON.parse(localStorage.getItem('gym_finalist_counts') || '{}'); } catch {}
+        const fromSchedule = g => schedule.find(e => e.sport === 'ROWING' && isFinal(e) && e.gender === g)?.finalists;
+        return { GIRLS: saved.GIRLS ?? fromSchedule('GIRLS') ?? FINALISTS, BOYS: saved.BOYS ?? fromSchedule('BOYS') ?? FINALISTS };
+    }
+    function askFinalistCounts(sport) {
+        return new Promise(resolve => {
+            const def = finalistDefaults();
+            const avail = g => qualifyingEntries(sport).filter(e => e.gender === g && e.status === 'OK' && e.time_ms > 0).length;
+            $('fin-girls').value = def.GIRLS; $('fin-boys').value = def.BOYS;
+            $('fin-girls-avail').innerText = `${avail('GIRLS')} with a valid time`;
+            $('fin-boys-avail').innerText = `${avail('BOYS')} with a valid time`;
+            $('fin-error').classList.add('hidden');
+            const ok = $('fin-ok'), cancel = $('fin-cancel');
+            const done = v => { $('finalists-modal').classList.add('hidden'); ok.onclick = cancel.onclick = null; resolve(v); };
+            ok.onclick = () => {
+                const g = Number($('fin-girls').value), b = Number($('fin-boys').value);
+                const bad = [g, b].some(n => !Number.isInteger(n) || n < 0 || n > 50);
+                if (bad || g + b === 0) { $('fin-error').innerText = 'Enter a whole number between 0 and 50 (at least one final with athletes).'; $('fin-error').classList.remove('hidden'); return; }
+                try { localStorage.setItem('gym_finalist_counts', JSON.stringify({ GIRLS: g, BOYS: b })); } catch {}
+                done({ GIRLS: g, BOYS: b });
+            };
+            cancel.onclick = () => done(null);
+            $('finalists-modal').classList.remove('hidden');
+            $('fin-girls').focus(); $('fin-girls').select();
+        });
+    }
+    function pickFinalists(sport, counts = {}) {
         const out = [];
         const groups = {};
         qualifyingEntries(sport).filter(e => e.gender).forEach(e => { (groups[e.gender] ||= []).push(e); });
-        Object.values(groups).forEach(list => {
+        Object.entries(groups).forEach(([gender, list]) => {
+            const n = counts[gender] ?? FINALISTS;
             const ranked = rankRows(list).filter(r => r._pos);
-            if (!ranked.length) return;
-            const cut = ranked[Math.min(FINALISTS, ranked.length) - 1].time_ms;
+            if (!ranked.length || n <= 0) return;
+            const cut = ranked[Math.min(n, ranked.length) - 1].time_ms;
             ranked.filter(r => r.time_ms <= cut).forEach(r => out.push(r));
         });
         return out;
@@ -1494,15 +1564,17 @@
     async function generateFinalists() {
         if (!requireAdmin()) return;
         if (adminSport !== 'ROWING') { showModal('Not available', 'Finals are only used in Virtual Rowing.', 'error'); return; }
-        const picks = pickFinalists(adminSport);
+        const counts = await askFinalistCounts(adminSport);
+        if (!counts) return;
+        const picks = pickFinalists(adminSport, counts);
         if (!picks.length) { showModal('No finalists yet', 'There are no valid qualifying times in this sport yet.', 'error'); return; }
         const existing = finalEntries(adminSport);
         const already = r => findAthlete(existing.filter(e => e.gender === r.gender), r);
         const toAdd = picks.filter(r => !already(r));
         const stale = existing.filter(e => !findAthlete(picks, e));
         const lines = picks.map(r => `${GENDER_LABEL[r.gender] || ''} · #${r._pos} ${sortName(r)} (${countryName(r.country)}) ${formatMs(r.time_ms)}${already(r) ? ' – already in final' : ''}`);
-        let msg = `Finalists (${FINALISTS} best times per gender across all heats, ties included):\n\n${lines.join('\n')}`;
-        if (stale.length) msg += `\n\nWarning: ${stale.length} athlete(s) already in the final are no longer in the top ${FINALISTS}: ${stale.map(sortName).join(', ')}. They are NOT removed automatically.`;
+        let msg = `Finalists (best times across all heats, ties included) · Girls: ${counts.GIRLS} · Boys: ${counts.BOYS}\n\n${lines.join('\n')}`;
+        if (stale.length) msg += `\n\nWarning: ${stale.length} athlete(s) already in the final are not among the selected finalists: ${stale.map(sortName).join(', ')}. They are NOT removed automatically.`;
         if (!toAdd.length) { adminView = 'FINAL'; renderAdminTable(); showModal('Final is up to date', msg); return; }
         if (!(await confirmDialog(`Add ${toAdd.length} finalist(s)?`, msg))) return;
         const rows = toAdd.map(r => ({ sport: adminSport, first_name: r.first_name, last_name: r.last_name, username: r.username, country: r.country,
