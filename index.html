@@ -522,6 +522,11 @@
 
     const EVENT_START = new Date('2026-12-03T00:00:00-03:00');
     const EVENT_END = new Date('2026-12-08T23:59:59-03:00');
+    // TEST EVENT (28–29 Nov): the schedule page shows the official schedule 7 days earlier
+    // until this moment, then switches back to the official dates automatically.
+    const TEST_EVENT_END = new Date('2026-11-29T23:59:59-03:00');
+    const TEST_EVENT_SHIFT_MS = 7 * 24 * 60 * 60 * 1000;
+    function isTestEventPeriod() { return new Date() <= TEST_EVENT_END; }
     const VIDEO_BUCKET = 'gym-weighins';
     const MAX_VIDEO_BYTES = 45 * 1024 * 1024;
     const COLS = 'id,sport,first_name,last_name,username,country,gender,category,heat,time_ms,status';
@@ -710,7 +715,9 @@
         const { data, error } = await sb.from('config').select('valor').eq('chave', 'gym_schedule').maybeSingle();
         if (error) { console.warn(error.message); return; }
         const ev = Array.isArray(data?.valor?.events) ? data.valor.events : [];
-        schedule = ev.filter(e => e.start).map(e => ({ ...e, _start: new Date(e.start), _end: new Date(e.end || e.start) }))
+        // Until the test event ends, show the same schedule moved 7 days earlier (5–6 Dec -> 28–29 Nov).
+        const shift = isTestEventPeriod() ? TEST_EVENT_SHIFT_MS : 0;
+        schedule = ev.filter(e => e.start).map(e => ({ ...e, test: shift !== 0, _start: new Date(new Date(e.start).getTime() - shift), _end: new Date(new Date(e.end || e.start).getTime() - shift) }))
             .sort((a, b) => a._start - b._start || (a.gender === 'GIRLS' ? -1 : 1));
         renderSchedule();
     }
@@ -822,7 +829,11 @@
         const now = new Date();
         const days = {};
         list.forEach(e => (days[rioDayKey(e._start)] ||= []).push(e));
-        box.innerHTML = Object.keys(days).sort().map(k => {
+        const testBanner = list[0].test ? `<div class="glass rounded-3xl p-6 border-2 border-[var(--pink)]">
+                <p class="text-2xl font-black"><i class="fa-solid fa-flask mr-2 text-[var(--pink)]"></i>TEST EVENT · 28–29 November 2026</p>
+                <p class="text-sm text-white/75 mt-1">Same heats and times as the official competition (Virtual Rowing 5 Dec · Virtual Cycling 6 Dec). The official schedule returns here after the test event.</p>
+            </div>` : '';
+        box.innerHTML = testBanner + Object.keys(days).sort().map(k => {
             const evs = days[k];
             const sports = [...new Set(evs.map(e => SPORT_LABEL[e.sport] || e.sport))].join(' · ');
             const rows = evs.map(e => {
@@ -847,7 +858,7 @@
             }).join('');
             return `<div class="glass rounded-3xl overflow-hidden">
                 <div class="px-6 py-4 flex flex-wrap items-center justify-between gap-2 border-b border-white/10">
-                    <h3 class="text-xl font-black">${esc(rioDayLabel(evs[0]._start))}</h3>
+                    <h3 class="text-xl font-black">${evs[0].test ? '<span class="chip bg-[var(--pink)] text-white mr-2 align-middle">TEST EVENT</span>' : ''}${esc(rioDayLabel(evs[0]._start))}</h3>
                     <span class="chip bg-[var(--yellow)] text-[var(--p900)]">${esc(sports)}</span>
                 </div>
                 <div class="overflow-x-auto"><table class="w-full text-sm">
