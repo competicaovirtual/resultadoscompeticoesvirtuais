@@ -375,6 +375,10 @@
                                 <input id="a-filter" class="field !w-56 !py-2 text-sm" placeholder="Search all columns…" oninput="renderAdminTable()">
                                 <button id="btn-bulk-delete" onclick="deleteSelected()" class="hidden btn btn-red !py-2 text-sm"><i class="fa-solid fa-trash"></i>Delete selected (<span id="sel-count">0</span>)</button>
                                 <button id="btn-finalists" onclick="generateFinalists()" class="btn btn-pink !py-2 text-sm" title="Create FINAL entries for the best qualifying times"><i class="fa-solid fa-ranking-star"></i>Generate finalists</button>
+                                <div id="a-view-tabs" class="hidden inline-flex rounded-[.8rem] overflow-hidden border border-white/20">
+                                    <button id="tab-qual" onclick="setAdminView('QUAL')" class="px-3 py-2 text-sm font-extrabold" title="All athletes with their qualifying times">Qualifying</button>
+                                    <button id="tab-final" onclick="setAdminView('FINAL')" class="px-3 py-2 text-sm font-extrabold border-l border-white/20" title="Available after generating the finalists"><i class="fa-solid fa-flag-checkered mr-1"></i>Final round</button>
+                                </div>
                                 <button onclick="exportExcel()" class="btn btn-green !py-2 text-sm"><i class="fa-solid fa-file-excel"></i>Excel</button>
                                 <button onclick="exportPDF()" class="btn btn-red !py-2 text-sm"><i class="fa-solid fa-file-pdf"></i>PDF</button>
                             </div>
@@ -1152,6 +1156,7 @@
         discardOCR();
         pendingImport = null; renderImportMap();
         adminSelected.clear();
+        adminView = 'QUAL';
         renderAdminSelects(); renderAdminTable(); renderSettings();
     }
     function setAdminTab(tab) {
@@ -1239,10 +1244,54 @@
     }
     let adminFilters = { name: '', user: '', country: 'ALL', gender: 'ALL', category: 'ALL', heat: 'ALL', time: 'ALL' };
     let adminTableDeferred = false;
+    // Virtual Rowing: 'QUAL' = original list (all qualifying results), 'FINAL' = final round (finalists only)
+    let adminView = 'QUAL';
+    function rowingFinalsExist() { return adminSport === 'ROWING' && finalEntries('ROWING').length > 0; }
+    function setAdminView(v) {
+        if (v === 'FINAL' && !rowingFinalsExist()) return;
+        if (adminView !== v) adminSelected.clear();
+        adminView = v;
+        renderAdminTable();
+    }
+    function updateViewTabs() {
+        const tabs = $('a-view-tabs'); if (!tabs) return;
+        const rowing = adminSport === 'ROWING', has = rowingFinalsExist();
+        if (!has && adminView === 'FINAL') adminView = 'QUAL';
+        tabs.classList.toggle('hidden', !rowing);
+        const on = 'bg-[var(--yellow)] text-[var(--p900)]', off = 'bg-white/5 text-white';
+        $('tab-qual').className = `px-3 py-2 text-sm font-extrabold ${adminView === 'QUAL' ? on : off}`;
+        const fin = $('tab-final');
+        fin.disabled = !has;
+        fin.className = `px-3 py-2 text-sm font-extrabold border-l border-white/20 ${adminView === 'FINAL' ? on : off} ${has ? '' : 'opacity-40 cursor-not-allowed'}`;
+        fin.title = has ? 'Final round: enter the finalists\' final times' : 'Available after generating the finalists';
+    }
+    // Base list of the admin table for the current sport/view
+    function adminBaseList() {
+        if (adminSport !== 'ROWING') return sportEntries(adminSport);
+        return adminView === 'FINAL' ? finalEntries('ROWING') : qualifyingEntries('ROWING');
+    }
+    // Ranking order (per gender) once the rowing finalists exist: finalists first by time, then the others by position
+    function rankedOrder(list) {
+        const order = new Map(), pos = new Map();
+        const gOrder = { GIRLS: 0, BOYS: 1 };
+        const groups = {};
+        list.forEach(e => (groups[e.gender || ''] ||= []).push(e));
+        let n = 0;
+        Object.keys(groups).sort((a, b) => (gOrder[a] ?? 9) - (gOrder[b] ?? 9)).forEach(g => {
+            rankRows(groups[g]).forEach(r => { order.set(r.id, n++); pos.set(r.id, r._pos); });
+        });
+        return { order, pos };
+    }
+    function finalistOf(e) {
+        return findAthlete(finalEntries(e.sport).filter(f => f.gender === e.gender), e);
+    }
+    function qualifyingOf(f) {
+        return findAthlete(qualifyingEntries(f.sport).filter(e => e.gender === f.gender), f);
+    }
     const adminSelected = new Set();
     function updateSelectionUI() {
         const visible = [...document.querySelectorAll('#a-tbody [data-sel]')].map(c => Number(c.dataset.sel));
-        const ids = new Set(sportEntries(adminSport).map(e => e.id));
+        const ids = new Set(adminBaseList().map(e => e.id));
         [...adminSelected].forEach(id => { if (!ids.has(id)) adminSelected.delete(id); });
         $('sel-count').innerText = adminSelected.size;
         $('btn-bulk-delete').classList.toggle('hidden', !adminSelected.size);
@@ -1299,20 +1348,30 @@
     function adminFilteredList() {
         const q = compact($('a-filter').value), f = adminFilters;
         const byField = (e, field, v) => v === 'ALL' || (v === 'NONE' ? !e[field] : e[field] === v);
-        return sportEntries(adminSport).filter(e =>
+        const base = adminBaseList();
+        const rows = base.filter(e =>
             (!q || compact(`${e.first_name}${e.last_name}${e.username}${e.country}${countryName(e.country)}${e.category}${e.heat}`).includes(q)) &&
             (!f.name || compact(`${e.first_name}${e.last_name}`).includes(compact(f.name)) || compact(`${e.last_name}${e.first_name}`).includes(compact(f.name))) &&
             (!f.user || compact(e.username).includes(compact(f.user))) &&
             byField(e, 'country', f.country) && byField(e, 'gender', f.gender) && byField(e, 'category', f.category) && byField(e, 'heat', f.heat) &&
             (f.time === 'ALL' || (f.time === 'WITH' && e.status === 'OK' && e.time_ms) || (f.time === 'WITHOUT' && e.status === 'OK' && !e.time_ms) || (f.time === 'DNX' && e.status !== 'OK'))
-        ).sort((a, b) => sortName(a).localeCompare(sortName(b)));
+        );
+        if (rowingFinalsExist()) {
+            const { order, pos } = rankedOrder(base);   // positions come from the whole list, not just the filtered rows
+            rows.forEach(e => { e._rank = pos.get(e.id); });
+            return rows.sort((a, b) => order.get(a.id) - order.get(b.id));
+        }
+        rows.forEach(e => { delete e._rank; });
+        return rows.sort((a, b) => sortName(a).localeCompare(sortName(b)));
     }
     function renderAdminTable() {
         renderAdminHead();
         const tb = $('a-tbody');
         if (tb.contains(document.activeElement)) { adminTableDeferred = true; return; }
         adminTableDeferred = false;
-        const all = sportEntries(adminSport), list = adminFilteredList();
+        updateViewTabs();
+        const all = adminBaseList(), list = adminFilteredList();
+        const ranked = rowingFinalsExist(), finalView = adminSport === 'ROWING' && adminView === 'FINAL';
         $('a-count').innerText = list.length === all.length ? `(${all.length})` : `(${list.length} of ${all.length})`;
         if (!list.length) {
             tb.innerHTML = `<tr><td colspan="9" class="py-6 text-center text-white/50">${all.length ? 'No athlete matches these filters.' : 'No athletes yet. Add them manually or import a spreadsheet.'}</td></tr>`;
@@ -1321,11 +1380,28 @@
         const cOpts = countryOptions(true).replace('— select —', '—');
         const cats = allCategories(all), heats = allHeats(adminSport);
         const f = 'field !py-1 !px-2 text-xs';
+        let lastGender = null, lastSection = null;
         tb.innerHTML = list.map(e => {
+            let sep = '';
+            if (ranked) {
+                const isFin = finalView || !!finalistOf(e);
+                const section = finalView ? 'FINAL' : (isFin ? 'FINALISTS' : 'OTHERS');
+                if (e.gender !== lastGender || section !== lastSection) {
+                    const g = GENDER_LABEL[e.gender] || 'No gender';
+                    const title = finalView ? `${g} · Final round` : section === 'FINALISTS' ? `${g} · Finalists (qualifying times)` : `${g} · Other athletes`;
+                    const color = section === 'OTHERS' ? 'text-white/60' : 'text-[var(--yellow)]';
+                    sep = `<tr class="bg-white/5"><td colspan="9" class="py-2 px-3 text-xs font-black uppercase tracking-wider ${color}"><i class="fa-solid ${section === 'OTHERS' ? 'fa-list-ol' : 'fa-flag-checkered'} mr-2"></i>${esc(title)}</td></tr>`;
+                    lastGender = e.gender; lastSection = section;
+                }
+            }
+            const q = finalView ? qualifyingOf(e) : null;
+            const rankChip = ranked && e._rank ? `<span class="chip ${e._rank <= FINALISTS ? 'bg-[var(--yellow)] text-[var(--p900)]' : 'bg-white/10 text-white/80'} mr-2">#${e._rank}</span>` : '';
+            const finChip = ranked && !finalView && finalistOf(e) ? ` <span class="chip bg-[var(--pink)] text-white ml-1">Finalist</span>` : '';
+            const qInfo = finalView ? `<span class="block text-[11px] text-white/55 mt-0.5">Qualifying: ${q && q.status === 'OK' && q.time_ms ? `${esc(formatMs(q.time_ms))}${q.heat ? ' · ' + esc(q.heat) : ''}` : '—'}</span>` : '';
             const extraCountry = e.country && !COUNTRY_BY_ISO2[e.country] ? `<option value="${esc(e.country)}">${esc(e.country)} (?)</option>` : '';
-            return `<tr class="hover:bg-white/5 transition-colors" data-row="${e.id}">
+            return sep + `<tr class="hover:bg-white/5 transition-colors" data-row="${e.id}">
             <td class="py-2 px-2 text-center"><input type="checkbox" data-sel="${e.id}" ${adminSelected.has(e.id) ? 'checked' : ''} class="w-4 h-4 accent-[var(--yellow)] cursor-pointer"></td>
-            <td class="py-2 px-2 min-w-[13rem]"><span class="font-black">${esc(up(e.last_name))}</span> ${esc(titleCase(e.first_name))}</td>
+            <td class="py-2 px-2 min-w-[13rem]">${rankChip}<span class="font-black">${esc(up(e.last_name))}</span> ${esc(titleCase(e.first_name))}${finChip}${qInfo}</td>
             <td class="py-2 px-2 font-mono text-xs text-white/60">${esc(e.username || '—')}</td>
             <td class="py-2 px-2"><select data-ie="country" data-id="${e.id}" data-v="${esc(e.country || '')}" class="${f} !w-36">${extraCountry}${cOpts}</select></td>
             <td class="py-2 px-2"><select data-ie="gender" data-id="${e.id}" data-v="${esc(e.gender || '')}" class="${f} !w-24"><option value="">—</option><option value="BOYS">Boys</option><option value="GIRLS">Girls</option></select></td>
@@ -1407,7 +1483,7 @@
         const lines = picks.map(r => `${GENDER_LABEL[r.gender] || ''} · #${r._pos} ${sortName(r)} (${countryName(r.country)}) ${formatMs(r.time_ms)}${already(r) ? ' – already in final' : ''}`);
         let msg = `Finalists (${FINALISTS} best times per gender across all heats, ties included):\n\n${lines.join('\n')}`;
         if (stale.length) msg += `\n\nWarning: ${stale.length} athlete(s) already in the final are no longer in the top ${FINALISTS}: ${stale.map(sortName).join(', ')}. They are NOT removed automatically.`;
-        if (!toAdd.length) { showModal('Final is up to date', msg); return; }
+        if (!toAdd.length) { adminView = 'FINAL'; renderAdminTable(); showModal('Final is up to date', msg); return; }
         if (!(await confirmDialog(`Add ${toAdd.length} finalist(s)?`, msg))) return;
         const rows = toAdd.map(r => ({ sport: adminSport, first_name: r.first_name, last_name: r.last_name, username: r.username, country: r.country,
             gender: r.gender, category: r.category, heat: FINAL_HEAT, time_ms: null, status: 'OK' }));
@@ -1415,7 +1491,9 @@
         if (res.errors.length) { showModal('Error', friendlyDbError(res.errors[0]), 'error'); return; }
         if (!(settings.heats[adminSport] || []).includes(FINAL_HEAT)) { settings.heats[adminSport] = [...(settings.heats[adminSport] || []), FINAL_HEAT]; await saveSettings(); }
         await loadEntries();
-        showModal('Finalists added', `${res.ok} finalist(s) added to the ${SPORT_LABEL[adminSport]} final. Enter their final times with the screenshot reader (stage: Final) or manually.`);
+        adminView = 'FINAL'; adminSelected.clear(); renderAdminTable();
+        $('a-tbody').closest('.glass')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        showModal('Finalists added', `${res.ok} finalist(s) added to the Final round tab. Their qualifying times are kept. Enter the final times in the Final round tab (or with the screenshot reader, stage: Final).`);
     }
     async function deleteEntry(id) {
         if (!requireAdmin()) return;
