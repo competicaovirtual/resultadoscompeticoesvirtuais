@@ -1377,7 +1377,7 @@
         th.innerHTML = `
             <tr class="text-[11px] uppercase tracking-wider text-white/60">
                 <th class="pt-2 px-2 w-8"></th><th class="pt-2 px-2 min-w-[13rem]">Athlete</th><th class="pt-2 px-2">Username</th><th class="pt-2 px-2">Country</th><th class="pt-2 px-2">Gender</th>
-                <th class="pt-2 px-2">Category</th><th class="pt-2 px-2">Heat</th><th class="pt-2 px-2 whitespace-nowrap" title="Heat start time: Brazil (Rio de Janeiro) / athlete's local country"><span class="text-white/45">Brazil</span> / <span class="text-[var(--yellow)]">Local country</span></th><th class="pt-2 px-2">Time · Status</th><th class="pt-2 px-2 text-right">Actions</th>
+                <th class="pt-2 px-2">Category</th><th class="pt-2 px-2">Heat</th><th class="pt-2 px-2 whitespace-nowrap" title="Heat start time: Brazil (Rio de Janeiro) / athlete's local country"><span class="text-[var(--green)]">Brazil</span> / <span class="text-[var(--yellow)]">Local country</span></th><th class="pt-2 px-2">Time · Status</th><th class="pt-2 px-2 text-right">Actions</th>
             </tr>
             <tr class="border-b border-white/10 align-top">
                 <th class="py-2 px-2 text-center"><input type="checkbox" id="sel-all" title="Select all listed athletes" class="w-4 h-4 accent-[var(--yellow)] cursor-pointer"></th>
@@ -1404,7 +1404,7 @@
         const tz = COUNTRY_TZ[e.country];
         const local = tz ? tzTime(ev._start, tz) : (e.country && ev.country === e.country && ev.local ? ev.local.split('-')[0] : null);
         const day = ev._start.toLocaleDateString('en-GB', { timeZone: RIO_TZ, day: '2-digit', month: 'short' });
-        return `<span class="font-mono text-sm" title="${esc(day)} · Brazil (Rio de Janeiro) ${rioTime(ev._start)}–${rioTime(ev._end)}${local ? ` · ${esc(countryName(e.country))}${e.country === 'CA' ? ' (Quebec)' : ''} ${local}` : ''}"><span class="text-white/45">${rioTime(ev._start)}</span><span class="text-white/30"> / </span><span class="font-bold text-[var(--yellow)]">${local || '—'}</span></span>`;
+        return `<span class="font-mono text-sm" title="${esc(day)} · Brazil (Rio de Janeiro) ${rioTime(ev._start)}–${rioTime(ev._end)}${local ? ` · ${esc(countryName(e.country))}${e.country === 'CA' ? ' (Quebec)' : ''} ${local}` : ''}"><span class="font-bold text-[var(--green)]">${rioTime(ev._start)}</span><span class="text-white/30"> / </span><span class="font-bold text-[var(--yellow)]">${local || '—'}</span></span>`;
     }
     function adminFilteredList() {
         const q = compact($('a-filter').value), f = adminFilters;
